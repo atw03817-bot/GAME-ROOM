@@ -3,6 +3,7 @@ import PaymentIntent from '../models/PaymentIntent.js';
 import Order from '../models/Order.js';
 import TapPaymentService from '../services/tapPaymentService.js';
 import TamaraPaymentService from '../services/tamaraPaymentService.js';
+
 import axios from 'axios';
 
 // @desc    Get payment settings
@@ -100,10 +101,30 @@ export const updatePaymentSettings = async (req, res) => {
       message: 'تم تحديث إعدادات الدفع بنجاح'
     });
   } catch (error) {
-    console.error('❌ Error updating payment settings:', error);
-    res.status(500).json({
+    console.error('❌ Error updating payment settings:', {
+      provider: req.params.provider,
+      error: error.message,
+      stack: error.stack
+    });
+    
+    let errorMessage = 'خطأ في تحديث إعدادات الدفع';
+    let statusCode = 500;
+    
+    if (error.name === 'ValidationError') {
+      errorMessage = 'بيانات غير صحيحة: ' + Object.values(error.errors).map(e => e.message).join(', ');
+      statusCode = 400;
+    } else if (error.code === 11000) {
+      errorMessage = 'مزود الدفع موجود بالفعل';
+      statusCode = 400;
+    } else if (error.message.includes('Cast to')) {
+      errorMessage = 'نوع البيانات غير صحيح';
+      statusCode = 400;
+    }
+    
+    res.status(statusCode).json({
       success: false,
-      message: 'خطأ في تحديث إعدادات الدفع'
+      message: errorMessage,
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
@@ -140,19 +161,14 @@ export const getPaymentMethods = async (req, res) => {
         });
       }
       
-      if (setting.provider === 'tamara' && setting.config?.apiToken) {
+      if (setting.provider === 'tamara' && setting.config?.merchantToken) {
         methods.push({
           provider: 'tamara',
           enabled: true,
-          name: 'تمارا - اشتري الآن وادفع لاحقاً',
-          config: {
-            publicKey: setting.config.publicKey || '',
-            defaultInstalments: setting.config.defaultInstalments || 3,
-            minAmount: setting.config.minAmount || 100,
-            maxAmount: setting.config.maxAmount || 10000
-          }
+          name: 'Tamara - اشتري الآن وادفع لاحقاً'
         });
       }
+
     }
     
     console.log('📋 Available payment methods:', methods);
@@ -220,11 +236,7 @@ export const createPaymentIntent = async (req, res) => {
       const tapResponse = await createTapPayment(amount, orderId, settings.config);
       paymentUrl = tapResponse.paymentUrl;
       transactionId = tapResponse.transactionId;
-    } else if (provider === 'tamara') {
-      // Tamara integration
-      const tamaraResponse = await createTamaraPayment(amount, orderId, settings.config, order);
-      paymentUrl = tamaraResponse.paymentUrl;
-      transactionId = tamaraResponse.transactionId;
+
     } else if (provider === 'myfatoorah') {
       // MyFatoorah integration
       const mfResponse = await createMyFatoorahPayment(amount, orderId, settings.config);
@@ -295,8 +307,7 @@ export const verifyPayment = async (req, res) => {
     // Verify with provider
     if (provider === 'tap') {
       verified = await verifyTapPayment(transactionId, settings.config);
-    } else if (provider === 'tamara') {
-      verified = await verifyTamaraPayment(transactionId, settings.config);
+
     } else if (provider === 'myfatoorah') {
       verified = await verifyMyFatoorahPayment(transactionId, settings.config);
     } else if (provider === 'cod') {
@@ -939,21 +950,41 @@ async function refundMyFatoorahPayment(transactionId, amount, config) {
   return true;
 }
 
-// Tamara Payment Functions
+// ==================== TAMARA PAYMENT CONTROLLERS ====================
 
-// @desc    Create Tamara checkout
-// @route   POST /api/payments/tamara/checkout
-// @access  Private
-export const createTamaraCheckout = async (req, res) => {
+// @desc    Get Tamara payment types with installment options
+// @route   GET /api/payments/tamara/payment-types
+// @access  Public
+export const getTamaraPaymentTypes = async (req, res) => {
   try {
-    const { orderId, paymentType, instalments } = req.body;
+    const { amount, currency = 'SAR', country = 'SA' } = req.query;
     
-    console.log('🛒 Creating Tamara checkout:', { orderId, paymentType, instalments });
+    console.log('🔍 Getting Tamara payment types:', { amount, currency, country });
     
-    if (!orderId) {
+    // Validate required parameters
+    if (!amount) {
       return res.status(400).json({
         success: false,
-        message: 'معرف الطلب مطلوب'
+        message: 'مبلغ الطلب مطلوب'
+      });
+    }
+
+    const orderAmount = parseFloat(amount);
+    if (isNaN(orderAmount) || orderAmount <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'مبلغ الطلب يجب أن يكون رقم صحيح أكبر من صفر'
+      });
+    }
+
+    // Check if amount is within Tamara limits
+    if (orderAmount < 1 || orderAmount > 30000) {
+      return res.json({
+        success: true,
+        data: [],
+        message: 'المبلغ خارج النطاق المسموح لـ Tamara (1-30000 ريال)',
+        eligible: false,
+        reason: 'amount_out_of_range'
       });
     }
 
@@ -963,14 +994,108 @@ export const createTamaraCheckout = async (req, res) => {
       enabled: true 
     });
     
-    if (!tamaraSettings || !tamaraSettings.config?.apiToken) {
+    if (!tamaraSettings || !tamaraSettings.config?.merchantToken) {
       return res.status(400).json({
         success: false,
-        message: 'تمارا غير مفعل أو المفاتيح غير موجودة'
+        message: 'Tamara غير مفعل أو المفاتيح غير موجودة'
       });
     }
 
-    // Get order details
+    // Initialize Tamara service
+    const tamaraService = new TamaraPaymentService(
+      tamaraSettings.config.merchantToken,
+      tamaraSettings.config.apiUrl || 'https://api.tamara.co',
+      tamaraSettings.config.notificationToken,
+      tamaraSettings.config.publicKey
+    );
+
+    // Get payment types from Tamara API
+    const result = await tamaraService.getPaymentTypes(country, orderAmount, currency);
+
+    // Process and enhance payment types data
+    const enhancedPaymentTypes = result.paymentTypes.map(type => {
+      const installmentAmount = type.supported_instalments && type.supported_instalments.length > 0 
+        ? (orderAmount / type.supported_instalments[0]).toFixed(2)
+        : null;
+
+      return {
+        ...type,
+        eligible: orderAmount >= (type.min_limit || 0) && orderAmount <= (type.max_limit || 30000),
+        installment_amount: installmentAmount,
+        formatted_description: formatPaymentTypeDescription(type, orderAmount, currency)
+      };
+    });
+
+    // Filter only eligible payment types
+    const eligibleTypes = enhancedPaymentTypes.filter(type => type.eligible);
+
+    console.log('✅ Payment types retrieved:', {
+      total: result.paymentTypes.length,
+      eligible: eligibleTypes.length,
+      amount: orderAmount
+    });
+
+    res.json({
+      success: true,
+      data: eligibleTypes,
+      meta: {
+        total_types: result.paymentTypes.length,
+        eligible_types: eligibleTypes.length,
+        order_amount: orderAmount,
+        currency: currency,
+        country: country
+      },
+      message: eligibleTypes.length > 0 
+        ? 'تم جلب أنواع الدفع بنجاح' 
+        : 'لا توجد طرق دفع متاحة لهذا المبلغ'
+    });
+  } catch (error) {
+    console.error('❌ Error getting Tamara payment types:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'خطأ في جلب أنواع الدفع'
+    });
+  }
+}
+
+/**
+ * Format payment type description for better UX
+ * @param {Object} type - Payment type from Tamara
+ * @param {number} amount - Order amount
+ * @param {string} currency - Currency code
+ * @returns {string} Formatted description
+ */
+function formatPaymentTypeDescription(type, amount, currency) {
+  if (type.name === 'PAY_BY_INSTALMENTS' && type.supported_instalments?.length > 0) {
+    const installments = type.supported_instalments[0];
+    const installmentAmount = (amount / installments).toFixed(2);
+    return `قسط على ${installments} دفعات - ${installmentAmount} ${currency} شهرياً`;
+  } else if (type.name === 'PAY_BY_LATER') {
+    return 'ادفع خلال 30 يوم بدون فوائد';
+  } else if (type.name === 'PAY_NOW') {
+    return 'ادفع الآن';
+  }
+  
+  return type.description || type.name;
+}
+
+// @desc    Create Tamara checkout session - Direct Online Checkout
+// @route   POST /api/payments/tamara/checkout
+// @access  Private
+export const createTamaraCheckout = async (req, res) => {
+  try {
+    const { orderId, paymentType, instalments } = req.body;
+    
+    console.log('🛒 Creating Tamara Direct Online Checkout:', { orderId, paymentType, instalments });
+    
+    if (!orderId) {
+      return res.status(400).json({
+        success: false,
+        message: 'معرف الطلب مطلوب'
+      });
+    }
+
+    // Get order details with populated data
     const order = await Order.findById(orderId).populate('user').populate('items.product');
     if (!order) {
       return res.status(404).json({
@@ -979,62 +1104,256 @@ export const createTamaraCheckout = async (req, res) => {
       });
     }
 
-    // Check if amount is eligible for Tamara
-    const tamaraService = new TamaraPaymentService(
-      tamaraSettings.config.apiToken,
-      tamaraSettings.config.merchantUrl,
-      tamaraSettings.config.testMode !== false
-    );
+    console.log('📦 Order found:', {
+      id: order._id,
+      total: order.total,
+      itemsCount: order.items?.length || 0,
+      shippingAddress: !!order.shippingAddress
+    });
 
-    if (!tamaraService.isEligibleAmount(order.total)) {
+    // Check if payment intent already exists
+    const existingIntent = await PaymentIntent.findOne({ 
+      orderId: orderId,
+      provider: 'tamara',
+      status: { $in: ['PENDING', 'APPROVED', 'AUTHORIZED'] }
+    });
+
+    if (existingIntent) {
       return res.status(400).json({
         success: false,
-        message: 'المبلغ غير مؤهل للدفع عبر تمارا (الحد الأدنى 100 ريال والحد الأقصى 10,000 ريال)'
+        message: 'يوجد جلسة دفع نشطة بالفعل لهذا الطلب'
       });
     }
 
-    // Prepare order data
-    const orderData = {
-      orderId: orderId,
+    // Get Tamara settings
+    const tamaraSettings = await PaymentSettings.findOne({ 
+      provider: 'tamara',
+      enabled: true 
+    });
+    
+    console.log('⚙️ Tamara settings check:', {
+      found: !!tamaraSettings,
+      enabled: tamaraSettings?.enabled,
+      hasToken: !!tamaraSettings?.config?.merchantToken,
+      apiUrl: tamaraSettings?.config?.apiUrl
+    });
+    
+    if (!tamaraSettings) {
+      return res.status(400).json({
+        success: false,
+        message: 'Tamara غير مفعل. يرجى تفعيله من إعدادات الدفع أولاً'
+      });
+    }
+    
+    if (!tamaraSettings.config?.merchantToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'مفتاح Tamara غير موجود. يرجى إضافة Merchant Token في إعدادات Tamara'
+      });
+    }
+
+    // Initialize Tamara service
+    const tamaraService = new TamaraPaymentService(
+      tamaraSettings.config.merchantToken,
+      tamaraSettings.config.apiUrl || 'https://api.tamara.co',
+      tamaraSettings.config.notificationToken,
+      tamaraSettings.config.publicKey
+    );
+
+    // Validate payment type and amount
+    const supportedPaymentTypes = ['PAY_BY_INSTALMENTS', 'PAY_BY_LATER', 'PAY_NOW'];
+    const selectedPaymentType = paymentType || 'PAY_BY_INSTALMENTS';
+    
+    if (!supportedPaymentTypes.includes(selectedPaymentType)) {
+      return res.status(400).json({
+        success: false,
+        message: 'نوع الدفع غير مدعوم'
+      });
+    }
+
+    // Check if order amount is eligible for Tamara
+    if (order.total < 1 || order.total > 30000) {
+      return res.status(400).json({
+        success: false,
+        message: 'مبلغ الطلب خارج النطاق المسموح لـ Tamara (1-30000 ريال)'
+      });
+    }
+
+    // Validate required order data
+    if (!order.shippingAddress || !order.shippingAddress.name || !order.shippingAddress.phone) {
+      return res.status(400).json({
+        success: false,
+        message: 'بيانات عنوان الشحن غير مكتملة (الاسم ورقم الجوال مطلوبان)'
+      });
+    }
+
+    if (!order.items || order.items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'الطلب يجب أن يحتوي على منتج واحد على الأقل'
+      });
+    }
+
+    // Prepare customer information with validation
+    const customerName = order.shippingAddress.name || order.user?.name || 'Customer';
+    const nameParts = customerName.trim().split(' ').filter(part => part.length > 0);
+    const firstName = nameParts[0] || 'Customer';
+    const lastName = nameParts.slice(1).join(' ') || 'User';
+
+    // Validate and format phone number
+    let customerPhone = order.shippingAddress.phone || order.user?.phone || '';
+    if (!customerPhone) {
+      return res.status(400).json({
+        success: false,
+        message: 'رقم الجوال مطلوب لإتمام الدفع عبر Tamara'
+      });
+    }
+
+    // Ensure phone is in correct format for Tamara
+    customerPhone = customerPhone.toString().replace(/\D/g, '');
+    if (customerPhone.startsWith('00966')) {
+      customerPhone = customerPhone.substring(2);
+    } else if (customerPhone.startsWith('966')) {
+      // Keep as is
+    } else if (customerPhone.startsWith('05') && customerPhone.length === 10) {
+      customerPhone = '966' + customerPhone.substring(1);
+    } else if (customerPhone.startsWith('5') && customerPhone.length === 9) {
+      customerPhone = '966' + customerPhone;
+    }
+
+    if (!customerPhone.startsWith('966') || customerPhone.length !== 12) {
+      return res.status(400).json({
+        success: false,
+        message: 'رقم الجوال يجب أن يكون بصيغة سعودية صحيحة'
+      });
+    }
+
+    const formattedPhone = `+${customerPhone}`;
+
+    console.log('📱 Customer info prepared:', {
+      firstName,
+      lastName,
+      phone: formattedPhone,
+      originalPhone: order.shippingAddress.phone
+    });
+
+    // Prepare order data for Tamara Direct Online Checkout
+    const orderData = tamaraService.formatOrderData({
+      orderId: order._id.toString(),
+      orderNumber: order.orderNumber || order._id.toString(),
       amount: order.total,
       currency: 'SAR',
-      description: `طلب رقم ${order.orderNumber || orderId}`,
-      paymentType: paymentType || 'PAY_BY_INSTALMENTS',
-      instalments: instalments || 3,
-      customerName: order.shippingAddress?.name || order.user?.name || 'Customer',
-      customerEmail: order.user?.email || '',
-      customerPhone: order.shippingAddress?.phone || order.user?.phone || '',
-      items: order.items.map(item => ({
-        name: item.product.name,
-        type: 'Physical',
-        reference_id: item.product._id.toString(),
-        sku: item.product.sku || item.product._id.toString(),
-        quantity: item.quantity,
-        unit_price: {
-          amount: item.price,
-          currency: 'SAR'
-        },
-        total_amount: {
-          amount: item.price * item.quantity,
-          currency: 'SAR'
-        }
-      })),
+      description: `طلب رقم ${order.orderNumber || order._id}`,
+      countryCode: 'SA',
+      paymentType: selectedPaymentType,
+      instalments: instalments || null,
+      locale: 'ar_SA',
+      isMobile: req.headers['user-agent']?.toLowerCase().includes('mobile') || false,
+      
+      // URLs - Required for Direct Online Checkout
+      successUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/tamara-callback?orderId=${orderId}&status=success`,
+      failureUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/tamara-callback?orderId=${orderId}&status=failed`,
+      cancelUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/tamara-callback?orderId=${orderId}&status=cancelled`,
+      notificationUrl: `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/payments/tamara/webhook`,
+      
+      // Customer information - Must be accurate for Tamara
+      customer: {
+        firstName: firstName,
+        lastName: lastName,
+        phone: formattedPhone,
+        email: order.user?.email || 'customer@example.com', // Tamara requires email
+        dateOfBirth: null,
+        nationalId: null
+      },
+      
+      // Billing address - Must be complete for Tamara
       billingAddress: {
-        line1: order.shippingAddress?.address || 'Address',
-        city: order.shippingAddress?.city || 'Riyadh'
+        firstName: firstName,
+        lastName: lastName,
+        line1: order.shippingAddress?.street || order.shippingAddress?.address || 'شارع الملك فهد',
+        line2: order.shippingAddress?.building || null,
+        region: order.shippingAddress?.district || order.shippingAddress?.city || 'الرياض',
+        postalCode: order.shippingAddress?.postalCode || '12345',
+        city: order.shippingAddress?.city || 'الرياض',
+        countryCode: 'SA',
+        phone: formattedPhone
       },
+      
+      // Shipping address - Must be complete for Tamara
       shippingAddress: {
-        line1: order.shippingAddress?.address || 'Address',
-        city: order.shippingAddress?.city || 'Riyadh'
+        firstName: firstName,
+        lastName: lastName,
+        line1: order.shippingAddress?.street || order.shippingAddress?.address || 'شارع الملك فهد',
+        line2: order.shippingAddress?.building || null,
+        region: order.shippingAddress?.district || order.shippingAddress?.city || 'الرياض',
+        postalCode: order.shippingAddress?.postalCode || '12345',
+        city: order.shippingAddress?.city || 'الرياض',
+        countryCode: 'SA',
+        phone: formattedPhone
       },
-      successUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/order-success?orderId=${orderId}`,
-      failureUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/checkout?error=payment_failed`,
-      cancelUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/checkout?error=payment_cancelled`,
-      webhookUrl: `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/payments/tamara/webhook`
-    };
+      
+      // Items - Must match order total
+      items: order.items.map((item, index) => ({
+        id: item.product?._id?.toString() || item.productId || `item_${index}`,
+        productId: item.product?._id?.toString() || item.productId,
+        name: item.name || item.product?.name || 'منتج',
+        sku: item.product?._id?.toString() || item.productId || `sku_${index}`,
+        imageUrl: item.image || item.product?.images?.[0] || null,
+        itemUrl: null,
+        unitPrice: item.price || 0,
+        discountAmount: 0,
+        taxAmount: 0,
+        totalAmount: (item.price || 0) * (item.quantity || 1),
+        quantity: item.quantity || 1,
+        type: 'Physical'
+      })),
+      
+      // Additional amounts
+      shippingAmount: order.shippingCost || 0,
+      taxAmount: 0,
+      discountAmount: order.discount || 0
+    });
 
-    // Create checkout
-    const result = await tamaraService.createCheckout(orderData);
+    console.log('📝 Order data prepared for Tamara Direct Checkout:', {
+      orderId: orderData.order_reference_id,
+      amount: orderData.total_amount.amount,
+      paymentType: orderData.payment_type,
+      itemsCount: orderData.items.length,
+      customerPhone: orderData.consumer.phone_number,
+      customerEmail: orderData.consumer.email,
+      billingCity: orderData.billing_address.city,
+      shippingCity: orderData.shipping_address.city
+    });
+
+    // Final validation before sending to Tamara
+    try {
+      // Validate that all required URLs are present
+      if (!orderData.merchant_url.success || !orderData.merchant_url.failure || 
+          !orderData.merchant_url.cancel || !orderData.merchant_url.notification) {
+        throw new Error('روابط التاجر غير مكتملة');
+      }
+
+      // Validate total amount calculation
+      const itemsTotal = orderData.items.reduce((sum, item) => sum + parseFloat(item.total_amount.amount), 0);
+      const calculatedTotal = itemsTotal + parseFloat(orderData.shipping_amount.amount) + 
+                             parseFloat(orderData.tax_amount.amount) - parseFloat(orderData.discount_amount.amount);
+      
+      if (Math.abs(calculatedTotal - parseFloat(orderData.total_amount.amount)) > 0.01) {
+        console.warn('⚠️ Total amount mismatch detected, adjusting...');
+        orderData.total_amount.amount = calculatedTotal.toFixed(2);
+      }
+
+      console.log('✅ Final validation passed, sending to Tamara...');
+    } catch (validationError) {
+      console.error('❌ Final validation failed:', validationError.message);
+      return res.status(400).json({
+        success: false,
+        message: `خطأ في التحقق من البيانات: ${validationError.message}`
+      });
+    }
+
+    // Create checkout session
+    const result = await tamaraService.createCheckoutSession(orderData);
 
     // Save payment intent
     const intent = await PaymentIntent.create({
@@ -1046,9 +1365,17 @@ export const createTamaraCheckout = async (req, res) => {
       status: 'PENDING',
       metadata: {
         checkoutId: result.checkoutId,
-        paymentType: paymentType,
-        instalments: instalments
+        tamaraOrderId: result.orderId,
+        paymentType: selectedPaymentType,
+        instalments: instalments,
+        createdAt: new Date().toISOString()
       }
+    });
+
+    console.log('✅ Tamara Direct Checkout created:', {
+      checkoutId: result.checkoutId,
+      paymentUrl: result.checkoutUrl,
+      tamaraOrderId: result.orderId
     });
 
     res.json({
@@ -1056,191 +1383,345 @@ export const createTamaraCheckout = async (req, res) => {
       data: {
         checkoutId: result.checkoutId,
         checkoutUrl: result.checkoutUrl,
-        paymentType: paymentType,
+        tamaraOrderId: result.orderId,
+        paymentType: selectedPaymentType,
         instalments: instalments
       },
       message: 'تم إنشاء جلسة الدفع بنجاح'
     });
   } catch (error) {
-    console.error('❌ Error creating Tamara checkout:', error);
-    res.status(500).json({
+    console.error('❌ Error creating Tamara checkout:', {
+      message: error.message,
+      stack: error.stack,
+      orderId: req.body.orderId
+    });
+    
+    // Handle specific error types
+    let errorMessage = 'خطأ في إنشاء جلسة الدفع';
+    let statusCode = 500;
+    
+    if (error.message.includes('تنسيق رقم الجوال')) {
+      errorMessage = error.message;
+      statusCode = 400;
+    } else if (error.message.includes('بيانات العميل')) {
+      errorMessage = error.message;
+      statusCode = 400;
+    } else if (error.message.includes('مفتاح API')) {
+      errorMessage = 'خطأ في إعدادات Tamara. يرجى التحقق من المفاتيح';
+      statusCode = 400;
+    } else if (error.message.includes('401')) {
+      errorMessage = 'مفتاح Tamara غير صحيح';
+      statusCode = 400;
+    } else if (error.message.includes('422')) {
+      errorMessage = 'بيانات الطلب غير صحيحة: ' + error.message;
+      statusCode = 400;
+    }
+    
+    res.status(statusCode).json({
       success: false,
-      message: error.message || 'خطأ في إنشاء جلسة الدفع'
+      message: errorMessage,
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
 
-// @desc    Handle Tamara webhook
+// @desc    Handle Tamara webhook - Direct Online Checkout Events
 // @route   POST /api/payments/tamara/webhook
 // @access  Public
 export const handleTamaraWebhook = async (req, res) => {
   try {
-    console.log('🔔 Tamara webhook received:', req.body);
+    console.log('🔔 Tamara webhook received:', {
+      headers: req.headers,
+      body: req.body
+    });
 
     const webhookData = req.body;
+    const signature = req.headers['x-tamara-signature'] || req.headers['X-Tamara-Signature'];
     
+    // Validate webhook data structure
+    if (!webhookData || !webhookData.event_type || !webhookData.order_reference_id) {
+      console.error('❌ Invalid webhook data structure');
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid webhook data' 
+      });
+    }
+
     // Get Tamara settings
     const tamaraSettings = await PaymentSettings.findOne({ 
       provider: 'tamara',
       enabled: true 
     });
     
-    if (!tamaraSettings || !tamaraSettings.config?.apiToken) {
+    if (!tamaraSettings || !tamaraSettings.config?.merchantToken) {
       console.error('❌ Tamara settings not found');
-      return res.status(400).json({ success: false });
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Tamara not configured' 
+      });
     }
 
     // Initialize Tamara service
     const tamaraService = new TamaraPaymentService(
-      tamaraSettings.config.apiToken,
-      tamaraSettings.config.merchantUrl,
-      tamaraSettings.config.testMode !== false
+      tamaraSettings.config.merchantToken,
+      tamaraSettings.config.apiUrl || 'https://api.tamara.co',
+      tamaraSettings.config.notificationToken,
+      tamaraSettings.config.publicKey
     );
 
-    // Validate webhook (if webhook secret is configured)
-    if (tamaraSettings.config.webhookSecret) {
-      const signature = req.headers['x-tamara-signature'];
-      if (!tamaraService.validateWebhook(webhookData, signature, tamaraSettings.config.webhookSecret)) {
+    // Validate webhook signature if notification token is configured
+    if (tamaraSettings.config.notificationToken && signature) {
+      const isValid = tamaraService.validateWebhookSignature(webhookData, signature);
+      if (!isValid) {
         console.error('❌ Invalid webhook signature');
-        return res.status(400).json({ success: false });
+        return res.status(401).json({ 
+          success: false, 
+          message: 'Invalid signature' 
+        });
       }
+      console.log('✅ Webhook signature validated');
+    } else {
+      console.warn('⚠️ Webhook signature validation skipped (no notification token configured)');
     }
 
     // Process webhook
     const processedData = tamaraService.processWebhook(webhookData);
     
-    console.log('✅ Webhook processed:', processedData);
+    console.log('✅ Webhook processed:', {
+      eventType: processedData.eventType,
+      orderReferenceId: processedData.orderReferenceId,
+      tamaraOrderId: processedData.orderId
+    });
 
-    // Find payment intent by order ID
+    // Find payment intent by order reference ID
     const intent = await PaymentIntent.findOne({ 
-      orderId: processedData.orderId,
+      orderId: processedData.orderReferenceId,
       provider: 'tamara'
     });
 
     if (!intent) {
-      console.error('❌ Payment intent not found:', processedData.orderId);
-      return res.status(404).json({ success: false });
+      console.error('❌ Payment intent not found:', processedData.orderReferenceId);
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Payment intent not found' 
+      });
     }
 
-    // Update payment intent status
-    if (processedData.paid && processedData.approved) {
-      intent.status = 'COMPLETED';
-      await intent.save();
+    // Update payment intent based on event type according to Tamara docs
+    switch (processedData.eventType) {
+      case 'order_approved':
+        // Customer approved for payment - order can be shipped
+        intent.status = 'APPROVED';
+        intent.metadata = { 
+          ...intent.metadata, 
+          tamaraOrderId: processedData.orderId,
+          approvedAt: new Date().toISOString(),
+          webhookData: processedData.data
+        };
+        await intent.save();
 
-      // Update order
-      const order = await Order.findById(intent.orderId).populate('items.product');
-      
-      if (order) {
-        order.paymentStatus = 'paid';
-        order.orderStatus = 'confirmed';
-        order.paidAt = new Date();
-        await order.save();
+        // Update order status - ready for fulfillment
+        await Order.findByIdAndUpdate(intent.orderId, {
+          paymentStatus: 'approved',
+          orderStatus: 'confirmed',
+          approvedAt: new Date()
+        });
 
-        // Update product stock
-        const Product = (await import('../models/Product.js')).default;
-        for (const item of order.items) {
-          await Product.findByIdAndUpdate(item.product._id, {
-            $inc: {
-              stock: -item.quantity,
-              sales: item.quantity
+        console.log('✅ Order approved by Tamara:', intent.orderId);
+        break;
+
+      case 'order_declined':
+        // Customer declined or failed approval
+        intent.status = 'DECLINED';
+        intent.metadata = { 
+          ...intent.metadata, 
+          declinedAt: new Date().toISOString(),
+          declineReason: processedData.data?.decline_reason || 'Customer declined',
+          webhookData: processedData.data
+        };
+        await intent.save();
+
+        await Order.findByIdAndUpdate(intent.orderId, {
+          paymentStatus: 'declined',
+          orderStatus: 'cancelled',
+          declinedAt: new Date()
+        });
+
+        console.log('❌ Order declined by Tamara:', intent.orderId, processedData.data?.decline_reason);
+        break;
+
+      case 'order_expired':
+        // Customer didn't complete payment in time
+        intent.status = 'EXPIRED';
+        intent.metadata = { 
+          ...intent.metadata, 
+          expiredAt: new Date().toISOString(),
+          webhookData: processedData.data
+        };
+        await intent.save();
+
+        await Order.findByIdAndUpdate(intent.orderId, {
+          paymentStatus: 'expired',
+          orderStatus: 'cancelled',
+          expiredAt: new Date()
+        });
+
+        console.log('⏰ Order expired:', intent.orderId);
+        break;
+
+      case 'order_authorised':
+        // Payment authorized - can capture payment
+        intent.status = 'AUTHORIZED';
+        intent.metadata = { 
+          ...intent.metadata, 
+          authorizedAt: new Date().toISOString(),
+          webhookData: processedData.data
+        };
+        await intent.save();
+
+        await Order.findByIdAndUpdate(intent.orderId, {
+          paymentStatus: 'authorized',
+          orderStatus: 'processing',
+          authorizedAt: new Date()
+        });
+
+        console.log('🔐 Order authorized:', intent.orderId);
+        break;
+
+      case 'order_captured':
+        // Payment captured - money received
+        intent.status = 'COMPLETED';
+        intent.metadata = { 
+          ...intent.metadata, 
+          capturedAt: new Date().toISOString(),
+          captureId: processedData.data?.capture_id,
+          webhookData: processedData.data
+        };
+        await intent.save();
+
+        // Get order and update stock
+        const order = await Order.findById(intent.orderId).populate('items.product');
+        
+        if (order) {
+          order.paymentStatus = 'paid';
+          order.orderStatus = 'confirmed';
+          order.paidAt = new Date();
+          await order.save();
+
+          // Update product stock and sales only if not already updated
+          if (order.stockUpdated !== true) {
+            const Product = (await import('../models/Product.js')).default;
+            for (const item of order.items) {
+              if (item.product && item.product._id) {
+                await Product.findByIdAndUpdate(item.product._id, {
+                  $inc: {
+                    stock: -item.quantity,
+                    sales: item.quantity
+                  }
+                });
+              }
             }
-          });
+            
+            // Mark stock as updated
+            order.stockUpdated = true;
+            await order.save();
+            
+            console.log('✅ Stock updated for order:', intent.orderId);
+          }
+
+          console.log('✅ Order payment completed:', intent.orderId);
         }
+        break;
 
-        console.log('✅ Order payment completed via Tamara:', intent.orderId);
-      }
-    } else if (processedData.cancelled || processedData.expired) {
-      intent.status = 'FAILED';
-      await intent.save();
+      case 'order_cancelled':
+        // Order cancelled by merchant or Tamara
+        intent.status = 'CANCELLED';
+        intent.metadata = { 
+          ...intent.metadata, 
+          cancelledAt: new Date().toISOString(),
+          cancelReason: processedData.data?.cancel_reason || 'Order cancelled',
+          webhookData: processedData.data
+        };
+        await intent.save();
 
-      await Order.findByIdAndUpdate(intent.orderId, {
-        paymentStatus: 'failed',
-        orderStatus: 'cancelled'
-      });
+        await Order.findByIdAndUpdate(intent.orderId, {
+          paymentStatus: 'cancelled',
+          orderStatus: 'cancelled',
+          cancelledAt: new Date()
+        });
 
-      console.log('❌ Order payment failed/cancelled via Tamara:', intent.orderId);
+        console.log('❌ Order cancelled:', intent.orderId);
+        break;
+
+      case 'order_refunded':
+        // Order refunded
+        intent.status = 'REFUNDED';
+        intent.metadata = { 
+          ...intent.metadata, 
+          refundedAt: new Date().toISOString(),
+          refundId: processedData.data?.refund_id,
+          refundAmount: processedData.data?.refund_amount,
+          webhookData: processedData.data
+        };
+        await intent.save();
+
+        await Order.findByIdAndUpdate(intent.orderId, {
+          paymentStatus: 'refunded',
+          orderStatus: 'cancelled',
+          refundedAt: new Date()
+        });
+
+        console.log('💸 Order refunded:', intent.orderId);
+        break;
+
+      default:
+        console.log('ℹ️ Unhandled webhook event:', processedData.eventType);
+        // Still return success to prevent retries
     }
 
-    res.json({ success: true });
-  } catch (error) {
-    console.error('❌ Tamara webhook processing error:', error);
-    res.status(500).json({ success: false });
-  }
-};
-
-// @desc    Get Tamara installment options
-// @route   GET /api/payments/tamara/installments/:amount
-// @access  Public
-export const getTamaraInstallments = async (req, res) => {
-  try {
-    const { amount } = req.params;
-    
-    if (!amount || isNaN(amount)) {
-      return res.status(400).json({
-        success: false,
-        message: 'المبلغ مطلوب ويجب أن يكون رقم'
-      });
-    }
-
-    // Get Tamara settings
-    const tamaraSettings = await PaymentSettings.findOne({ 
-      provider: 'tamara',
-      enabled: true 
-    });
-    
-    if (!tamaraSettings) {
-      return res.status(400).json({
-        success: false,
-        message: 'تمارا غير مفعل'
-      });
-    }
-
-    const tamaraService = new TamaraPaymentService(
-      tamaraSettings.config?.apiToken,
-      tamaraSettings.config?.merchantUrl,
-      tamaraSettings.config?.testMode !== false
-    );
-
-    const options = tamaraService.getInstallmentOptions(parseFloat(amount));
-
-    res.json({
+    // Always return success to Tamara to prevent webhook retries
+    res.status(200).json({ 
       success: true,
-      data: {
-        eligible: tamaraService.isEligibleAmount(parseFloat(amount)),
-        options: options
-      }
+      message: 'Webhook processed successfully',
+      eventType: processedData.eventType,
+      orderReferenceId: processedData.orderReferenceId
     });
+
   } catch (error) {
-    console.error('❌ Error getting installment options:', error);
-    res.status(500).json({
-      success: false,
-      message: 'خطأ في جلب خيارات التقسيط'
-    });
+    console.error('❌ Webhook processing error:', error);
+    
+    // Return 200 to prevent Tamara from retrying if it's a processing error
+    // Return 500 only for server errors that might be temporary
+    if (error.message.includes('not found') || error.message.includes('Invalid')) {
+      res.status(200).json({ 
+        success: false, 
+        message: 'Webhook processed with errors',
+        error: error.message 
+      });
+    } else {
+      res.status(500).json({ 
+        success: false, 
+        message: 'Internal server error' 
+      });
+    }
   }
 };
 
-// @desc    Capture Tamara payment
-// @route   POST /api/payments/tamara/capture
+// @desc    Authorize Tamara order
+// @route   POST /api/payments/tamara/authorize/:orderId
 // @access  Private/Admin
-export const captureTamaraPayment = async (req, res) => {
+export const authorizeTamaraOrder = async (req, res) => {
   try {
-    const { orderId, shippingInfo } = req.body;
+    const { orderId } = req.params;
     
-    if (!orderId) {
-      return res.status(400).json({
-        success: false,
-        message: 'معرف الطلب مطلوب'
-      });
-    }
+    console.log('🔐 Authorizing Tamara order:', orderId);
 
-    // Get order and payment intent
-    const order = await Order.findById(orderId);
-    const intent = await PaymentIntent.findOne({ orderId, provider: 'tamara' });
-    
-    if (!order || !intent) {
+    // Find payment intent
+    const intent = await PaymentIntent.findOne({ orderId });
+    if (!intent || intent.provider !== 'tamara') {
       return res.status(404).json({
         success: false,
-        message: 'الطلب أو نية الدفع غير موجودة'
+        message: 'طلب Tamara غير موجود'
       });
     }
 
@@ -1250,63 +1731,186 @@ export const captureTamaraPayment = async (req, res) => {
       enabled: true 
     });
     
-    if (!tamaraSettings || !tamaraSettings.config?.apiToken) {
+    if (!tamaraSettings || !tamaraSettings.config?.merchantToken) {
       return res.status(400).json({
         success: false,
-        message: 'تمارا غير مفعل'
+        message: 'Tamara غير مفعل'
       });
     }
 
+    // Initialize Tamara service
     const tamaraService = new TamaraPaymentService(
-      tamaraSettings.config.apiToken,
-      tamaraSettings.config.merchantUrl,
-      tamaraSettings.config.testMode !== false
+      tamaraSettings.config.merchantToken,
+      tamaraSettings.config.apiUrl || 'https://api.tamara.co',
+      tamaraSettings.config.notificationToken,
+      tamaraSettings.config.publicKey
     );
 
-    // Capture payment
-    const result = await tamaraService.capturePayment(orderId, order.total, shippingInfo);
+    // Authorize order
+    const result = await tamaraService.authorizeOrder(intent.metadata.tamaraOrderId);
 
     // Update payment intent
-    intent.status = 'COMPLETED';
-    intent.metadata = { ...intent.metadata, captureResult: result };
+    intent.status = 'AUTHORIZED';
+    intent.metadata = { 
+      ...intent.metadata, 
+      authorizedAt: result.authorizedAt
+    };
     await intent.save();
+
+    // Update order
+    await Order.findByIdAndUpdate(orderId, {
+      paymentStatus: 'authorized',
+      orderStatus: 'processing'
+    });
 
     res.json({
       success: true,
       data: result,
-      message: 'تم تأكيد الدفع بنجاح'
+      message: 'تم تفويض الطلب بنجاح'
     });
   } catch (error) {
-    console.error('❌ Error capturing Tamara payment:', error);
+    console.error('❌ Error authorizing Tamara order:', error);
     res.status(500).json({
       success: false,
-      message: error.message || 'خطأ في تأكيد الدفع'
+      message: error.message || 'خطأ في تفويض الطلب'
+    });
+  }
+};
+
+// @desc    Capture Tamara order
+// @route   POST /api/payments/tamara/capture/:orderId
+// @access  Private/Admin
+export const captureTamaraOrder = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { shippingInfo } = req.body;
+    
+    console.log('💰 Capturing Tamara order:', orderId);
+
+    // Find payment intent
+    const intent = await PaymentIntent.findOne({ orderId });
+    if (!intent || intent.provider !== 'tamara') {
+      return res.status(404).json({
+        success: false,
+        message: 'طلب Tamara غير موجود'
+      });
+    }
+
+    // Get order details
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'الطلب غير موجود'
+      });
+    }
+
+    // Get Tamara settings
+    const tamaraSettings = await PaymentSettings.findOne({ 
+      provider: 'tamara',
+      enabled: true 
+    });
+    
+    if (!tamaraSettings || !tamaraSettings.config?.merchantToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'Tamara غير مفعل'
+      });
+    }
+
+    // Initialize Tamara service
+    const tamaraService = new TamaraPaymentService(
+      tamaraSettings.config.merchantToken,
+      tamaraSettings.config.apiUrl || 'https://api.tamara.co',
+      tamaraSettings.config.notificationToken,
+      tamaraSettings.config.publicKey
+    );
+
+    // Prepare capture data
+    const captureData = {
+      order_id: intent.metadata.tamaraOrderId,
+      total_amount: {
+        amount: order.total.toFixed(2),
+        currency: 'SAR'
+      },
+      shipping_info: shippingInfo || {
+        shipped_at: new Date().toISOString(),
+        shipping_company: 'شركة الشحن',
+        tracking_number: order.trackingNumber || null
+      },
+      items: order.items.map(item => ({
+        reference_id: item.product?._id?.toString() || item.productId,
+        name: item.name,
+        type: 'Physical',
+        unit_price: {
+          amount: item.price.toFixed(2),
+          currency: 'SAR'
+        },
+        total_amount: {
+          amount: (item.price * item.quantity).toFixed(2),
+          currency: 'SAR'
+        },
+        quantity: item.quantity
+      }))
+    };
+
+    // Capture order
+    const result = await tamaraService.captureOrder(intent.metadata.tamaraOrderId, captureData);
+
+    // Update payment intent
+    intent.status = 'COMPLETED';
+    intent.metadata = { 
+      ...intent.metadata, 
+      captureId: result.captureId,
+      capturedAt: new Date()
+    };
+    await intent.save();
+
+    // Update order
+    order.paymentStatus = 'paid';
+    order.orderStatus = 'shipped';
+    order.paidAt = new Date();
+    await order.save();
+
+    res.json({
+      success: true,
+      data: result,
+      message: 'تم التقاط الدفع بنجاح'
+    });
+  } catch (error) {
+    console.error('❌ Error capturing Tamara order:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'خطأ في التقاط الدفع'
     });
   }
 };
 
 // @desc    Cancel Tamara order
-// @route   POST /api/payments/tamara/cancel
+// @route   POST /api/payments/tamara/cancel/:orderId
 // @access  Private/Admin
 export const cancelTamaraOrder = async (req, res) => {
   try {
-    const { orderId, cancelReason } = req.body;
+    const { orderId } = req.params;
+    const { cancelReason } = req.body;
     
-    if (!orderId) {
-      return res.status(400).json({
+    console.log('❌ Cancelling Tamara order:', orderId);
+
+    // Find payment intent
+    const intent = await PaymentIntent.findOne({ orderId });
+    if (!intent || intent.provider !== 'tamara') {
+      return res.status(404).json({
         success: false,
-        message: 'معرف الطلب مطلوب'
+        message: 'طلب Tamara غير موجود'
       });
     }
 
-    // Get order and payment intent
+    // Get order details
     const order = await Order.findById(orderId);
-    const intent = await PaymentIntent.findOne({ orderId, provider: 'tamara' });
-    
-    if (!order || !intent) {
+    if (!order) {
       return res.status(404).json({
         success: false,
-        message: 'الطلب أو نية الدفع غير موجودة'
+        message: 'الطلب غير موجود'
       });
     }
 
@@ -1316,32 +1920,62 @@ export const cancelTamaraOrder = async (req, res) => {
       enabled: true 
     });
     
-    if (!tamaraSettings || !tamaraSettings.config?.apiToken) {
+    if (!tamaraSettings || !tamaraSettings.config?.merchantToken) {
       return res.status(400).json({
         success: false,
-        message: 'تمارا غير مفعل'
+        message: 'Tamara غير مفعل'
       });
     }
 
+    // Initialize Tamara service
     const tamaraService = new TamaraPaymentService(
-      tamaraSettings.config.apiToken,
-      tamaraSettings.config.merchantUrl,
-      tamaraSettings.config.testMode !== false
+      tamaraSettings.config.merchantToken,
+      tamaraSettings.config.apiUrl || 'https://api.tamara.co',
+      tamaraSettings.config.notificationToken,
+      tamaraSettings.config.publicKey
     );
 
+    // Prepare cancel data
+    const cancelData = {
+      order_id: intent.metadata.tamaraOrderId,
+      total_amount: {
+        amount: order.total.toFixed(2),
+        currency: 'SAR'
+      },
+      cancel_reason: cancelReason || 'إلغاء من قبل التاجر',
+      items: order.items.map(item => ({
+        reference_id: item.product?._id?.toString() || item.productId,
+        name: item.name,
+        type: 'Physical',
+        unit_price: {
+          amount: item.price.toFixed(2),
+          currency: 'SAR'
+        },
+        total_amount: {
+          amount: (item.price * item.quantity).toFixed(2),
+          currency: 'SAR'
+        },
+        quantity: item.quantity
+      }))
+    };
+
     // Cancel order
-    const result = await tamaraService.cancelOrder(orderId, order.total, cancelReason);
+    const result = await tamaraService.cancelOrder(intent.metadata.tamaraOrderId, cancelData);
 
     // Update payment intent
     intent.status = 'CANCELLED';
-    intent.metadata = { ...intent.metadata, cancelResult: result };
+    intent.metadata = { 
+      ...intent.metadata, 
+      cancelId: result.cancelId,
+      cancelledAt: new Date(),
+      cancelReason: cancelReason
+    };
     await intent.save();
 
     // Update order
-    await Order.findByIdAndUpdate(orderId, {
-      paymentStatus: 'cancelled',
-      orderStatus: 'cancelled'
-    });
+    order.paymentStatus = 'cancelled';
+    order.orderStatus = 'cancelled';
+    await order.save();
 
     res.json({
       success: true,
@@ -1357,35 +1991,31 @@ export const cancelTamaraOrder = async (req, res) => {
   }
 };
 
-// @desc    Refund Tamara payment
-// @route   POST /api/payments/tamara/refund
+// @desc    Refund Tamara order
+// @route   POST /api/payments/tamara/refund/:orderId
 // @access  Private/Admin
-export const refundTamaraPayment = async (req, res) => {
+export const refundTamaraOrder = async (req, res) => {
   try {
-    const { orderId, refundAmount, refundReason } = req.body;
+    const { orderId } = req.params;
+    const { refundAmount, refundReason } = req.body;
     
-    if (!orderId) {
-      return res.status(400).json({
-        success: false,
-        message: 'معرف الطلب مطلوب'
-      });
-    }
+    console.log('💸 Refunding Tamara order:', orderId);
 
-    // Get order and payment intent
-    const order = await Order.findById(orderId);
-    const intent = await PaymentIntent.findOne({ orderId, provider: 'tamara' });
-    
-    if (!order || !intent) {
+    // Find payment intent
+    const intent = await PaymentIntent.findOne({ orderId });
+    if (!intent || intent.provider !== 'tamara') {
       return res.status(404).json({
         success: false,
-        message: 'الطلب أو نية الدفع غير موجودة'
+        message: 'طلب Tamara غير موجود'
       });
     }
 
-    if (intent.status !== 'COMPLETED') {
-      return res.status(400).json({
+    // Get order details
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({
         success: false,
-        message: 'لا يمكن استرداد دفعة غير مكتملة'
+        message: 'الطلب غير موجود'
       });
     }
 
@@ -1395,40 +2025,63 @@ export const refundTamaraPayment = async (req, res) => {
       enabled: true 
     });
     
-    if (!tamaraSettings || !tamaraSettings.config?.apiToken) {
+    if (!tamaraSettings || !tamaraSettings.config?.merchantToken) {
       return res.status(400).json({
         success: false,
-        message: 'تمارا غير مفعل'
+        message: 'Tamara غير مفعل'
       });
     }
 
+    // Initialize Tamara service
     const tamaraService = new TamaraPaymentService(
-      tamaraSettings.config.apiToken,
-      tamaraSettings.config.merchantUrl,
-      tamaraSettings.config.testMode !== false
+      tamaraSettings.config.merchantToken,
+      tamaraSettings.config.apiUrl || 'https://api.tamara.co',
+      tamaraSettings.config.notificationToken,
+      tamaraSettings.config.publicKey
     );
 
-    // Refund payment
-    const result = await tamaraService.refundPayment(
-      orderId, 
-      refundAmount || order.total, 
-      refundReason
-    );
+    // Prepare refund data
+    const refundData = {
+      order_id: intent.metadata.tamaraOrderId,
+      total_amount: {
+        amount: (refundAmount || order.total).toFixed(2),
+        currency: 'SAR'
+      },
+      refund_reason: refundReason || 'استرداد من قبل التاجر',
+      items: order.items.map(item => ({
+        reference_id: item.product?._id?.toString() || item.productId,
+        name: item.name,
+        type: 'Physical',
+        unit_price: {
+          amount: item.price.toFixed(2),
+          currency: 'SAR'
+        },
+        total_amount: {
+          amount: (item.price * item.quantity).toFixed(2),
+          currency: 'SAR'
+        },
+        quantity: item.quantity
+      }))
+    };
+
+    // Refund order
+    const result = await tamaraService.refundOrder(intent.metadata.tamaraOrderId, refundData);
 
     // Update payment intent
     intent.status = 'REFUNDED';
     intent.metadata = { 
       ...intent.metadata, 
-      refundResult: result,
-      refundReason: refundReason 
+      refundId: result.refundId,
+      refundedAt: new Date(),
+      refundReason: refundReason,
+      refundAmount: refundAmount || order.total
     };
     await intent.save();
 
     // Update order
-    await Order.findByIdAndUpdate(orderId, {
-      paymentStatus: 'refunded',
-      orderStatus: 'cancelled'
-    });
+    order.paymentStatus = 'refunded';
+    order.orderStatus = 'cancelled';
+    await order.save();
 
     res.json({
       success: true,
@@ -1436,10 +2089,110 @@ export const refundTamaraPayment = async (req, res) => {
       message: 'تم استرداد المبلغ بنجاح'
     });
   } catch (error) {
-    console.error('❌ Error refunding Tamara payment:', error);
+    console.error('❌ Error refunding Tamara order:', error);
     res.status(500).json({
       success: false,
       message: error.message || 'خطأ في استرداد المبلغ'
+    });
+  }
+};
+
+// @desc    Get Tamara order details
+// @route   GET /api/payments/tamara/order/:tamaraOrderId
+// @access  Private/Admin
+export const getTamaraOrder = async (req, res) => {
+  try {
+    const { tamaraOrderId } = req.params;
+    
+    console.log('📋 Getting Tamara order details:', tamaraOrderId);
+
+    // Get Tamara settings
+    const tamaraSettings = await PaymentSettings.findOne({ 
+      provider: 'tamara',
+      enabled: true 
+    });
+    
+    if (!tamaraSettings || !tamaraSettings.config?.merchantToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'Tamara غير مفعل'
+      });
+    }
+
+    // Initialize Tamara service
+    const tamaraService = new TamaraPaymentService(
+      tamaraSettings.config.merchantToken,
+      tamaraSettings.config.apiUrl || 'https://api.tamara.co',
+      tamaraSettings.config.notificationToken,
+      tamaraSettings.config.publicKey
+    );
+
+    // Get order details
+    const result = await tamaraService.getOrder(tamaraOrderId);
+
+    res.json({
+      success: true,
+      data: result.order,
+      message: 'تم جلب تفاصيل الطلب بنجاح'
+    });
+  } catch (error) {
+    console.error('❌ Error getting Tamara order:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'خطأ في جلب تفاصيل الطلب'
+    });
+  }
+};
+
+// @desc    Create default Tamara settings for testing
+// @route   POST /api/payments/tamara/init
+// @access  Private/Admin
+export const initTamaraSettings = async (req, res) => {
+  try {
+    console.log('🔧 Initializing Tamara settings...');
+
+    // Check if settings already exist
+    const existingSettings = await PaymentSettings.findOne({ provider: 'tamara' });
+    
+    if (existingSettings) {
+      return res.json({
+        success: true,
+        message: 'إعدادات Tamara موجودة بالفعل',
+        data: {
+          enabled: existingSettings.enabled,
+          hasToken: !!existingSettings.config?.merchantToken
+        }
+      });
+    }
+
+    // Create default settings
+    const defaultSettings = await PaymentSettings.create({
+      provider: 'tamara',
+      enabled: false, // Disabled by default until merchant token is added
+      config: {
+        merchantToken: '', // To be filled by admin
+        apiUrl: 'https://api-sandbox.tamara.co', // Sandbox by default
+        notificationToken: '',
+        publicKey: '',
+        merchantId: ''
+      }
+    });
+
+    console.log('✅ Default Tamara settings created');
+
+    res.json({
+      success: true,
+      message: 'تم إنشاء إعدادات Tamara الافتراضية. يرجى إضافة Merchant Token لتفعيل الخدمة',
+      data: {
+        id: defaultSettings._id,
+        enabled: defaultSettings.enabled
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error initializing Tamara settings:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في إنشاء إعدادات Tamara'
     });
   }
 };
@@ -1449,45 +2202,32 @@ export const refundTamaraPayment = async (req, res) => {
 // @access  Private/Admin
 export const testTamaraConnection = async (req, res) => {
   try {
-    const { apiToken, merchantUrl } = req.body;
+    const { merchantToken, apiUrl, notificationToken, publicKey } = req.body;
     
-    if (!apiToken) {
+    if (!merchantToken) {
       return res.status(400).json({
         success: false,
-        message: 'رمز API مطلوب'
+        message: 'مفتاح التاجر مطلوب'
       });
     }
 
-    // تحديد وضع الاختبار حسب نوع الـ token
-    const isTestMode = apiToken.includes('sandbox') || apiToken.startsWith('sk_test_');
-
-    console.log('🧪 Testing Tamara connection:', {
-      tokenType: isTestMode ? 'sandbox' : 'live',
-      tokenPrefix: apiToken.substring(0, 10) + '...'
-    });
+    console.log('🔍 Testing Tamara connection...');
 
     // Initialize Tamara service with provided credentials
     const tamaraService = new TamaraPaymentService(
-      apiToken,
-      merchantUrl,
-      isTestMode
+      merchantToken,
+      apiUrl || 'https://api.tamara.co',
+      notificationToken,
+      publicKey
     );
 
-    // Test connection using official API
+    // Test connection
     const result = await tamaraService.testConnection();
-
-    // اختبار إضافي: جلب أنواع الدفع المتاحة
-    try {
-      const paymentTypes = await tamaraService.getPaymentTypes();
-      result.availablePaymentTypes = paymentTypes;
-    } catch (error) {
-      console.log('⚠️ Could not fetch payment types (not critical):', error.message);
-    }
 
     res.json({
       success: true,
-      message: 'الاتصال بتمارا ناجح ✅',
-      data: result
+      data: result,
+      message: 'الاتصال بـ Tamara ناجح'
     });
   } catch (error) {
     console.error('❌ Error testing Tamara connection:', error);
@@ -1498,74 +2238,6 @@ export const testTamaraConnection = async (req, res) => {
   }
 };
 
-// Helper function for creating Tamara payment
-async function createTamaraPayment(amount, orderId, config, order) {
-  const tamaraService = new TamaraPaymentService(
-    config.apiToken,
-    config.merchantUrl,
-    config.testMode !== false
-  );
 
-  const orderData = {
-    orderId: orderId,
-    amount: amount,
-    currency: 'SAR',
-    description: `طلب رقم ${order.orderNumber || orderId}`,
-    paymentType: config.defaultPaymentType || 'PAY_BY_INSTALMENTS',
-    instalments: config.defaultInstalments || 3,
-    customerName: order.shippingAddress?.name || order.user?.name || 'Customer',
-    customerEmail: order.user?.email || '',
-    customerPhone: order.shippingAddress?.phone || order.user?.phone || '',
-    items: order.items?.map(item => ({
-      name: item.product?.name || 'Product',
-      type: 'Physical',
-      reference_id: item.product?._id?.toString() || 'product',
-      sku: item.product?.sku || item.product?._id?.toString() || 'sku',
-      quantity: item.quantity || 1,
-      unit_price: {
-        amount: item.price || 0,
-        currency: 'SAR'
-      },
-      total_amount: {
-        amount: (item.price || 0) * (item.quantity || 1),
-        currency: 'SAR'
-      }
-    })) || [],
-    billingAddress: {
-      line1: order.shippingAddress?.address || 'Address',
-      city: order.shippingAddress?.city || 'Riyadh'
-    },
-    shippingAddress: {
-      line1: order.shippingAddress?.address || 'Address',
-      city: order.shippingAddress?.city || 'Riyadh'
-    },
-    successUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/order-success?orderId=${orderId}`,
-    failureUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/checkout?error=payment_failed`,
-    cancelUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/checkout?error=payment_cancelled`,
-    webhookUrl: `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/payments/tamara/webhook`
-  };
 
-  const result = await tamaraService.createCheckout(orderData);
-  
-  return {
-    paymentUrl: result.checkoutUrl,
-    transactionId: result.checkoutId
-  };
-}
 
-// Helper function for verifying Tamara payment
-async function verifyTamaraPayment(checkoutId, config) {
-  try {
-    const tamaraService = new TamaraPaymentService(
-      config.apiToken,
-      config.merchantUrl,
-      config.testMode !== false
-    );
-
-    const checkout = await tamaraService.getCheckout(checkoutId);
-    return checkout.status === 'approved' && checkout.payment_status === 'paid';
-  } catch (error) {
-    console.error('❌ Error verifying Tamara payment:', error);
-    return false;
-  }
-}

@@ -21,6 +21,9 @@ import Register from './pages/Register';
 import Account from './pages/Account';
 import Orders from './pages/Orders';
 import OrderSuccess from './pages/OrderSuccess';
+import OrderFailed from './pages/OrderFailed';
+import OrderCancelled from './pages/OrderCancelled';
+import TamaraCallback from './pages/TamaraCallback';
 import Deals from './pages/Deals';
 import About from './pages/About';
 import Contact from './pages/Contact';
@@ -44,6 +47,7 @@ import AdminCategories from './pages/admin/Categories';
 import AdminDeals from './pages/admin/Deals';
 import TapPaymentSettings from './pages/admin/TapPaymentSettings';
 import TamaraPaymentSettings from './pages/admin/TamaraPaymentSettings';
+
 import ThemeSettings from './pages/admin/ThemeSettings';
 import FooterSettings from './pages/admin/FooterSettings';
 import LegalPages from './pages/admin/LegalPages';
@@ -92,6 +96,9 @@ function App() {
           <Route path="checkout" element={<Checkout />} />
           <Route path="order-success/:orderId" element={<OrderSuccess />} />
           <Route path="order-success" element={<OrderSuccess />} />
+          <Route path="order-failed" element={<OrderFailed />} />
+          <Route path="order-cancelled" element={<OrderCancelled />} />
+          <Route path="tamara-callback" element={<TamaraCallback />} />
           
           {/* Auth */}
           <Route path="login" element={<Login />} />
@@ -132,6 +139,7 @@ function App() {
           <Route path="legal-pages" element={<LegalPages />} />
           <Route path="tap-payment-settings" element={<TapPaymentSettings />} />
           <Route path="tamara-payment-settings" element={<TamaraPaymentSettings />} />
+
           <Route path="seo" element={<SEOManager />} />
         </Route>
       </Routes>

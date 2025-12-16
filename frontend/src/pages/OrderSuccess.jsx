@@ -18,9 +18,18 @@ function OrderSuccess() {
     // Check if coming from Tap payment
     const tapId = searchParams.get('tap_id');
     const orderIdFromQuery = searchParams.get('orderId');
+    const provider = searchParams.get('provider');
     
     if (tapId && orderIdFromQuery) {
       verifyTapPayment(tapId, orderIdFromQuery);
+    } else if (provider === 'tamara' && orderIdFromQuery) {
+      // For Tamara, we assume success if we reach this page
+      // Tamara handles verification through webhooks
+      setPaymentStatus('success');
+      clearCart();
+      localStorage.removeItem('pendingOrderId');
+      localStorage.removeItem('pendingCart');
+      fetchOrder(orderIdFromQuery);
     } else if (orderId) {
       fetchOrder();
     }
@@ -242,7 +251,7 @@ function OrderSuccess() {
                 <span className="text-gray-600">طريقة الدفع:</span>
                 <span className="font-semibold">
                   {order.paymentMethod === 'cod' && 'الدفع عند الاستلام'}
-                  {order.paymentMethod === 'tap' && 'Tap Payment - بطاقة ائتمانية'}
+                  {order.paymentMethod === 'tap' && 'Tap Payments - بطاقة ائتمانية'}
                   {order.paymentMethod === 'tamara' && 'تمارا - اشتري الآن وادفع لاحقاً'}
                   {!['cod', 'tap', 'tamara'].includes(order.paymentMethod) && order.paymentMethod}
                 </span>

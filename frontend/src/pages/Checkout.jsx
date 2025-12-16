@@ -109,7 +109,7 @@ function Checkout() {
         notes: ''
       };
 
-      // If payment method is Tap, create order with pending payment status
+      // Handle online payment methods (Tap, Tamara)
       if (selectedPayment === 'tap') {
         // Create order first with pending payment
         const response = await api.post('/orders', orderData);
@@ -129,11 +129,11 @@ function Checkout() {
           }
         };
         
-        console.log('💳 Sending charge request:', chargeData);
+        console.log('💳 Sending Tap charge request:', chargeData);
         
         const chargeResponse = await api.post('/payments/tap/charge', chargeData);
 
-        console.log('✅ Charge response:', chargeResponse.data);
+        console.log('✅ Tap charge response:', chargeResponse.data);
 
         if (chargeResponse.data.success && chargeResponse.data.data?.paymentUrl) {
           // Save order ID and cart to localStorage for later verification
@@ -143,20 +143,20 @@ function Checkout() {
           // Clear checkout state only (keep cart until payment success)
           localStorage.removeItem('checkoutState');
           
-          console.log('🔄 Redirecting to:', chargeResponse.data.data.paymentUrl);
+          console.log('🔄 Redirecting to Tap:', chargeResponse.data.data.paymentUrl);
           
           // Redirect to Tap payment page
           window.location.href = chargeResponse.data.data.paymentUrl;
           return;
         } else {
-          console.error('❌ No payment URL in response:', chargeResponse.data);
+          console.error('❌ No payment URL in Tap response:', chargeResponse.data);
           toast.error('لم يتم الحصول على رابط الدفع');
           setLoading(false);
           return;
         }
       }
 
-      // If payment method is Tamara, create order with pending payment status
+      // Handle Tamara payment
       if (selectedPayment === 'tamara') {
         // Create order first with pending payment
         const response = await api.post('/orders', orderData);
@@ -165,39 +165,42 @@ function Checkout() {
 
         console.log('📦 Order created for Tamara:', orderId, 'Amount:', total);
 
-        // Create Tamara checkout
-        const checkoutData = {
+        // Create Tamara checkout session
+        const tamaraData = {
           orderId: orderId,
-          paymentType: 'PAY_BY_INSTALMENTS', // Default, can be changed in component
-          instalments: 3 // Default, can be changed in component
+          paymentType: 'PAY_BY_INSTALMENTS', // Default payment type
+          instalments: null // Will be determined by Tamara based on amount
         };
         
-        console.log('🛒 Sending Tamara checkout request:', checkoutData);
+        console.log('🛒 Creating Tamara checkout session:', tamaraData);
         
-        const checkoutResponse = await api.post('/payments/tamara/checkout', checkoutData);
+        const tamaraResponse = await api.post('/payments/tamara/checkout', tamaraData);
 
-        console.log('✅ Tamara checkout response:', checkoutResponse.data);
+        console.log('✅ Tamara checkout response:', tamaraResponse.data);
 
-        if (checkoutResponse.data.success && checkoutResponse.data.data?.checkoutUrl) {
+        if (tamaraResponse.data.success && tamaraResponse.data.data?.checkoutUrl) {
           // Save order ID and cart to localStorage for later verification
           localStorage.setItem('pendingOrderId', orderId);
           localStorage.setItem('pendingCart', JSON.stringify(items));
+          localStorage.setItem('tamaraCheckoutId', tamaraResponse.data.data.checkoutId);
           
           // Clear checkout state only (keep cart until payment success)
           localStorage.removeItem('checkoutState');
           
-          console.log('🔄 Redirecting to Tamara:', checkoutResponse.data.data.checkoutUrl);
+          console.log('🔄 Redirecting to Tamara:', tamaraResponse.data.data.checkoutUrl);
           
-          // Redirect to Tamara checkout page
-          window.location.href = checkoutResponse.data.data.checkoutUrl;
+          // Redirect to Tamara payment page
+          window.location.href = tamaraResponse.data.data.checkoutUrl;
           return;
         } else {
-          console.error('❌ No checkout URL in Tamara response:', checkoutResponse.data);
-          toast.error('لم يتم الحصول على رابط الدفع من تمارا');
+          console.error('❌ No checkout URL in Tamara response:', tamaraResponse.data);
+          toast.error('لم يتم الحصول على رابط الدفع من Tamara');
           setLoading(false);
           return;
         }
       }
+
+
       
       // For COD or other payment methods
       const response = await api.post('/orders', orderData);
@@ -322,7 +325,10 @@ function Checkout() {
                     <h4 className="font-semibold mb-2">طريقة الدفع</h4>
                     <div className="bg-gray-50 p-4 rounded-lg">
                       <p className="font-medium">
-                        {selectedPayment === 'cod' ? 'الدفع عند الاستلام' : selectedPayment}
+                        {selectedPayment === 'cod' ? 'الدفع عند الاستلام' : 
+                         selectedPayment === 'tap' ? 'Tap Payments - بطاقة ائتمانية' :
+                         selectedPayment === 'tamara' ? 'تمارا - اشتري الآن وادفع لاحقاً' :
+                         selectedPayment}
                       </p>
                     </div>
                   </div>
