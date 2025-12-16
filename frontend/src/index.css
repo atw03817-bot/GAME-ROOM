@@ -1,0 +1,456 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* إعدادات الاتجاه الثابتة */
+html {
+  direction: rtl !important;
+}
+
+html[dir="rtl"] {
+  direction: rtl !important;
+}
+
+html[dir="ltr"] {
+  direction: ltr !important;
+}
+
+:root {
+  /* Primary Colors - البنفسجي */
+  --color-primary-50: #faf5ff;
+  --color-primary-100: #f3e8ff;
+  --color-primary-200: #e9d5ff;
+  --color-primary-300: #d8b4fe;
+  --color-primary-400: #c084fc;
+  --color-primary-500: #a855f7;
+  --color-primary-600: #9333ea;
+  --color-primary-700: #7e22ce;
+  --color-primary-800: #6b21a8;
+  --color-primary-900: #581c87;
+
+  /* Gray Colors */
+  --color-gray-50: #fafafa;
+  --color-gray-100: #f5f5f5;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+
+  /* Semantic Colors */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  /* Border Radius */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.5rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Cairo', 'Tajawal', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+html {
+  overscroll-behavior: none;
+}
+
+/* RTL Support */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="ltr"] {
+  text-align: left;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Hide Scrollbar */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Loading Animation */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Hide scrollbar */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Product Description Styles */
+.product-description {
+  @apply text-base leading-relaxed;
+}
+
+.product-description p {
+  @apply mb-4;
+}
+
+.product-description ul,
+.product-description ol {
+  @apply mr-6 mb-4 space-y-2;
+}
+
+.product-description li {
+  @apply text-gray-700;
+}
+
+.product-description ul li {
+  @apply list-disc;
+}
+
+.product-description ol li {
+  @apply list-decimal;
+}
+
+.product-description h1,
+.product-description h2,
+.product-description h3 {
+  @apply font-bold mb-3 mt-6 text-gray-900;
+}
+
+.product-description h1 {
+  @apply text-2xl;
+}
+
+.product-description h2 {
+  @apply text-xl;
+}
+
+.product-description h3 {
+  @apply text-lg;
+}
+
+.product-description img {
+  @apply max-w-full h-auto rounded-lg my-4 shadow-md;
+}
+
+.product-description a {
+  @apply text-primary-600 hover:text-primary-800 underline;
+}
+
+.product-description strong,
+.product-description b {
+  @apply font-bold text-gray-900;
+}
+
+.product-description em,
+.product-description i {
+  @apply italic;
+}
+
+.product-description blockquote {
+  @apply border-r-4 border-gray-300 pr-4 py-2 my-4 bg-gray-50 rounded;
+}
+
+.product-description table {
+  @apply w-full border-collapse my-4;
+}
+
+.product-description th,
+.product-description td {
+  @apply border border-gray-300 px-4 py-2;
+}
+
+.product-description th {
+  @apply bg-gray-100 font-bold;
+}
+
+/* Product Card Styles - Mobile Optimized */
+.product-card {
+  @apply bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden;
+}
+
+.product-card-image {
+  @apply relative w-full h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden bg-white;
+}
+
+.product-card-image img {
+  @apply w-full h-full object-contain;
+}
+
+.product-card-content {
+  @apply p-2 sm:p-3;
+}
+
+.product-card-brand {
+  @apply text-[10px] sm:text-xs text-gray-500 mb-1;
+}
+
+.product-card-title {
+  @apply text-xs sm:text-sm font-semibold text-gray-900 mb-2 line-clamp-2 min-h-[32px] sm:min-h-[40px];
+}
+
+.product-card-price-wrapper {
+  @apply flex flex-col;
+}
+
+.product-card-price {
+  @apply text-sm sm:text-lg font-bold text-primary-600;
+}
+
+.product-card-old-price {
+  @apply text-[10px] sm:text-xs text-gray-400 line-through;
+}
+
+.product-card-footer {
+  @apply flex items-center justify-between;
+}
+
+.product-card-add-btn {
+  @apply w-7 h-7 sm:w-8 sm:h-8 bg-primary-500 text-white rounded-full flex items-center justify-center hover:bg-primary-600 transition-colors;
+}
+
+/* Grid Layouts */
+.grid-products {
+  @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 md:gap-4;
+}
+
+/* Button Styles */
+.btn {
+  @apply inline-flex items-center justify-center gap-2 font-semibold rounded-lg transition-all;
+}
+
+.btn-sm {
+  @apply px-3 py-1.5 text-sm;
+}
+
+.btn-md {
+  @apply px-4 py-2 text-base;
+}
+
+.btn-lg {
+  @apply px-6 py-3 text-lg;
+}
+
+.btn-primary {
+  @apply bg-primary-500 text-white hover:bg-primary-600;
+}
+
+.btn-secondary {
+  @apply bg-gray-200 text-gray-800 hover:bg-gray-300;
+}
+
+/* Line Clamp */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Transitions */
+.transition-base {
+  @apply transition-all duration-300;
+}
+
+/* Background Gradients */
+.bg-gradient-primary {
+  @apply bg-gradient-to-r from-primary-500 to-primary-700;
+}
+
+.bg-gradient-secondary {
+  @apply bg-gradient-to-r from-purple-500 to-pink-600;
+}
+
+/* Text Gradients */
+.text-gradient-primary {
+  @apply bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent;
+}
+
+/* Animations */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Input Styles */
+.input {
+  @apply px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition;
+}
+
+.input-sm {
+  @apply px-3 py-1.5 text-sm;
+}
+
+/* Badge */
+.badge {
+  @apply inline-block px-2 py-1 text-xs font-bold rounded;
+}
+
+.badge-primary {
+  @apply bg-primary-100 text-primary-700;
+}
+
+/* Print Styles for Order Details */
+@media print {
+  body {
+    background: white !important;
+  }
+  
+  .print\:hidden {
+    display: none !important;
+  }
+  
+  .print\:p-8 {
+    padding: 2rem !important;
+  }
+  
+  .print\:bg-white {
+    background: white !important;
+  }
+  
+  /* Hide navigation and sidebars */
+  nav, aside, header, footer {
+    display: none !important;
+  }
+  
+  /* Ensure content fits on page */
+  .grid {
+    display: block !important;
+  }
+  
+  .lg\:col-span-2, .lg\:col-span-3 {
+    width: 100% !important;
+  }
+  
+  /* Page breaks */
+  .page-break {
+    page-break-after: always;
+  }
+  
+  /* Remove shadows and borders for cleaner print */
+  .shadow-sm, .shadow-md, .shadow-lg {
+    box-shadow: none !important;
+  }
+}
+
+/* Prevent overscroll bounce on mobile */
+#root {
+  overscroll-behavior-y: none;
+}
+
+/* Modal Slide Up Animation */
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}

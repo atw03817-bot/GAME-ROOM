@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار API مباشر</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #7c3aed;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #6d28d9;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        
+        .banner-preview {
+            background: #7c3aed;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            border-radius: 5px;
+            margin: 10px 0;
+            min-height: 40px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+        }
+        
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 اختبار API مباشر</h1>
+        
+        <div class="actions">
+            <button onclick="testThemeAPI()">اختبار GET /theme</button>
+            <button onclick="createTestBanner()">إنشاء بانر تجريبي</button>
+            <button onclick="updateBanner()">تحديث البانر</button>
+            <button onclick="testLogin()">اختبار تسجيل الدخول</button>
+        </div>
+        
+        <div id="bannerPreview" class="banner-preview">
+            معاينة البانر ستظهر هنا
+        </div>
+        
+        <div id="result" class="result">انقر على أي زر لبدء الاختبار...</div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+        let authToken = null;
+
+        function log(message, type = 'info') {
+            const result = document.getElementById('result');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}\n`;
+            
+            result.textContent += logEntry;
+            result.scrollTop = result.scrollHeight;
+            
+            if (type === 'success') {
+                result.className = 'result success';
+            } else if (type === 'error') {
+                result.className = 'result error';
+            } else if (type === 'warning') {
+                result.className = 'result warning';
+            } else {
+                result.className = 'result';
+            }
+        }
+
+        async function testThemeAPI() {
+            log('🔍 اختبار GET /theme API...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/theme`);
+                const data = await response.json();
+                
+                log('✅ استجابة API:');
+                log(JSON.stringify(data, null, 2));
+                
+                if (data.success && data.data && data.data.banner) {
+                    const banner = data.data.banner;
+                    log('📋 بيانات البانر:');
+                    log(`- مفعل: ${banner.enabled}`);
+                    log(`- النص: "${banner.text}"`);
+                    log(`- لون الخلفية: ${banner.backgroundColor}`);
+                    log(`- لون النص: ${banner.textColor}`);
+                    
+                    if (banner.enabled && banner.text) {
+                        showBannerPreview(banner);
+                        log('✅ البانر يجب أن يظهر في التطبيق', 'success');
+                    } else {
+                        hideBannerPreview();
+                        log('⚠️ البانر لن يظهر - غير مفعل أو لا يحتوي على نص', 'warning');
+                    }
+                } else {
+                    log('❌ لا توجد بيانات بانر في الاستجابة', 'error');
+                }
+                
+            } catch (error) {
+                log('❌ خطأ في API: ' + error.message, 'error');
+            }
+        }
+
+        async function testLogin() {
+            log('🔐 اختبار تسجيل الدخول كمدير...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@admin.com',
+                        password: 'admin123'
+                    })
+                });
+                
+                const data = await response.json();
+                log('استجابة تسجيل الدخول:');
+                log(JSON.stringify(data, null, 2));
+                
+                if (data.success && data.token) {
+                    authToken = data.token;
+                    log('✅ تم تسجيل الدخول بنجاح', 'success');
+                } else {
+                    log('❌ فشل تسجيل الدخول', 'error');
+                }
+                
+            } catch (error) {
+                log('❌ خطأ في تسجيل الدخول: ' + error.message, 'error');
+            }
+        }
+
+        async function createTestBanner() {
+            if (!authToken) {
+                log('⚠️ يجب تسجيل الدخول أولاً', 'warning');
+                await testLogin();
+                if (!authToken) return;
+            }
+            
+            log('🎨 إنشاء بانر تجريبي...');
+            
+            const testBanner = {
+                banner: {
+                    enabled: true,
+                    text: 'بانر تجريبي من API 🚀 - يعمل في الجوال والديسكتوب!',
+                    backgroundColor: '#10b981',
+                    textColor: '#ffffff',
+                    link: '',
+                    showCloseButton: false
+                }
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/theme`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(testBanner)
+                });
+                
+                const data = await response.json();
+                log('استجابة إنشاء البانر:');
+                log(JSON.stringify(data, null, 2));
+                
+                if (data.success) {
+                    log('✅ تم إنشاء البانر بنجاح!', 'success');
+                    showBannerPreview(testBanner.banner);
+                    
+                    // اختبار القراءة مرة أخرى
+                    setTimeout(() => {
+                        testThemeAPI();
+                    }, 1000);
+                } else {
+                    log('❌ فشل في إنشاء البانر', 'error');
+                }
+                
+            } catch (error) {
+                log('❌ خطأ في إنشاء البانر: ' + error.message, 'error');
+            }
+        }
+
+        async function updateBanner() {
+            if (!authToken) {
+                log('⚠️ يجب تسجيل الدخول أولاً', 'warning');
+                await testLogin();
+                if (!authToken) return;
+            }
+            
+            log('🔄 تحديث البانر...');
+            
+            const updatedBanner = {
+                enabled: true,
+                text: 'بانر محدث 🎯 - ' + new Date().toLocaleTimeString(),
+                backgroundColor: '#f59e0b',
+                textColor: '#ffffff',
+                link: '',
+                showCloseButton: false
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/theme/banner`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(updatedBanner)
+                });
+                
+                const data = await response.json();
+                log('استجابة تحديث البانر:');
+                log(JSON.stringify(data, null, 2));
+                
+                if (data.success) {
+                    log('✅ تم تحديث البانر بنجاح!', 'success');
+                    showBannerPreview(updatedBanner);
+                    
+                    // اختبار القراءة مرة أخرى
+                    setTimeout(() => {
+                        testThemeAPI();
+                    }, 1000);
+                } else {
+                    log('❌ فشل في تحديث البانر', 'error');
+                }
+                
+            } catch (error) {
+                log('❌ خطأ في تحديث البانر: ' + error.message, 'error');
+            }
+        }
+
+        function showBannerPreview(banner) {
+            const preview = document.getElementById('bannerPreview');
+            preview.style.display = 'flex';
+            preview.style.backgroundColor = banner.backgroundColor;
+            preview.style.color = banner.textColor;
+            preview.textContent = banner.text;
+        }
+
+        function hideBannerPreview() {
+            const preview = document.getElementById('bannerPreview');
+            preview.style.display = 'none';
+        }
+
+        // تشغيل اختبار أولي
+        window.onload = function() {
+            log('🚀 أداة اختبار API جاهزة');
+            log('💡 ابدأ بـ "اختبار GET /theme" لرؤية البيانات الحالية');
+            
+            // اختبار تلقائي
+            setTimeout(() => {
+                testThemeAPI();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

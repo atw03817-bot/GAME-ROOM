@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/seo/sitemap.xml",
+      "destination": "https://api.ab-tw.com/api/seo/sitemap.xml"
+    },
+    {
+      "source": "/api/seo/robots.txt", 
+      "destination": "https://api.ab-tw.com/api/seo/robots.txt"
+    },
+    {
+      "source": "/api/(.*)",
+      "destination": "https://api.ab-tw.com/api/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

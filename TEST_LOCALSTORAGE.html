@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار localStorage في الجوال</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .test-box {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #7c3aed;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 5px;
+            font-size: 16px;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <h1>اختبار localStorage في الجوال</h1>
+    
+    <div class="test-box">
+        <h3>اختبار أساسي</h3>
+        <button onclick="testBasic()">اختبار localStorage</button>
+        <div id="basicResult" class="result"></div>
+    </div>
+    
+    <div class="test-box">
+        <h3>اختبار إعدادات البانر</h3>
+        <button onclick="saveBanner()">حفظ بانر تجريبي</button>
+        <button onclick="loadBanner()">تحميل البانر</button>
+        <div id="bannerResult" class="result"></div>
+    </div>
+    
+    <div class="test-box">
+        <h3>اختبار إعدادات Header</h3>
+        <button onclick="saveHeader()">حفظ header تجريبي</button>
+        <button onclick="loadHeader()">تحميل Header</button>
+        <div id="headerResult" class="result"></div>
+    </div>
+    
+    <div class="test-box">
+        <h3>عرض جميع البيانات</h3>
+        <button onclick="showAll()">عرض كل localStorage</button>
+        <button onclick="clearAll()">مسح الكل</button>
+        <div id="allResult" class="result"></div>
+    </div>
+
+    <script>
+        function log(elementId, message) {
+            document.getElementById(elementId).innerHTML += message + '<br>';
+        }
+        
+        function clear(elementId) {
+            document.getElementById(elementId).innerHTML = '';
+        }
+
+        function testBasic() {
+            clear('basicResult');
+            
+            try {
+                // اختبار localStorage
+                if (typeof(Storage) !== "undefined") {
+                    log('basicResult', '✅ localStorage متاح');
+                    
+                    // اختبار الكتابة
+                    localStorage.setItem('test', 'مرحبا من الجوال');
+                    log('basicResult', '✅ تم حفظ البيانات');
+                    
+                    // اختبار القراءة
+                    const data = localStorage.getItem('test');
+                    log('basicResult', '✅ تم تحميل البيانات: ' + data);
+                    
+                    // اختبار JSON
+                    const jsonData = {name: 'اختبار', mobile: true};
+                    localStorage.setItem('testJson', JSON.stringify(jsonData));
+                    const loadedJson = JSON.parse(localStorage.getItem('testJson'));
+                    log('basicResult', '✅ JSON يعمل: ' + JSON.stringify(loadedJson));
+                    
+                } else {
+                    log('basicResult', '❌ localStorage غير متاح');
+                }
+            } catch (error) {
+                log('basicResult', '❌ خطأ: ' + error.message);
+            }
+        }
+
+        function saveBanner() {
+            clear('bannerResult');
+            
+            try {
+                const bannerSettings = {
+                    enabled: true,
+                    text: 'بانر تجريبي من الجوال',
+                    backgroundColor: '#7c3aed',
+                    textColor: '#ffffff',
+                    showCloseButton: false,
+                    link: ''
+                };
+                
+                localStorage.setItem('bannerSettings', JSON.stringify(bannerSettings));
+                log('bannerResult', '✅ تم حفظ إعدادات البانر');
+                log('bannerResult', JSON.stringify(bannerSettings, null, 2));
+                
+            } catch (error) {
+                log('bannerResult', '❌ خطأ في حفظ البانر: ' + error.message);
+            }
+        }
+
+        function loadBanner() {
+            clear('bannerResult');
+            
+            try {
+                const saved = localStorage.getItem('bannerSettings');
+                if (saved) {
+                    const settings = JSON.parse(saved);
+                    log('bannerResult', '✅ تم تحميل إعدادات البانر:');
+                    log('bannerResult', JSON.stringify(settings, null, 2));
+                } else {
+                    log('bannerResult', '❌ لا توجد إعدادات بانر محفوظة');
+                }
+            } catch (error) {
+                log('bannerResult', '❌ خطأ في تحميل البانر: ' + error.message);
+            }
+        }
+
+        function saveHeader() {
+            clear('headerResult');
+            
+            try {
+                const headerSettings = {
+                    storeName: 'متجر تجريبي من الجوال',
+                    tagline: 'شعار تجريبي',
+                    showStoreNameMobile: true,
+                    showTaglineMobile: true
+                };
+                
+                localStorage.setItem('headerSettings', JSON.stringify(headerSettings));
+                log('headerResult', '✅ تم حفظ إعدادات Header');
+                log('headerResult', JSON.stringify(headerSettings, null, 2));
+                
+            } catch (error) {
+                log('headerResult', '❌ خطأ في حفظ Header: ' + error.message);
+            }
+        }
+
+        function loadHeader() {
+            clear('headerResult');
+            
+            try {
+                const saved = localStorage.getItem('headerSettings');
+                if (saved) {
+                    const settings = JSON.parse(saved);
+                    log('headerResult', '✅ تم تحميل إعدادات Header:');
+                    log('headerResult', JSON.stringify(settings, null, 2));
+                } else {
+                    log('headerResult', '❌ لا توجد إعدادات Header محفوظة');
+                }
+            } catch (error) {
+                log('headerResult', '❌ خطأ في تحميل Header: ' + error.message);
+            }
+        }
+
+        function showAll() {
+            clear('allResult');
+            
+            try {
+                log('allResult', 'جميع بيانات localStorage:');
+                log('allResult', '-------------------');
+                
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    const value = localStorage.getItem(key);
+                    log('allResult', key + ': ' + value);
+                }
+                
+                if (localStorage.length === 0) {
+                    log('allResult', 'localStorage فارغ');
+                }
+                
+            } catch (error) {
+                log('allResult', '❌ خطأ: ' + error.message);
+            }
+        }
+
+        function clearAll() {
+            try {
+                localStorage.clear();
+                log('allResult', '✅ تم مسح جميع البيانات');
+            } catch (error) {
+                log('allResult', '❌ خطأ في المسح: ' + error.message);
+            }
+        }
+
+        // اختبار تلقائي عند تحميل الصفحة
+        window.onload = function() {
+            testBasic();
+        };
+    </script>
+</body>
+</html>

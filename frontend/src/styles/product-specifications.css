@@ -1,0 +1,186 @@
+/* Product Specifications Styles */
+.specifications-table {
+  font-family: 'Cairo', sans-serif;
+  direction: rtl;
+}
+
+/* Table styles for desktop/tablet */
+.specifications-table table {
+  border-collapse: collapse;
+  width: 100%;
+  background: white;
+}
+
+.specifications-table th,
+.specifications-table td {
+  text-align: right;
+  vertical-align: top;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Table header styling */
+.specifications-table thead th {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 2px solid #e2e8f0;
+  font-weight: 700;
+  color: #1e293b;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Table row hover effects */
+.specifications-table tbody tr {
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.specifications-table tbody tr:hover {
+  background-color: #eff6ff !important;
+  transform: translateX(-2px);
+  box-shadow: 4px 0 8px rgba(59, 130, 246, 0.1);
+}
+
+/* Mobile card styling */
+.specifications-table .space-y-4 > div {
+  transition: all 0.3s ease;
+  border: 1px solid #e2e8f0;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.specifications-table .space-y-4 > div:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border-color: #3b82f6;
+}
+
+/* Dot indicators */
+.specifications-table .w-2.h-2 {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+.specifications-table .w-3.h-3 {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.4);
+}
+
+/* Text styling improvements */
+.specifications-table .break-words {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  line-height: 1.7;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .specifications-table {
+    font-size: 14px;
+  }
+  
+  /* Enhanced mobile cards */
+  .specifications-table .space-y-4 > div {
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  
+  .specifications-table .font-bold {
+    font-size: 16px;
+    color: #1e293b;
+    margin-bottom: 12px;
+  }
+  
+  .specifications-table .text-sm {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #475569;
+  }
+}
+
+/* Tablet and desktop optimizations */
+@media (min-width: 641px) {
+  .specifications-table th:first-child,
+  .specifications-table td:first-child {
+    width: 35%;
+    min-width: 180px;
+    font-weight: 600;
+  }
+  
+  .specifications-table th:last-child,
+  .specifications-table td:last-child {
+    width: 65%;
+  }
+  
+  /* Better spacing */
+  .specifications-table th {
+    padding: 16px 24px;
+  }
+  
+  .specifications-table td {
+    padding: 16px 24px;
+  }
+}
+
+/* Alternating row colors */
+.specifications-table tbody tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.specifications-table tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+/* Border improvements */
+.specifications-table table {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.specifications-table .border-l {
+  border-left: 1px solid #e2e8f0;
+}
+
+/* Animation for loading state */
+.specifications-table {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive text sizes */
+@media (max-width: 480px) {
+  .specifications-table .font-bold {
+    font-size: 15px;
+  }
+  
+  .specifications-table .text-sm {
+    font-size: 13px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .specifications-table tbody tr:hover {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+  }
+  
+  .specifications-table .w-2.h-2,
+  .specifications-table .w-3.h-3 {
+    background: #000000;
+  }
+}

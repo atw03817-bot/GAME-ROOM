@@ -1,0 +1,108 @@
+/* إصلاحات خاصة بالآيفون والأجهزة المحمولة */
+
+/* إصلاح مشاكل العرض في Safari */
+@supports (-webkit-touch-callout: none) {
+  /* هذا الكود يعمل فقط في Safari (الآيفون) */
+  
+  .top-banner-ios {
+    position: relative !important;
+    display: block !important;
+    width: 100% !important;
+    min-height: 40px !important;
+    -webkit-transform: translateZ(0) !important;
+    transform: translateZ(0) !important;
+    -webkit-backface-visibility: hidden !important;
+    backface-visibility: hidden !important;
+    -webkit-font-smoothing: antialiased !important;
+  }
+  
+  .navbar-mobile-text-ios {
+    display: block !important;
+    visibility: visible !important;
+    -webkit-transform: translateZ(0) !important;
+    transform: translateZ(0) !important;
+  }
+  
+  /* فرض ظهور النصوص */
+  .force-visible-ios {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+    overflow: visible !important;
+    -webkit-transform: translateZ(0) !important;
+    transform: translateZ(0) !important;
+  }
+}
+
+/* إصلاحات عامة للأجهزة المحمولة */
+@media screen and (max-width: 768px) {
+  .top-banner-ios {
+    position: relative !important;
+    display: block !important;
+    width: 100% !important;
+    min-height: 40px !important;
+    -webkit-transform: translateZ(0) !important;
+    transform: translateZ(0) !important;
+    -webkit-backface-visibility: hidden !important;
+    backface-visibility: hidden !important;
+    -webkit-font-smoothing: antialiased !important;
+    z-index: 9999 !important;
+  }
+  
+  .force-visible-ios {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+    overflow: visible !important;
+    -webkit-transform: translateZ(0) !important;
+    transform: translateZ(0) !important;
+  }
+}
+
+/* إصلاح مشاكل الـ viewport في الآيفون */
+@media screen and (max-width: 768px) {
+  body {
+    -webkit-text-size-adjust: 100% !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+  }
+  
+  /* إصلاح مشاكل الـ container */
+  .container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+}
+
+/* إصلاح مشاكل الـ z-index في الآيفون */
+.ios-z-fix {
+  position: relative !important;
+  z-index: 9999 !important;
+  -webkit-transform: translateZ(0) !important;
+  transform: translateZ(0) !important;
+}
+
+/* إصلاح مشاكل الخطوط في الآيفون */
+.ios-font-fix {
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  text-rendering: optimizeLegibility !important;
+}
+
+/* إصلاح مشاكل التمرير في الآيفون */
+.ios-scroll-fix {
+  -webkit-overflow-scrolling: touch !important;
+  overflow-scrolling: touch !important;
+}
+
+/* إصلاح مشاكل اللمس في الآيفون */
+.ios-touch-fix {
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+}

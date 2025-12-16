@@ -1,0 +1,36 @@
+{
+  "success": true,
+  "trackingNumber": "RB176547359852847",
+  "shipmentId": "redbox_RB176547359852847",
+  "estimatedDelivery": "2025-12-12T17:19:58.528Z",
+  "cost": 25,
+  "isTest": true,
+  "provider": "redbox",
+  "status": "created",
+  "orderData": {
+    "orderNumber": "TEST-1765473598527",
+    "customerName": "عميل تجريبي",
+    "customerPhone": "+966501234567",
+    "city": "الرياض",
+    "address": "الرياض - العليا, شارع الملك فهد",
+    "items": [
+      {
+        "name": "منتج تجريبي",
+        "quantity": 1,
+        "options": {
+          "color": {
+            "nameAr": "أزرق",
+            "name": "Blue"
+          },
+          "storage": {
+            "nameAr": "256 جيجابايت",
+            "name": "256GB"
+          }
+        }
+      }
+    ],
+    "total": 1000,
+    "paymentMethod": "cod"
+  },
+  "createdAt": "2025-12-11T17:19:58.532Z"
+}

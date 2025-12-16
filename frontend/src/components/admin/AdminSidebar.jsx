@@ -1,0 +1,187 @@
+import { useState, useEffect } from 'react'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
+import {
+  FiHome,
+  FiPackage,
+  FiShoppingBag,
+  FiUsers,
+  FiSettings,
+  FiLogOut,
+  FiX,
+  FiLayout,
+  FiGrid,
+  FiTag,
+  FiTruck,
+  FiEdit3,
+  FiLayers,
+  FiFileText,
+  FiSearch,
+} from 'react-icons/fi'
+import api from '../../utils/api'
+
+export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem('token')
+      if (!token) return
+
+      try {
+        const response = await api.get('/auth/profile')
+        setUser(response.data.user)
+      } catch (error) {
+        console.error('Error fetching user:', error)
+      }
+    }
+
+    fetchUser()
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('userRole')
+    navigate('/login')
+  }
+
+  // تحديد الصفحة النشطة من الـ URL
+  const getActivePage = () => {
+    const path = location.pathname
+    if (path === '/admin' || path === '/admin/dashboard') return 'dashboard'
+    if (path.includes('/admin/homepage')) return 'homepage'
+    if (path.includes('/admin/products')) return 'products'
+    if (path.includes('/admin/orders')) return 'orders'
+    if (path.includes('/admin/customers')) return 'customers'
+    if (path.includes('/admin/categories')) return 'categories'
+    if (path.includes('/admin/deals')) return 'deals'
+    if (path.includes('/admin/distribution')) return 'distribution'
+    if (path.includes('/admin/theme-settings')) return 'theme-settings'
+    if (path.includes('/admin/footer-settings')) return 'footer-settings'
+    if (path.includes('/admin/legal-pages')) return 'legal-pages'
+    if (path.includes('/admin/seo')) return 'seo'
+    if (path.includes('/admin/settings')) return 'settings'
+    return ''
+  }
+
+  const activePage = getActivePage()
+
+  const menuItems = [
+    { id: 'dashboard', path: '/admin/dashboard', icon: FiHome, label: 'الرئيسية' },
+    { id: 'homepage', path: '/admin/homepage-builder', icon: FiLayout, label: 'الصفحة الرئيسية' },
+    { id: 'products', path: '/admin/products', icon: FiPackage, label: 'المنتجات' },
+    { id: 'categories', path: '/admin/categories', icon: FiGrid, label: 'الفئات' },
+    { id: 'orders', path: '/admin/orders', icon: FiShoppingBag, label: 'الطلبات' },
+    { id: 'customers', path: '/admin/customers', icon: FiUsers, label: 'العملاء' },
+    { id: 'deals', path: '/admin/deals', icon: FiTag, label: 'العروض' },
+    { id: 'distribution', path: '/admin/distribution', icon: FiTruck, label: 'التوزيع' },
+    { id: 'settings', path: '/admin/settings', icon: FiSettings, label: 'الإعدادات' },
+  ]
+
+  const settingsItems = [
+    { id: 'seo', path: '/admin/seo', icon: FiSearch, label: 'تحسين محركات البحث' },
+    { id: 'theme-settings', path: '/admin/theme-settings', icon: FiEdit3, label: 'إعدادات الثيم' },
+    { id: 'footer-settings', path: '/admin/footer-settings', icon: FiLayers, label: 'إعدادات Footer' },
+    { id: 'legal-pages', path: '/admin/legal-pages', icon: FiFileText, label: 'الصفحات القانونية' },
+  ]
+
+  return (
+    <aside
+      className={`fixed lg:static inset-y-0 right-0 z-50 w-64 bg-gradient-to-b from-slate-900 to-slate-800 text-white transform transition-transform duration-300 ${
+        sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
+      }`}
+    >
+      <div className="flex flex-col h-full">
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-xl font-bold">أبعاد التواصل</h2>
+              <p className="text-xs text-gray-400">لوحة الإدارة</p>
+            </div>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="lg:hidden p-2 hover:bg-slate-700 rounded-lg transition"
+            >
+              <FiX size={20} />
+            </button>
+          </div>
+
+          {user && (
+            <div className="mb-6 p-4 bg-slate-700 rounded-xl">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center text-white font-bold">
+                  {user.name?.charAt(0) || 'A'}
+                </div>
+                <div>
+                  <p className="font-bold text-sm">{user.name}</p>
+                  <p className="text-xs text-gray-400">
+                    {user.role === 'ADMIN' ? 'مدير' : 'مستخدم'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <nav className="space-y-2">
+            {menuItems.map((item) => {
+              const Icon = item.icon
+              const isActive = activePage === item.id
+              
+              return (
+                <Link
+                  key={item.id}
+                  to={item.path}
+                  onClick={() => setSidebarOpen(false)}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition ${
+                    isActive
+                      ? 'bg-primary-600 font-bold shadow-lg'
+                      : 'hover:bg-slate-700'
+                  }`}
+                >
+                  <Icon size={20} />
+                  <span>{item.label}</span>
+                </Link>
+              )
+            })}
+            
+            {/* قسم الإعدادات المتقدمة */}
+            <div className="pt-4 mt-4 border-t border-slate-700">
+              <p className="text-xs text-gray-400 px-4 mb-2 font-semibold">إعدادات التصميم</p>
+              {settingsItems.map((item) => {
+                const Icon = item.icon
+                const isActive = activePage === item.id
+                
+                return (
+                  <Link
+                    key={item.id}
+                    to={item.path}
+                    onClick={() => setSidebarOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition ${
+                      isActive
+                        ? 'bg-primary-600 font-bold shadow-lg'
+                        : 'hover:bg-slate-700'
+                    }`}
+                  >
+                    <Icon size={18} />
+                    <span className="text-sm">{item.label}</span>
+                  </Link>
+                )
+              })}
+            </div>
+          </nav>
+        </div>
+
+        <div className="mt-auto p-6">
+          <button 
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-600 rounded-xl transition"
+          >
+            <FiLogOut size={20} />
+            <span>تسجيل الخروج</span>
+          </button>
+        </div>
+      </div>
+    </aside>
+  )
+}

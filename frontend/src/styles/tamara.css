@@ -1,0 +1,294 @@
+/* Tamara Payment Styles */
+
+.tamara-logo {
+  max-height: 24px;
+  width: auto;
+  object-fit: contain;
+  filter: none;
+}
+
+.tamara-logo-large {
+  max-height: 32px;
+  width: auto;
+  object-fit: contain;
+  filter: none;
+}
+
+.tamara-logo-disabled {
+  max-height: 24px;
+  width: auto;
+  object-fit: contain;
+  filter: grayscale(100%) opacity(0.5);
+}
+
+.tamara-container {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1px solid #bbf7d0;
+}
+
+.tamara-container:hover {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-color: #86efac;
+}
+
+.tamara-selected {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 2px solid #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+.tamara-installment-option {
+  transition: all 0.2s ease-in-out;
+}
+
+.tamara-installment-option:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.tamara-installment-selected {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-color: #22c55e;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
+}
+
+.tamara-badge {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tamara-info-box {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 1px solid #93c5fd;
+}
+
+.tamara-success-box {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1px solid #86efac;
+}
+
+.tamara-error-box {
+  background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+  border: 1px solid #fca5a5;
+}
+
+/* Animation for loading states */
+.tamara-loading {
+  animation: tamara-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes tamara-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .tamara-logo {
+    max-height: 20px;
+  }
+  
+  .tamara-logo-large {
+    max-height: 28px;
+  }
+}
+
+/* Tamara Widget Styles */
+.tamara-widget {
+  font-family: inherit;
+}
+
+.tamara-widget-small {
+  font-size: 12px;
+}
+
+.tamara-widget-medium {
+  font-size: 14px;
+}
+
+.tamara-widget-large {
+  font-size: 16px;
+}
+
+.tamara-widget-minimal {
+  padding: 8px 0;
+}
+
+.tamara-widget-inline {
+  margin: 12px 0;
+}
+
+.tamara-widget-card {
+  margin: 16px 0;
+}
+
+.tamara-installment-card {
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.tamara-installment-card:hover {
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
+  transform: translateY(-1px);
+}
+
+.tamara-price-highlight {
+  color: #7c3aed;
+  font-weight: 600;
+}
+
+.tamara-price-primary {
+  color: #7c3aed !important;
+  font-weight: 700;
+}
+
+.tamara-badge-small {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Product page integration */
+.product-price-container .tamara-widget {
+  margin-top: 8px;
+}
+
+.cart-item .tamara-widget {
+  margin-top: 6px;
+}
+
+/* Responsive adjustments for widgets */
+@media (max-width: 640px) {
+  .tamara-widget-card {
+    margin: 12px 0;
+  }
+  
+  .tamara-installment-card {
+    padding: 16px;
+  }
+  
+  .tamara-widget-small {
+    font-size: 13px;
+  }
+  
+  .tamara-widget-medium {
+    font-size: 16px;
+  }
+  
+  .tamara-widget-large {
+    font-size: 18px;
+  }
+  
+  /* Mobile specific styles */
+  .tamara-fallback-widget {
+    font-size: 16px !important;
+    padding: 12px 16px !important;
+    line-height: 1.4;
+  }
+  
+  .tamara-fallback-widget img {
+    height: 20px !important;
+  }
+  
+  .tamara-fallback-widget strong {
+    font-size: 17px !important;
+  }
+  
+  .tamara-learn-more-mobile {
+    font-size: 14px !important;
+    margin-top: 4px;
+    display: block;
+  }
+}
+
+/* Animation for price updates */
+.tamara-price-update {
+  animation: tamara-price-pulse 0.5s ease-in-out;
+}
+
+@keyframes tamara-price-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* Tamara Modal Styles */
+.tamara-modal-overlay {
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.tamara-modal {
+  animation: slideIn 0.3s ease-out;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { 
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.tamara-learn-more {
+  transition: all 0.2s ease;
+}
+
+.tamara-learn-more:hover {
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .tamara-container {
+    background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+    border-color: #047857;
+  }
+  
+  .tamara-selected {
+    background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  }
+  
+  .tamara-installment-card {
+    background: #1f2937;
+    border-color: #374151;
+    color: #f9fafb;
+  }
+  
+  .tamara-installment-card:hover {
+    border-color: #22c55e;
+  }
+  
+  .tamara-modal {
+    background: #1f2937;
+    color: #f9fafb;
+  }
+}

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تشخيص مشكلة البانر في الجوال</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 15px;
+            background: #f5f5f5;
+            margin: 0;
+            font-size: 14px;
+        }
+        .container {
+            max-width: 100%;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin: 15px 0;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #fafafa;
+        }
+        .section h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 16px;
+        }
+        button {
+            background: #7c3aed;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 3px;
+            font-size: 13px;
+            width: 100%;
+        }
+        button:hover {
+            background: #6d28d9;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 8px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 11px;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+        }
+        .success { background: #d4edda; color: #155724; border-color: #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border-color: #ffeaa7; }
+        
+        .banner-test {
+            background: #7c3aed;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            border-radius: 5px;
+            margin: 10px 0;
+            min-height: 40px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 10px 0;
+        }
+        
+        .status {
+            padding: 8px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        
+        .status.good { background: #d4edda; color: #155724; }
+        .status.bad { background: #f8d7da; color: #721c24; }
+        .status.unknown { background: #e2e3e5; color: #383d41; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 تشخيص مشكلة البانر في الجوال</h1>
+        
+        <div class="section">
+            <h3>الحالة الحالية</h3>
+            <div id="currentStatus" class="status unknown">جاري الفحص...</div>
+            <div class="quick-actions">
+                <button onclick="checkEverything()">فحص شامل</button>
+                <button onclick="fixBanner()">إصلاح سريع</button>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3>اختبار localStorage</h3>
+            <div class="quick-actions">
+                <button onclick="testLocalStorage()">اختبار localStorage</button>
+                <button onclick="showStorageContent()">عرض المحتوى</button>
+                <button onclick="createTestBanner()">إنشاء بانر تجريبي</button>
+                <button onclick="clearStorage()">مسح البيانات</button>
+            </div>
+            <div id="storageResult" class="result">انقر على أي زر للبدء...</div>
+        </div>
+        
+        <div class="section">
+            <h3>اختبار البانر المباشر</h3>
+            <div id="bannerTest" class="banner-test">
+                🚀 هذا بانر تجريبي - إذا ظهر فالمشكلة في localStorage
+            </div>
+            <div class="quick-actions">
+                <button onclick="showTestBanner()">إظهار بانر تجريبي</button>
+                <button onclick="hideTestBanner()">إخفاء البانر</button>
+                <button onclick="simulateRealBanner()">محاكاة البانر الحقيقي</button>
+                <button onclick="testBannerEvents()">اختبار الأحداث</button>
+            </div>
+            <div id="bannerResult" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <h3>معلومات الجهاز والمتصفح</h3>
+            <button onclick="showDeviceInfo()">عرض معلومات الجهاز</button>
+            <div id="deviceResult" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <h3>سجل الأحداث المباشر</h3>
+            <button onclick="clearLog()">مسح السجل</button>
+            <div id="liveLog" class="result">سجل الأحداث سيظهر هنا...</div>
+        </div>
+    </div>
+
+    <script>
+        let logCount = 0;
+        
+        function log(message, type = 'info') {
+            logCount++;
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${logCount}] ${timestamp} - ${message}`;
+            
+            console.log(logEntry);
+            
+            const liveLog = document.getElementById('liveLog');
+            liveLog.textContent += logEntry + '\n';
+            liveLog.scrollTop = liveLog.scrollHeight;
+            
+            // تحديث الحالة العامة
+            updateStatus();
+        }
+        
+        function updateStatus() {
+            const statusDiv = document.getElementById('currentStatus');
+            
+            try {
+                const saved = localStorage.getItem('bannerSettings');
+                if (saved && saved !== 'null') {
+                    const settings = JSON.parse(saved);
+                    if (settings.enabled && settings.text) {
+                        statusDiv.textContent = '✅ البانر مفعل ويجب أن يظهر';
+                        statusDiv.className = 'status good';
+                    } else {
+                        statusDiv.textContent = '⚠️ البانر موجود لكن غير مفعل';
+                        statusDiv.className = 'status unknown';
+                    }
+                } else {
+                    statusDiv.textContent = '❌ لا توجد إعدادات بانر';
+                    statusDiv.className = 'status bad';
+                }
+            } catch (error) {
+                statusDiv.textContent = '❌ خطأ في قراءة البيانات';
+                statusDiv.className = 'status bad';
+            }
+        }
+        
+        function testLocalStorage() {
+            const result = document.getElementById('storageResult');
+            log('بدء اختبار localStorage...');
+            
+            try {
+                // اختبار الكتابة والقراءة
+                localStorage.setItem('test_banner', 'hello_mobile');
+                const testValue = localStorage.getItem('test_banner');
+                localStorage.removeItem('test_banner');
+                
+                if (testValue === 'hello_mobile') {
+                    result.textContent = '✅ localStorage يعمل بشكل طبيعي في هذا الجهاز';
+                    result.className = 'result success';
+                    log('localStorage يعمل بشكل طبيعي');
+                } else {
+                    result.textContent = '❌ مشكلة في قراءة localStorage';
+                    result.className = 'result error';
+                    log('مشكلة في localStorage - القراءة فاشلة', 'error');
+                }
+            } catch (error) {
+                result.textContent = '❌ localStorage لا يعمل: ' + error.message;
+                result.className = 'result error';
+                log('localStorage فاشل: ' + error.message, 'error');
+            }
+        }
+        
+        function showStorageContent() {
+            const result = document.getElementById('storageResult');
+            log('عرض محتوى localStorage...');
+            
+            try {
+                const bannerSettings = localStorage.getItem('bannerSettings');
+                const headerSettings = localStorage.getItem('headerSettings');
+                
+                let content = 'محتوى localStorage:\n\n';
+                content += '1. bannerSettings:\n';
+                content += bannerSettings ? bannerSettings : 'غير موجود';
+                content += '\n\n2. headerSettings:\n';
+                content += headerSettings ? headerSettings : 'غير موجود';
+                
+                if (bannerSettings && bannerSettings !== 'null') {
+                    try {
+                        const parsed = JSON.parse(bannerSettings);
+                        content += '\n\n3. bannerSettings مُحلل:\n';
+                        content += JSON.stringify(parsed, null, 2);
+                    } catch (e) {
+                        content += '\n\n❌ خطأ في تحليل bannerSettings: ' + e.message;
+                    }
+                }
+                
+                result.textContent = content;
+                result.className = 'result';
+                log('تم عرض محتوى localStorage');
+            } catch (error) {
+                result.textContent = '❌ خطأ في قراءة localStorage: ' + error.message;
+                result.className = 'result error';
+                log('خطأ في قراءة localStorage: ' + error.message, 'error');
+            }
+        }
+        
+        function createTestBanner() {
+            const result = document.getElementById('storageResult');
+            log('إنشاء بانر تجريبي...');
+            
+            try {
+                const testBanner = {
+                    enabled: true,
+                    text: 'بانر تجريبي للجوال 📱 - إذا ظهر فالنظام يعمل!',
+                    backgroundColor: '#10b981',
+                    textColor: '#ffffff',
+                    link: ''
+                };
+                
+                localStorage.setItem('bannerSettings', JSON.stringify(testBanner));
+                
+                result.textContent = '✅ تم إنشاء بانر تجريبي بنجاح!\n\n' + JSON.stringify(testBanner, null, 2);
+                result.className = 'result success';
+                log('تم إنشاء بانر تجريبي بنجاح');
+                
+                // إرسال حدث للتطبيق الحقيقي
+                window.dispatchEvent(new CustomEvent('bannerSettingsChanged', { 
+                    detail: testBanner 
+                }));
+                log('تم إرسال حدث bannerSettingsChanged');
+                
+                updateStatus();
+            } catch (error) {
+                result.textContent = '❌ خطأ في إنشاء البانر: ' + error.message;
+                result.className = 'result error';
+                log('خطأ في إنشاء البانر: ' + error.message, 'error');
+            }
+        }
+        
+        function clearStorage() {
+            const result = document.getElementById('storageResult');
+            log('مسح بيانات localStorage...');
+            
+            try {
+                localStorage.removeItem('bannerSettings');
+                localStorage.removeItem('headerSettings');
+                
+                result.textContent = '✅ تم مسح جميع البيانات';
+                result.className = 'result success';
+                log('تم مسح localStorage بنجاح');
+                
+                updateStatus();
+            } catch (error) {
+                result.textContent = '❌ خطأ في مسح البيانات: ' + error.message;
+                result.className = 'result error';
+                log('خطأ في مسح localStorage: ' + error.message, 'error');
+            }
+        }
+        
+        function showTestBanner() {
+            const banner = document.getElementById('bannerTest');
+            banner.style.display = 'flex';
+            log('تم إظهار البانر التجريبي');
+        }
+        
+        function hideTestBanner() {
+            const banner = document.getElementById('bannerTest');
+            banner.style.display = 'none';
+            log('تم إخفاء البانر التجريبي');
+        }
+        
+        function simulateRealBanner() {
+            const result = document.getElementById('bannerResult');
+            log('محاكاة البانر الحقيقي...');
+            
+            try {
+                const saved = localStorage.getItem('bannerSettings');
+                if (saved && saved !== 'null') {
+                    const settings = JSON.parse(saved);
+                    
+                    if (settings.enabled && settings.text && settings.text.trim() !== '') {
+                        const banner = document.getElementById('bannerTest');
+                        banner.style.backgroundColor = settings.backgroundColor || '#7c3aed';
+                        banner.style.color = settings.textColor || '#ffffff';
+                        banner.textContent = settings.text;
+                        banner.style.display = 'flex';
+                        
+                        result.textContent = '✅ البانر الحقيقي سيظهر بهذا الشكل!\nالنص: ' + settings.text;
+                        result.className = 'result success';
+                        log('البانر الحقيقي محاكى بنجاح');
+                    } else {
+                        result.textContent = '⚠️ البانر لن يظهر - غير مفعل أو لا يحتوي على نص';
+                        result.className = 'result warning';
+                        log('البانر لن يظهر - شروط العرض غير مستوفاة', 'warning');
+                    }
+                } else {
+                    result.textContent = '❌ لا توجد إعدادات بانر محفوظة';
+                    result.className = 'result error';
+                    log('لا توجد إعدادات بانر', 'error');
+                }
+            } catch (error) {
+                result.textContent = '❌ خطأ في المحاكاة: ' + error.message;
+                result.className = 'result error';
+                log('خطأ في محاكاة البانر: ' + error.message, 'error');
+            }
+        }
+        
+        function testBannerEvents() {
+            const result = document.getElementById('bannerResult');
+            log('اختبار نظام الأحداث...');
+            
+            // إنشاء مستمع للأحداث
+            const eventHandler = (event) => {
+                result.textContent = '✅ تم استقبال حدث البانر بنجاح!\n\nالبيانات:\n' + JSON.stringify(event.detail, null, 2);
+                result.className = 'result success';
+                log('تم استقبال حدث bannerSettingsChanged بنجاح');
+            };
+            
+            window.addEventListener('bannerSettingsChanged', eventHandler);
+            
+            // إرسال حدث تجريبي
+            setTimeout(() => {
+                const testEvent = {
+                    enabled: true,
+                    text: 'اختبار نظام الأحداث 🎯',
+                    backgroundColor: '#f59e0b',
+                    textColor: '#ffffff'
+                };
+                
+                window.dispatchEvent(new CustomEvent('bannerSettingsChanged', { 
+                    detail: testEvent 
+                }));
+                log('تم إرسال حدث تجريبي');
+                
+                // إزالة المستمع بعد 3 ثواني
+                setTimeout(() => {
+                    window.removeEventListener('bannerSettingsChanged', eventHandler);
+                    log('تم إزالة مستمع الأحداث');
+                }, 3000);
+            }, 500);
+        }
+        
+        function showDeviceInfo() {
+            const result = document.getElementById('deviceResult');
+            log('عرض معلومات الجهاز...');
+            
+            const info = {
+                userAgent: navigator.userAgent,
+                screenSize: `${screen.width}x${screen.height}`,
+                windowSize: `${window.innerWidth}x${window.innerHeight}`,
+                devicePixelRatio: window.devicePixelRatio,
+                isMobile: window.innerWidth <= 768,
+                isIOS: /iPad|iPhone|iPod/.test(navigator.userAgent),
+                isAndroid: /Android/.test(navigator.userAgent),
+                isSafari: /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent),
+                isChrome: /Chrome/.test(navigator.userAgent),
+                localStorageSupported: typeof(Storage) !== "undefined",
+                touchSupported: 'ontouchstart' in window,
+                language: navigator.language,
+                cookieEnabled: navigator.cookieEnabled,
+                onLine: navigator.onLine
+            };
+            
+            result.textContent = JSON.stringify(info, null, 2);
+            result.className = 'result';
+            log('تم عرض معلومات الجهاز');
+        }
+        
+        function checkEverything() {
+            log('بدء الفحص الشامل...');
+            
+            // فحص localStorage
+            testLocalStorage();
+            
+            setTimeout(() => {
+                // عرض المحتوى
+                showStorageContent();
+            }, 500);
+            
+            setTimeout(() => {
+                // عرض معلومات الجهاز
+                showDeviceInfo();
+            }, 1000);
+            
+            setTimeout(() => {
+                // محاكاة البانر
+                simulateRealBanner();
+            }, 1500);
+            
+            log('الفحص الشامل مكتمل');
+        }
+        
+        function fixBanner() {
+            log('بدء الإصلاح السريع...');
+            
+            // إنشاء بانر تجريبي
+            createTestBanner();
+            
+            setTimeout(() => {
+                // محاكاة البانر
+                simulateRealBanner();
+            }, 500);
+            
+            log('الإصلاح السريع مكتمل');
+        }
+        
+        function clearLog() {
+            document.getElementById('liveLog').textContent = 'تم مسح السجل...\n';
+            logCount = 0;
+            log('تم مسح السجل');
+        }
+        
+        // تشغيل فحص أولي عند تحميل الصفحة
+        window.onload = function() {
+            log('تم تحميل صفحة التشخيص');
+            updateStatus();
+            
+            // فحص أولي بسيط
+            setTimeout(() => {
+                testLocalStorage();
+            }, 500);
+        };
+        
+        // مراقبة تغيير حجم النافذة
+        window.addEventListener('resize', () => {
+            log(`تم تغيير حجم النافذة إلى: ${window.innerWidth}x${window.innerHeight}`);
+        });
+        
+        // مراقبة أحداث البانر
+        window.addEventListener('bannerSettingsChanged', (event) => {
+            log('تم استقبال حدث bannerSettingsChanged: ' + JSON.stringify(event.detail));
+        });
+    </script>
+</body>
+</html>
