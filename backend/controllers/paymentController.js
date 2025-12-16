@@ -558,7 +558,7 @@ export const createTapCharge = async (req, res) => {
       customerEmail: customerInfo?.email || order.user?.email || '',
       customerPhone: customerInfo?.phone || order.shippingAddress?.phone || order.user?.phone || '',
       description: `طلب رقم ${order.orderNumber || orderId}`,
-      redirectUrl: `${process.env.FRONTEND_URL || 'https://ab-tw.com'}/order-success?orderId=${orderId}`,
+      redirectUrl: `https://ab-tw.com/order-success?orderId=${orderId}`,
       postUrl: `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/payments/tap/webhook`
     };
 
@@ -1255,9 +1255,9 @@ export const createTamaraCheckout = async (req, res) => {
       isMobile: req.headers['user-agent']?.toLowerCase().includes('mobile') || false,
       
       // URLs - Required for Direct Online Checkout
-      successUrl: `${process.env.FRONTEND_URL || 'https://ab-tw.com'}/tamara-callback?orderId=${orderId}&status=success`,
-      failureUrl: `${process.env.FRONTEND_URL || 'https://ab-tw.com'}/tamara-callback?orderId=${orderId}&status=failed`,
-      cancelUrl: `${process.env.FRONTEND_URL || 'https://ab-tw.com'}/tamara-callback?orderId=${orderId}&status=cancelled`,
+      successUrl: `https://ab-tw.com/tamara-callback?orderId=${orderId}&status=success`,
+      failureUrl: `https://ab-tw.com/tamara-callback?orderId=${orderId}&status=failed`,
+      cancelUrl: `https://ab-tw.com/tamara-callback?orderId=${orderId}&status=cancelled`,
       notificationUrl: `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/payments/tamara/webhook`,
       
       // Customer information - Must be accurate for Tamara

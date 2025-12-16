@@ -71,7 +71,7 @@ class TapPaymentService {
           id: 'src_all'
         },
         redirect: {
-          url: redirectUrl || `${process.env.FRONTEND_URL}/order-success`
+          url: redirectUrl || `https://ab-tw.com/order-success`
         },
         post: {
           url: postUrl || `${process.env.BACKEND_URL}/api/payments/tap/webhook`
