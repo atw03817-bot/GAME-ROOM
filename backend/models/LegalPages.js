@@ -197,7 +197,7 @@ legalPagesSchema.pre('save', function(next) {
       },
       {
         question: 'ما هي طرق الدفع المتاحة؟',
-        answer: 'الدفع عند الاستلام، البطاقات الائتمانية، Tabby، Tamara',
+        answer: 'الدفع عند الاستلام، البطاقات الائتمانية، Tabby',
         order: 4
       }
     ];

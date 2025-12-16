@@ -64,7 +64,7 @@
 - ✅ ExclusiveOffers
 
 #### Product Components
-- ✅ ProductCard (مع Tabby/Tamara)
+- ✅ ProductCard (مع Tabby)
 - ✅ ProductsGrid
 - ✅ ProductFilters
 

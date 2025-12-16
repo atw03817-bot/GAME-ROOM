@@ -47,16 +47,7 @@ const seedPayments = async () => {
           webhookUrl: 'https://yourdomain.com/api/payments/myfatoorah/callback'
         }
       },
-      {
-        provider: 'tamara',
-        enabled: false,
-        config: {
-          displayName: 'تمارا - قسّط مشترياتك',
-          description: 'قسّط مشترياتك على 3 أو 4 دفعات',
-          apiKey: 'YOUR_TAMARA_API_KEY',
-          testMode: true
-        }
-      },
+
       {
         provider: 'tabby',
         enabled: false,
@@ -74,7 +65,7 @@ const seedPayments = async () => {
     console.log('\n📊 الملخص:');
     console.log('- طرق الدفع: 5');
     console.log('- المفعّل: COD فقط');
-    console.log('- المعطّل: Tap, MyFatoorah, Tamara, Tabby');
+    console.log('- المعطّل: Tap, MyFatoorah, Tabby');
     
     console.log('\n💡 ملاحظة:');
     console.log('- يمكنك تفعيل طرق الدفع الأخرى من لوحة التحكم');

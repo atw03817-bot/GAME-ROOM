@@ -121,10 +121,10 @@ function OrderDetailsNew() {
     const labels = {
       cod: 'الدفع عند الاستلام',
       tap: 'Tap Payment - بطاقة ائتمانية',
-      tamara: 'تمارا - اشتري الآن وادفع لاحقاً',
+
       tap: 'بطاقة ائتمانية (Tap)',
       myfatoorah: 'MyFatoorah',
-      tamara: 'تمارا',
+
       tabby: 'تابي',
     }
     return labels[method] || method

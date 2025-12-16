@@ -29,7 +29,7 @@
   - [ ] الكمية
   - [ ] Add to Cart
   - [ ] السعر مع الخصم
-  - [ ] Tabby/Tamara
+  - [ ] Tabby
   - [ ] Share Buttons
   
 - [ ] ProductSpecs (المواصفات)

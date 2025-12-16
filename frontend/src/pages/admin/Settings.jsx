@@ -390,30 +390,15 @@ function Settings() {
               </div>
             </div>
 
-            {/* Tamara Payment Settings */}
-            <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-8 flex items-center justify-center">
-                  <img 
-                    src="https://f.nooncdn.com/s/app/com/noon/design-system/payment-methods-v2/tamara-ar.svg" 
-                    alt="Tamara"
-                    className="h-5 w-auto"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.nextSibling.style.display = 'flex';
-                    }}
-                  />
-                  <div className="w-12 h-8 bg-green-600 rounded items-center justify-center hidden">
-                    <span className="text-xs font-bold text-white">تمارا</span>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-900 flex items-center gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                    تمارا - اشتري الآن وادفع لاحقاً
-                  </h3>
-                  <p className="text-sm text-gray-600">الدفع بالتقسيط أو الدفع لاحقاً عبر تمارا</p>
-                </div>
+            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+              <div className="flex-1">
+                <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                  </svg>
+                  Tamara Payment
+                </h3>
+                <p className="text-sm text-gray-600">اشتري الآن وادفع لاحقاً - تقسيط بدون فوائد</p>
               </div>
               <div className="flex items-center gap-3">
                 <button
@@ -424,6 +409,8 @@ function Settings() {
                 </button>
               </div>
             </div>
+
+
 
             <div className="p-4 bg-primary-50 rounded-lg border border-primary-200">
               <p className="text-sm text-primary-800">

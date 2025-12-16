@@ -133,7 +133,7 @@ const HomeSEO = ({ featuredProducts = [], categories = [] }) => {
         "name": "ما هي طرق الدفع المتاحة؟",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "نقبل الدفع عند الاستلام، البطاقات الائتمانية، Apple Pay، والتقسيط عبر Tabby و Tamara."
+          "text": "نقبل الدفع عند الاستلام، البطاقات الائتمانية، Apple Pay، والتقسيط عبر Tabby."
         }
       },
       {

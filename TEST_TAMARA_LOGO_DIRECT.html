@@ -1,242 +1,0 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>اختبار شعار تمارا</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: #f5f5f5;
-            direction: rtl;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .logo-test {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px;
-            margin: 10px 0;
-            border: 2px solid #e5e5e5;
-            border-radius: 8px;
-            background: #fafafa;
-        }
-        .logo-test.active {
-            border-color: #22c55e;
-            background: #f0fdf4;
-        }
-        .logo-container {
-            width: 80px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: white;
-            border-radius: 6px;
-            border: 1px solid #e5e5e5;
-        }
-        .logo-container img {
-            max-height: 30px;
-            width: auto;
-            object-fit: contain;
-        }
-        .info {
-            flex: 1;
-        }
-        .title {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 5px;
-        }
-        .subtitle {
-            color: #666;
-            font-size: 14px;
-        }
-        .status {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        .status.success {
-            background: #dcfce7;
-            color: #166534;
-        }
-        .status.error {
-            background: #fecaca;
-            color: #991b1b;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-        }
-        .section {
-            margin: 30px 0;
-        }
-        .section h2 {
-            color: #22c55e;
-            border-bottom: 2px solid #22c55e;
-            padding-bottom: 5px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🎨 اختبار شعار تمارا الرسمي</h1>
-        
-        <div class="section">
-            <h2>الشعار الجديد من Noon CDN</h2>
-            <div class="logo-test active">
-                <div class="logo-container">
-                    <img 
-                        src="https://f.nooncdn.com/s/app/com/noon/design-system/payment-methods-v2/tamara-ar.svg" 
-                        alt="Tamara Arabic Logo"
-                        onload="this.parentElement.nextElementSibling.querySelector('.status').className = 'status success'; this.parentElement.nextElementSibling.querySelector('.status').textContent = '✅ تم التحميل';"
-                        onerror="this.parentElement.nextElementSibling.querySelector('.status').className = 'status error'; this.parentElement.nextElementSibling.querySelector('.status').textContent = '❌ فشل التحميل';"
-                    />
-                </div>
-                <div class="info">
-                    <div class="title">شعار تمارا العربي الرسمي</div>
-                    <div class="subtitle">من Noon CDN - محسن للغة العربية</div>
-                    <span class="status">⏳ جاري التحميل...</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>أحجام مختلفة للاختبار</h2>
-            
-            <!-- Small Size -->
-            <div class="logo-test">
-                <div class="logo-container" style="width: 60px; height: 30px;">
-                    <img 
-                        src="https://f.nooncdn.com/s/app/com/noon/design-system/payment-methods-v2/tamara-ar.svg" 
-                        alt="Tamara Small"
-                        style="max-height: 20px;"
-                    />
-                </div>
-                <div class="info">
-                    <div class="title">حجم صغير (20px)</div>
-                    <div class="subtitle">للاستخدام في القوائم والأزرار الصغيرة</div>
-                </div>
-            </div>
-
-            <!-- Medium Size -->
-            <div class="logo-test">
-                <div class="logo-container" style="width: 80px; height: 40px;">
-                    <img 
-                        src="https://f.nooncdn.com/s/app/com/noon/design-system/payment-methods-v2/tamara-ar.svg" 
-                        alt="Tamara Medium"
-                        style="max-height: 30px;"
-                    />
-                </div>
-                <div class="info">
-                    <div class="title">حجم متوسط (30px)</div>
-                    <div class="subtitle">للاستخدام في صفحات الدفع والخيارات</div>
-                </div>
-            </div>
-
-            <!-- Large Size -->
-            <div class="logo-test">
-                <div class="logo-container" style="width: 100px; height: 50px;">
-                    <img 
-                        src="https://f.nooncdn.com/s/app/com/noon/design-system/payment-methods-v2/tamara-ar.svg" 
-                        alt="Tamara Large"
-                        style="max-height: 40px;"
-                    />
-                </div>
-                <div class="info">
-                    <div class="title">حجم كبير (40px)</div>
-                    <div class="subtitle">للاستخدام في الهيدر وصفحات الإعدادات</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>اختبار الحالات المختلفة</h2>
-            
-            <!-- Normal State -->
-            <div class="logo-test active">
-                <div class="logo-container">
-                    <img 
-                        src="https://f.nooncdn.com/s/app/com/noon/design-system/payment-methods-v2/tamara-ar.svg" 
-                        alt="Tamara Normal"
-                        style="max-height: 30px;"
-                    />
-                </div>
-                <div class="info">
-                    <div class="title">الحالة العادية</div>
-                    <div class="subtitle">شعار تمارا مفعل وجاهز للاستخدام</div>
-                </div>
-            </div>
-
-            <!-- Disabled State -->
-            <div class="logo-test">
-                <div class="logo-container">
-                    <img 
-                        src="https://f.nooncdn.com/s/app/com/noon/design-system/payment-methods-v2/tamara-ar.svg" 
-                        alt="Tamara Disabled"
-                        style="max-height: 30px; filter: grayscale(100%) opacity(0.5);"
-                    />
-                </div>
-                <div class="info">
-                    <div class="title">الحالة المعطلة</div>
-                    <div class="subtitle">شعار تمارا معطل أو غير متاح</div>
-                </div>
-            </div>
-
-            <!-- Hover Effect -->
-            <div class="logo-test" style="transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 4px 15px rgba(34, 197, 94, 0.2)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
-                <div class="logo-container">
-                    <img 
-                        src="https://f.nooncdn.com/s/app/com/noon/design-system/payment-methods-v2/tamara-ar.svg" 
-                        alt="Tamara Hover"
-                        style="max-height: 30px;"
-                    />
-                </div>
-                <div class="info">
-                    <div class="title">تأثير Hover</div>
-                    <div class="subtitle">مرر الماوس لرؤية التأثير</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>معلومات الشعار</h2>
-            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #22c55e;">
-                <p><strong>المصدر:</strong> Noon CDN</p>
-                <p><strong>الرابط:</strong> <code>https://f.nooncdn.com/s/app/com/noon/design-system/payment-methods-v2/tamara-ar.svg</code></p>
-                <p><strong>النوع:</strong> SVG (قابل للتكبير بدون فقدان الجودة)</p>
-                <p><strong>اللغة:</strong> عربي محسن</p>
-                <p><strong>الاستخدام:</strong> جميع أحجام الشاشات والأجهزة</p>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        console.log('🎨 اختبار شعار تمارا');
-        console.log('الشعار الجديد:', 'https://f.nooncdn.com/s/app/com/noon/design-system/payment-methods-v2/tamara-ar.svg');
-        
-        // Test image loading
-        const img = new Image();
-        img.onload = function() {
-            console.log('✅ تم تحميل الشعار بنجاح');
-            console.log('الأبعاد:', this.naturalWidth + 'x' + this.naturalHeight);
-        };
-        img.onerror = function() {
-            console.error('❌ فشل في تحميل الشعار');
-        };
-        img.src = 'https://f.nooncdn.com/s/app/com/noon/design-system/payment-methods-v2/tamara-ar.svg';
-    </script>
-</body>
-</html>

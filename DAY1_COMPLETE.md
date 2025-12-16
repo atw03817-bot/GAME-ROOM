@@ -11,7 +11,7 @@
 
 #### 2. PaymentIntent.js ✅
 - نوايا الدفع
-- دعم جميع طرق الدفع (Tap, MyFatoorah, Tamara, Tabby, COD)
+- دعم جميع طرق الدفع (Tap, MyFatoorah, Tabby, COD)
 - تتبع حالة الدفع
 
 #### 3. PaymentSettings.js ✅

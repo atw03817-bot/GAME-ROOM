@@ -61,7 +61,7 @@
 3. **Payment Management**
    - 5 طرق دفع
    - COD (مفعّل)
-   - Tap, MyFatoorah, Tamara, Tabby
+   - Tap, MyFatoorah, Tabby
    - Payment Intents
    - Verification
    - Refunds

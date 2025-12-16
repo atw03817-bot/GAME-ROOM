@@ -8,8 +8,7 @@ import toast from 'react-hot-toast';
 import { ProductSEO } from '../components/SEO/index.js';
 import useScrollToTop from '../hooks/useScrollToTop';
 import { forceScrollToTop } from '../utils/mobileScrollFix';
-import TamaraOfficialWidget from '../components/tamara/TamaraOfficialWidget';
-import { useTamaraConfig } from '../hooks/useTamaraConfig';
+
 import '../styles/product-specifications.css';
 import '../styles/product-overview.css';
 
@@ -18,7 +17,7 @@ function ProductDetail() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const { addItem } = useCartStore();
-  const tamaraConfig = useTamaraConfig();
+
 
   // التمرير إلى أعلى الصفحة عند تغيير المنتج
   useScrollToTop(false, [id]); // استخدام instant بدلاً من smooth للجوال
@@ -299,15 +298,7 @@ function ProductDetail() {
                 )}
               </div>
               
-              {/* Tamara Official Widget */}
-              {tamaraConfig.enabled && (
-                <TamaraOfficialWidget 
-                  amount={product.price}
-                  publicKey={tamaraConfig.publicKey}
-                  inline={true}
-                  className="mt-2"
-                />
-              )}
+
             </div>
 
             {/* Colors */}

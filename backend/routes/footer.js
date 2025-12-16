@@ -68,12 +68,7 @@ router.get('/', async (req, res) => {
               alt: 'Apple Pay',
               enabled: true
             },
-            {
-              name: 'tamara',
-              image: 'https://cdn.salla.network/cdn-cgi/image/fit=scale-down,width=58,height=58,onerror=redirect,format=auto/images/payment/tamara_installment_mini.png',
-              alt: 'تمارا - اشتري الآن وادفع لاحقاً',
-              enabled: true
-            },
+
             {
               name: 'cod',
               image: 'https://cdn.salla.network/cdn-cgi/image/fit=scale-down,width=58,height=58,onerror=redirect,format=auto/images/payment/cod_mini.png',

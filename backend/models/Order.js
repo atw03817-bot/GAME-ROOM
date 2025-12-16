@@ -58,12 +58,12 @@ const orderSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ['cod', 'tap', 'stripe'],
+    enum: ['cod', 'tap', 'stripe', 'tamara'],
     required: true
   },
   paymentStatus: {
     type: String,
-    enum: ['pending', 'paid', 'failed', 'refunded'],
+    enum: ['pending', 'paid', 'failed', 'refunded', 'approved', 'declined', 'expired', 'authorized', 'cancelled'],
     default: 'pending'
   },
   orderStatus: {
@@ -90,6 +90,17 @@ const orderSchema = new mongoose.Schema({
   notes: String,
   trackingNumber: String,
   shippingCompany: String,
+  
+  // Tamara specific fields
+  paidAt: Date,
+  approvedAt: Date,
+  authorizedAt: Date,
+  declinedAt: Date,
+  expiredAt: Date,
+  cancelledAt: Date,
+  refundedAt: Date,
+  stockUpdated: { type: Boolean, default: false },
+  
   statusHistory: [{
     status: String,
     note: String,

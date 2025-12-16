@@ -100,7 +100,7 @@ const paymentSettingsSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    enum: ['tap', 'myfatoorah', 'tamara', 'tabby', 'cod']
+    enum: ['tap', 'myfatoorah', 'tabby', 'cod']
   },
   enabled: { type: Boolean, default: false },
   config: mongoose.Schema.Types.Mixed // API keys, etc.

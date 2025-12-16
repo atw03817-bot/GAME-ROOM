@@ -57,7 +57,7 @@
 #### ❌ PaymentSettings Model
 ```javascript
 // backend/models/PaymentSettings.js
-- provider (tap/myfatoorah/tamara/tabby/cod)
+- provider (tap/myfatoorah/tabby/cod)
 - enabled
 - config (API keys)
 ```
@@ -281,7 +281,7 @@ GET    /api/customers/:id/stats
 - اختيار طريقة الدفع
 - Tap Payment
 - MyFatoorah
-- Tamara
+
 - Tabby
 - الدفع عند الاستلام
 
@@ -542,7 +542,7 @@ GET    /api/customers/:id/stats
 #### ❌ MyFatoorah Integration
 - نفس Tap
 
-#### ❌ Tamara/Tabby (اختياري)
+#### ❌ Tabby (اختياري)
 - عرض خيار التقسيط
 - حساب الأقساط
 

@@ -10,10 +10,54 @@ export const createOrder = async (req, res) => {
 
     console.log('🛒 إنشاء طلب جديد:', {
       userId: req.user._id,
-      itemsCount: items.length,
+      itemsCount: items?.length || 0,
       paymentMethod,
-      shippingProvider
+      shippingProvider,
+      shippingAddress: shippingAddress ? 'موجود' : 'مفقود'
     });
+
+    // التحقق من البيانات المطلوبة
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'يجب أن يحتوي الطلب على منتج واحد على الأقل'
+      });
+    }
+
+    if (!shippingAddress) {
+      return res.status(400).json({
+        success: false,
+        message: 'عنوان الشحن مطلوب'
+      });
+    }
+
+    if (!shippingAddress.name && !shippingAddress.fullName) {
+      return res.status(400).json({
+        success: false,
+        message: 'اسم المستلم مطلوب'
+      });
+    }
+
+    if (!shippingAddress.phone) {
+      return res.status(400).json({
+        success: false,
+        message: 'رقم الجوال مطلوب'
+      });
+    }
+
+    if (!shippingAddress.city) {
+      return res.status(400).json({
+        success: false,
+        message: 'المدينة مطلوبة'
+      });
+    }
+
+    if (!paymentMethod) {
+      return res.status(400).json({
+        success: false,
+        message: 'طريقة الدفع مطلوبة'
+      });
+    }
 
     // التحقق من المنتجات وحساب الإجمالي
     let subtotal = 0;
@@ -115,6 +159,7 @@ export const createOrder = async (req, res) => {
       });
 
       // تحديث المخزون للدفع عند الاستلام فقط
+      // Tamara يتم تحديث المخزون عند الموافقة على الدفع
       if (paymentMethod === 'cod') {
         product.stock = Math.max(0, product.stock - item.quantity);
         product.sales = (product.sales || 0) + item.quantity;
@@ -130,15 +175,65 @@ export const createOrder = async (req, res) => {
     const orderCount = await Order.countDocuments();
     const orderNumber = `ORD-${Date.now()}-${orderCount + 1}`;
 
+    // دالة تنسيق رقم الجوال
+    const formatPhoneNumber = (phone) => {
+      if (!phone) return '';
+      
+      // إزالة جميع الأحرف غير الرقمية
+      let cleaned = phone.toString().replace(/\D/g, '');
+      
+      // معالجة التنسيقات المختلفة
+      if (cleaned.startsWith('00966')) {
+        // 00966XXXXXXXXX -> +966XXXXXXXXX
+        cleaned = cleaned.substring(2);
+      } else if (cleaned.startsWith('966')) {
+        // 966XXXXXXXXX -> keep as is
+        // cleaned = cleaned (already correct)
+      } else if (cleaned.startsWith('5') && cleaned.length === 9) {
+        // 5XXXXXXXX -> 966 + 5XXXXXXXX
+        cleaned = '966' + cleaned;
+      } else if (cleaned.startsWith('05') && cleaned.length === 10) {
+        // 05XXXXXXXX -> 966 + 5XXXXXXXX (remove leading 0)
+        cleaned = '966' + cleaned.substring(1);
+      }
+      
+      // التأكد من التنسيق الصحيح: 966XXXXXXXXX (12 رقم إجمالي)
+      if (cleaned.startsWith('966') && cleaned.length === 12) {
+        return `+${cleaned}`;
+      }
+      
+      // إذا كان الرقم 9 أرقام ويبدأ بـ 5
+      if (cleaned.length === 9 && cleaned.startsWith('5')) {
+        return `+966${cleaned}`;
+      }
+      
+      // آخر محاولة: إرجاع رقم افتراضي صالح
+      console.warn('⚠️ تنسيق رقم جوال غير صحيح، استخدام رقم افتراضي:', phone);
+      return '+966500000000';
+    };
+
+    // التحقق من صحة رقم الجوال
+    if (!shippingAddress.phone) {
+      return res.status(400).json({
+        success: false,
+        message: 'رقم الجوال مطلوب في عنوان الشحن'
+      });
+    }
+
     // تنسيق عنوان الشحن
     const formattedAddress = {
       name: shippingAddress.fullName || shippingAddress.name,
-      phone: shippingAddress.phone,
+      phone: formatPhoneNumber(shippingAddress.phone),
       city: shippingAddress.city,
       district: shippingAddress.district,
       street: shippingAddress.street,
       building: shippingAddress.building
     };
+
+    console.log('📱 رقم الجوال بعد التنسيق:', {
+      original: shippingAddress.phone,
+      formatted: formattedAddress.phone
+    });
 
     // إنشاء الطلب
     const order = new Order({
@@ -164,6 +259,7 @@ export const createOrder = async (req, res) => {
     console.log('✅ تم حفظ الطلب:', orderNumber);
 
     // إنشاء شحنة مع RedBox (للدفع عند الاستلام فقط)
+    // Tamara: الشحنة تُنشأ بعد موافقة العميل على الدفع
     if (paymentMethod === 'cod' && shippingProvider === 'redbox') {
       try {
         console.log('📦 إنشاء شحنة مع RedBox...');

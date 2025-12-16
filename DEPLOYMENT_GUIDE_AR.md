@@ -416,7 +416,7 @@ SMTP_PASS=your-app-password
 
 # Optional: Payment
 TAP_SECRET_KEY=your-tap-secret-key
-TAMARA_API_KEY=your-tamara-api-key
+
 ```
 
 ---

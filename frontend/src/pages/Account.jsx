@@ -326,8 +326,7 @@ function Account() {
                               <p className="font-medium">
                                 {order.paymentMethod === 'cod' && 'الدفع عند الاستلام'}
                                 {order.paymentMethod === 'tap' && 'Tap Payment'}
-                                {order.paymentMethod === 'tamara' && 'تمارا'}
-                                {!['cod', 'tap', 'tamara'].includes(order.paymentMethod) && 'مدفوع'}
+                                {!['cod', 'tap'].includes(order.paymentMethod) && 'مدفوع'}
                               </p>
                             </div>
                             <div className="text-center">

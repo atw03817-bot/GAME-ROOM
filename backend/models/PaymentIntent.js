@@ -17,11 +17,11 @@ const paymentIntentSchema = new mongoose.Schema({
   provider: {
     type: String,
     required: true,
-    enum: ['tap', 'myfatoorah', 'tamara', 'tabby', 'cod']
+    enum: ['tap', 'myfatoorah', 'tabby', 'cod', 'tamara']
   },
   status: {
     type: String,
-    enum: ['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED', 'CANCELLED', 'REFUNDED'],
+    enum: ['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED', 'CANCELLED', 'REFUNDED', 'APPROVED', 'DECLINED', 'EXPIRED', 'AUTHORIZED'],
     default: 'PENDING'
   },
   paymentUrl: {

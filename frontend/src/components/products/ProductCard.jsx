@@ -197,7 +197,7 @@ export default function ProductCard({ product, viewMode = 'grid' }) {
             )}
           </div>
           
-          {/* Payment Options - Tabby & Tamara */}
+          {/* Payment Options - Tabby */}
           <div style={{ 
             width: '100%',
             marginTop: '6px',
@@ -222,16 +222,6 @@ export default function ProductCard({ product, viewMode = 'grid' }) {
               <img 
                 src="https://media.extra.com/i/aurora/tabby_new" 
                 alt="Tabby"
-                style={{ width: '45px', height: 'auto', display: 'block' }}
-              />
-              <div style={{ 
-                width: '1px', 
-                height: '14px', 
-                backgroundColor: '#d1d5db' 
-              }}></div>
-              <img 
-                src="https://media.extra.com/i/aurora/tamaralogo_ar?fmt=auto&w=96" 
-                alt="Tamara"
                 style={{ width: '45px', height: 'auto', display: 'block' }}
               />
             </div>
