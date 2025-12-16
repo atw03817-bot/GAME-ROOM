@@ -66,6 +66,7 @@ router.post('/tamara/cancel/:orderId', adminAuth, cancelTamaraOrder);
 router.post('/tamara/refund/:orderId', adminAuth, refundTamaraOrder);
 router.get('/tamara/order/:tamaraOrderId', adminAuth, getTamaraOrder);
 router.post('/tamara/test', adminAuth, testTamaraConnection);
+router.post('/tamara/test-public', testTamaraConnection); // Public test endpoint
 router.post('/tamara/init', adminAuth, initTamaraSettings);
 
 
