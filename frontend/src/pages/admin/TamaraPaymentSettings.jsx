@@ -117,7 +117,7 @@ const TamaraPaymentSettings = () => {
     try {
       setTesting(true);
       setTestResult(null);
-      const token = localStorage.getItem('token');
+      let token = localStorage.getItem('token');
 
       console.log('🔍 Testing Tamara connection...');
       console.log('📝 Request data:', {
@@ -127,6 +127,15 @@ const TamaraPaymentSettings = () => {
         apiUrlSetting: settings.apiUrl,
         hasToken: !!token
       });
+
+      // Check if token is valid
+      if (!token || token === 'null' || token === 'undefined') {
+        console.log('❌ Invalid token, redirecting to login');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/admin/login';
+        return;
+      }
 
       const response = await axios.post(`${API_URL}/payments/tamara/test`, {
         merchantToken: settings.merchantToken,
