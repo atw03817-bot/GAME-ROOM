@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FaTimesCircle, FaHome, FaShoppingCart, FaSpinner } from 'react-icons/fa';
 import useCartStore from '../store/useCartStore';
+import api from '../utils/api';
 
 function OrderCancelled() {
   const navigate = useNavigate();
@@ -9,6 +10,7 @@ function OrderCancelled() {
   const { clearCart } = useCartStore();
   const [loading, setLoading] = useState(true);
   const [cancelDetails, setCancelDetails] = useState({});
+  const [storeSettings, setStoreSettings] = useState(null);
 
   useEffect(() => {
     // Get cancellation details from URL parameters
@@ -23,6 +25,20 @@ function OrderCancelled() {
       reason,
       cancelled
     });
+
+    // Fetch store settings for contact info
+    const fetchStoreSettings = async () => {
+      try {
+        const response = await api.get('/settings');
+        if (response.data.success) {
+          setStoreSettings(response.data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching store settings:', error);
+      }
+    };
+
+    fetchStoreSettings();
 
     // Simulate loading for better UX
     setTimeout(() => {
@@ -222,19 +238,25 @@ function OrderCancelled() {
             هل تحتاج مساعدة؟ تواصل معنا
           </p>
           <div className="flex flex-col sm:flex-row gap-2 justify-center text-sm">
-            <a 
-              href="mailto:support@example.com" 
-              className="text-primary-600 hover:text-primary-700 font-semibold"
-            >
-              📧 support@example.com
-            </a>
-            <span className="hidden sm:inline text-gray-400">|</span>
-            <a 
-              href="tel:+966500000000" 
-              className="text-primary-600 hover:text-primary-700 font-semibold"
-            >
-              📞 +966 50 000 0000
-            </a>
+            {storeSettings?.contactEmail && (
+              <a 
+                href={`mailto:${storeSettings.contactEmail}`} 
+                className="text-primary-600 hover:text-primary-700 font-semibold"
+              >
+                📧 {storeSettings.contactEmail}
+              </a>
+            )}
+            {storeSettings?.contactEmail && storeSettings?.contactPhone && (
+              <span className="hidden sm:inline text-gray-400">|</span>
+            )}
+            {storeSettings?.contactPhone && (
+              <a 
+                href={`tel:${storeSettings.contactPhone}`} 
+                className="text-primary-600 hover:text-primary-700 font-semibold"
+              >
+                📞 {storeSettings.contactPhone}
+              </a>
+            )}
           </div>
         </div>
       </div>
