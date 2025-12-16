@@ -120,11 +120,9 @@ function OrderDetailsNew() {
   const getPaymentMethodLabel = (method) => {
     const labels = {
       cod: 'الدفع عند الاستلام',
-      tap: 'Tap Payment - بطاقة ائتمانية',
-
-      tap: 'بطاقة ائتمانية (Tap)',
+      tap: 'Tap Payments - بطاقة ائتمانية',
+      tamara: 'تمارا - اشتري الآن وادفع لاحقاً',
       myfatoorah: 'MyFatoorah',
-
       tabby: 'تابي',
     }
     return labels[method] || method
