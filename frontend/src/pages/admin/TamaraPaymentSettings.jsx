@@ -137,14 +137,8 @@ const TamaraPaymentSettings = () => {
         return;
       }
 
-      const response = await axios.post(`${API_URL}/payments/tamara/payment-types`, {
-        merchantToken: settings.merchantToken,
-        apiUrl: settings.apiUrl,
-        notificationToken: settings.notificationToken,
-        publicKey: settings.publicKey
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      // Use existing GET endpoint for testing
+      const response = await axios.get(`${API_URL}/payments/tamara/payment-types?amount=100&currency=SAR&country=SA`);
 
       console.log('✅ Test successful:', response.data);
       setTestResult({
