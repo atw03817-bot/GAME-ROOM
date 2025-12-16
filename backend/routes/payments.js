@@ -39,6 +39,7 @@ router.post('/myfatoorah/callback', handleMyFatoorahCallback);
 // Tamara public routes
 router.get('/tamara/payment-types', getTamaraPaymentTypes);
 router.post('/tamara/webhook', handleTamaraWebhook);
+router.post('/tamara/payment-types', testTamaraConnection); // Test endpoint using existing route
 
 
 // Protected routes

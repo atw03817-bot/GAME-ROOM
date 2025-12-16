@@ -5,299 +5,154 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>اختبار API مباشر</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background: #f5f5f5;
-            margin: 0;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        button {
-            background: #7c3aed;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 5px;
-            font-size: 14px;
-        }
-        button:hover {
-            background: #6d28d9;
-        }
-        .result {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 15px 0;
-            font-family: monospace;
-            white-space: pre-wrap;
-            font-size: 12px;
-            max-height: 400px;
-            overflow-y: auto;
-            border: 1px solid #e9ecef;
-        }
-        .success { background: #d4edda; color: #155724; }
-        .error { background: #f8d7da; color: #721c24; }
-        .warning { background: #fff3cd; color: #856404; }
-        
-        .banner-preview {
-            background: #7c3aed;
-            color: white;
-            padding: 12px;
-            text-align: center;
-            border-radius: 5px;
-            margin: 10px 0;
-            min-height: 40px;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-weight: 500;
-        }
-        
-        .actions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-            margin: 15px 0;
-        }
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 3px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        textarea { width: 100%; height: 100px; margin: 10px 0; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🔍 اختبار API مباشر</h1>
-        
-        <div class="actions">
-            <button onclick="testThemeAPI()">اختبار GET /theme</button>
-            <button onclick="createTestBanner()">إنشاء بانر تجريبي</button>
-            <button onclick="updateBanner()">تحديث البانر</button>
-            <button onclick="testLogin()">اختبار تسجيل الدخول</button>
-        </div>
-        
-        <div id="bannerPreview" class="banner-preview">
-            معاينة البانر ستظهر هنا
-        </div>
-        
-        <div id="result" class="result">انقر على أي زر لبدء الاختبار...</div>
+    <h1>اختبار API السيرفر الحقيقي</h1>
+    
+    <div class="test-section">
+        <h3>1. اختبار الاتصال العام</h3>
+        <button onclick="testGeneralConnection()">اختبار الاتصال</button>
+        <div id="general-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. اختبار Tamara API</h3>
+        <input type="text" id="tamara-token" placeholder="أدخل Tamara Merchant Token" style="width: 300px;">
+        <button onclick="testTamaraAPI()">اختبار تمارا</button>
+        <div id="tamara-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. اختبار Tap API</h3>
+        <input type="text" id="tap-key" placeholder="أدخل Tap Secret Key" style="width: 300px;">
+        <button onclick="testTapAPI()">اختبار تاب</button>
+        <div id="tap-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>4. طرق الدفع المتاحة</h3>
+        <button onclick="getPaymentMethods()">جلب طرق الدفع</button>
+        <div id="methods-result"></div>
     </div>
 
     <script>
-        const API_BASE = 'http://localhost:3000/api';
-        let authToken = null;
-
-        function log(message, type = 'info') {
-            const result = document.getElementById('result');
-            const timestamp = new Date().toLocaleTimeString();
-            const logEntry = `[${timestamp}] ${message}\n`;
-            
-            result.textContent += logEntry;
-            result.scrollTop = result.scrollHeight;
-            
-            if (type === 'success') {
-                result.className = 'result success';
-            } else if (type === 'error') {
-                result.className = 'result error';
-            } else if (type === 'warning') {
-                result.className = 'result warning';
-            } else {
-                result.className = 'result';
-            }
+        const API_BASE = 'https://api.ab-tw.com/api';
+        
+        function showResult(elementId, success, message, data = null) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `
+                <div class="result ${success ? 'success' : 'error'}">
+                    <strong>${success ? '✅ نجح' : '❌ فشل'}:</strong> ${message}
+                    ${data ? `<br><textarea readonly>${JSON.stringify(data, null, 2)}</textarea>` : ''}
+                </div>
+            `;
         }
 
-        async function testThemeAPI() {
-            log('🔍 اختبار GET /theme API...');
-            
+        async function testGeneralConnection() {
             try {
-                const response = await fetch(`${API_BASE}/theme`);
+                const response = await fetch(`${API_BASE}/settings`);
                 const data = await response.json();
                 
-                log('✅ استجابة API:');
-                log(JSON.stringify(data, null, 2));
-                
-                if (data.success && data.data && data.data.banner) {
-                    const banner = data.data.banner;
-                    log('📋 بيانات البانر:');
-                    log(`- مفعل: ${banner.enabled}`);
-                    log(`- النص: "${banner.text}"`);
-                    log(`- لون الخلفية: ${banner.backgroundColor}`);
-                    log(`- لون النص: ${banner.textColor}`);
-                    
-                    if (banner.enabled && banner.text) {
-                        showBannerPreview(banner);
-                        log('✅ البانر يجب أن يظهر في التطبيق', 'success');
-                    } else {
-                        hideBannerPreview();
-                        log('⚠️ البانر لن يظهر - غير مفعل أو لا يحتوي على نص', 'warning');
-                    }
+                if (response.ok) {
+                    showResult('general-result', true, 'السيرفر شغال والاتصال ناجح', data);
                 } else {
-                    log('❌ لا توجد بيانات بانر في الاستجابة', 'error');
+                    showResult('general-result', false, `خطأ ${response.status}: ${data.message || 'غير معروف'}`);
                 }
-                
             } catch (error) {
-                log('❌ خطأ في API: ' + error.message, 'error');
+                showResult('general-result', false, `خطأ في الاتصال: ${error.message}`);
             }
         }
 
-        async function testLogin() {
-            log('🔐 اختبار تسجيل الدخول كمدير...');
-            
+        async function testTamaraAPI() {
+            const token = document.getElementById('tamara-token').value;
+            if (!token) {
+                showResult('tamara-result', false, 'أدخل Merchant Token أولاً');
+                return;
+            }
+
             try {
-                const response = await fetch(`${API_BASE}/auth/login`, {
+                const response = await fetch(`${API_BASE}/payments/tamara/test`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        // Note: في الاختبار الحقيقي تحتاج Authorization header
                     },
                     body: JSON.stringify({
-                        email: 'admin@admin.com',
-                        password: 'admin123'
+                        merchantToken: token,
+                        apiUrl: 'https://api-sandbox.tamara.co'
                     })
                 });
-                
+
                 const data = await response.json();
-                log('استجابة تسجيل الدخول:');
-                log(JSON.stringify(data, null, 2));
                 
-                if (data.success && data.token) {
-                    authToken = data.token;
-                    log('✅ تم تسجيل الدخول بنجاح', 'success');
+                if (response.ok) {
+                    showResult('tamara-result', true, 'اختبار تمارا ناجح', data);
                 } else {
-                    log('❌ فشل تسجيل الدخول', 'error');
+                    showResult('tamara-result', false, `خطأ ${response.status}: ${data.message || 'غير معروف'}`, data);
                 }
-                
             } catch (error) {
-                log('❌ خطأ في تسجيل الدخول: ' + error.message, 'error');
+                showResult('tamara-result', false, `خطأ في الاتصال: ${error.message}`);
             }
         }
 
-        async function createTestBanner() {
-            if (!authToken) {
-                log('⚠️ يجب تسجيل الدخول أولاً', 'warning');
-                await testLogin();
-                if (!authToken) return;
+        async function testTapAPI() {
+            const secretKey = document.getElementById('tap-key').value;
+            if (!secretKey) {
+                showResult('tap-result', false, 'أدخل Secret Key أولاً');
+                return;
             }
-            
-            log('🎨 إنشاء بانر تجريبي...');
-            
-            const testBanner = {
-                banner: {
-                    enabled: true,
-                    text: 'بانر تجريبي من API 🚀 - يعمل في الجوال والديسكتوب!',
-                    backgroundColor: '#10b981',
-                    textColor: '#ffffff',
-                    link: '',
-                    showCloseButton: false
-                }
-            };
-            
+
             try {
-                const response = await fetch(`${API_BASE}/theme`, {
-                    method: 'PUT',
+                const response = await fetch(`${API_BASE}/payments/tap/test`, {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
+                        // Note: في الاختبار الحقيقي تحتاج Authorization header
                     },
-                    body: JSON.stringify(testBanner)
+                    body: JSON.stringify({
+                        secretKey: secretKey
+                    })
                 });
-                
+
                 const data = await response.json();
-                log('استجابة إنشاء البانر:');
-                log(JSON.stringify(data, null, 2));
                 
-                if (data.success) {
-                    log('✅ تم إنشاء البانر بنجاح!', 'success');
-                    showBannerPreview(testBanner.banner);
-                    
-                    // اختبار القراءة مرة أخرى
-                    setTimeout(() => {
-                        testThemeAPI();
-                    }, 1000);
+                if (response.ok) {
+                    showResult('tap-result', true, 'اختبار تاب ناجح', data);
                 } else {
-                    log('❌ فشل في إنشاء البانر', 'error');
+                    showResult('tap-result', false, `خطأ ${response.status}: ${data.message || 'غير معروف'}`, data);
                 }
-                
             } catch (error) {
-                log('❌ خطأ في إنشاء البانر: ' + error.message, 'error');
+                showResult('tap-result', false, `خطأ في الاتصال: ${error.message}`);
             }
         }
 
-        async function updateBanner() {
-            if (!authToken) {
-                log('⚠️ يجب تسجيل الدخول أولاً', 'warning');
-                await testLogin();
-                if (!authToken) return;
-            }
-            
-            log('🔄 تحديث البانر...');
-            
-            const updatedBanner = {
-                enabled: true,
-                text: 'بانر محدث 🎯 - ' + new Date().toLocaleTimeString(),
-                backgroundColor: '#f59e0b',
-                textColor: '#ffffff',
-                link: '',
-                showCloseButton: false
-            };
-            
+        async function getPaymentMethods() {
             try {
-                const response = await fetch(`${API_BASE}/theme/banner`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
-                    },
-                    body: JSON.stringify(updatedBanner)
-                });
-                
+                const response = await fetch(`${API_BASE}/payments/methods`);
                 const data = await response.json();
-                log('استجابة تحديث البانر:');
-                log(JSON.stringify(data, null, 2));
                 
-                if (data.success) {
-                    log('✅ تم تحديث البانر بنجاح!', 'success');
-                    showBannerPreview(updatedBanner);
-                    
-                    // اختبار القراءة مرة أخرى
-                    setTimeout(() => {
-                        testThemeAPI();
-                    }, 1000);
+                if (response.ok) {
+                    showResult('methods-result', true, 'تم جلب طرق الدفع بنجاح', data);
                 } else {
-                    log('❌ فشل في تحديث البانر', 'error');
+                    showResult('methods-result', false, `خطأ ${response.status}: ${data.message || 'غير معروف'}`);
                 }
-                
             } catch (error) {
-                log('❌ خطأ في تحديث البانر: ' + error.message, 'error');
+                showResult('methods-result', false, `خطأ في الاتصال: ${error.message}`);
             }
         }
 
-        function showBannerPreview(banner) {
-            const preview = document.getElementById('bannerPreview');
-            preview.style.display = 'flex';
-            preview.style.backgroundColor = banner.backgroundColor;
-            preview.style.color = banner.textColor;
-            preview.textContent = banner.text;
-        }
-
-        function hideBannerPreview() {
-            const preview = document.getElementById('bannerPreview');
-            preview.style.display = 'none';
-        }
-
-        // تشغيل اختبار أولي
+        // اختبار تلقائي عند تحميل الصفحة
         window.onload = function() {
-            log('🚀 أداة اختبار API جاهزة');
-            log('💡 ابدأ بـ "اختبار GET /theme" لرؤية البيانات الحالية');
-            
-            // اختبار تلقائي
-            setTimeout(() => {
-                testThemeAPI();
-            }, 1000);
+            testGeneralConnection();
         };
     </script>
 </body>

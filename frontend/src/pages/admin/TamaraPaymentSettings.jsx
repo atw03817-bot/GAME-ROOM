@@ -137,7 +137,7 @@ const TamaraPaymentSettings = () => {
         return;
       }
 
-      const response = await axios.post(`${API_URL}/payments/tamara/test`, {
+      const response = await axios.post(`${API_URL}/payments/tamara/payment-types`, {
         merchantToken: settings.merchantToken,
         apiUrl: settings.apiUrl,
         notificationToken: settings.notificationToken,
