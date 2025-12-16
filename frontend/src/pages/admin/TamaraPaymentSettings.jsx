@@ -5,6 +5,14 @@ import axios from 'axios';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const TamaraPaymentSettings = () => {
+  // Debug: Log the API URL being used
+  console.log('🔍 TamaraPaymentSettings API_URL:', API_URL);
+  console.log('🔍 Environment variables:', {
+    VITE_API_URL: import.meta.env.VITE_API_URL,
+    MODE: import.meta.env.MODE,
+    DEV: import.meta.env.DEV,
+    PROD: import.meta.env.PROD
+  });
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -111,6 +119,15 @@ const TamaraPaymentSettings = () => {
       setTestResult(null);
       const token = localStorage.getItem('token');
 
+      console.log('🔍 Testing Tamara connection...');
+      console.log('📝 Request data:', {
+        apiUrl: API_URL,
+        hasMerchantToken: !!settings.merchantToken,
+        merchantTokenLength: settings.merchantToken?.length,
+        apiUrlSetting: settings.apiUrl,
+        hasToken: !!token
+      });
+
       const response = await axios.post(`${API_URL}/payments/tamara/test`, {
         merchantToken: settings.merchantToken,
         apiUrl: settings.apiUrl,
@@ -120,15 +137,38 @@ const TamaraPaymentSettings = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
 
+      console.log('✅ Test successful:', response.data);
       setTestResult({
         success: true,
         message: response.data.message
       });
     } catch (error) {
-      console.error('Error testing connection:', error);
+      console.error('❌ Error testing connection:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        message: error.message,
+        url: error.config?.url
+      });
+      
+      let errorMessage = 'خطأ في اختبار الاتصال';
+      
+      if (error.response?.status === 400) {
+        errorMessage = error.response.data?.message || 'بيانات الطلب غير صحيحة';
+      } else if (error.response?.status === 401) {
+        errorMessage = 'غير مصرح لك بالوصول - تحقق من تسجيل الدخول';
+      } else if (error.response?.status === 403) {
+        errorMessage = 'ليس لديك صلاحية إدارية';
+      } else if (error.response?.status === 500) {
+        errorMessage = error.response.data?.message || 'خطأ في الخادم';
+      } else if (!error.response) {
+        errorMessage = 'فشل في الاتصال بالخادم';
+      }
+      
       setTestResult({
         success: false,
-        message: error.response?.data?.message || 'خطأ في اختبار الاتصال'
+        message: errorMessage,
+        debug: error.response?.data?.debug
       });
     } finally {
       setTesting(false);
@@ -163,12 +203,17 @@ const TamaraPaymentSettings = () => {
               ? 'bg-green-100 border border-green-400 text-green-700'
               : 'bg-red-100 border border-red-400 text-red-700'
           }`}>
-            <div className="flex items-center">
+            <div className="flex items-center mb-2">
               <span className="ml-2">
                 {testResult.success ? '✅' : '❌'}
               </span>
               <span>{testResult.message}</span>
             </div>
+            {testResult.debug && (
+              <div className="text-xs mt-2 p-2 bg-gray-100 rounded border-r-4 border-gray-400">
+                <strong>تفاصيل تقنية:</strong> {testResult.debug}
+              </div>
+            )}
           </div>
         )}
 

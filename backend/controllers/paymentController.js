@@ -2202,16 +2202,35 @@ export const initTamaraSettings = async (req, res) => {
 // @access  Private/Admin
 export const testTamaraConnection = async (req, res) => {
   try {
+    console.log('🔍 Tamara test endpoint called');
+    console.log('📝 Request body:', {
+      hasMerchantToken: !!req.body.merchantToken,
+      apiUrl: req.body.apiUrl,
+      hasNotificationToken: !!req.body.notificationToken,
+      hasPublicKey: !!req.body.publicKey
+    });
+    
     const { merchantToken, apiUrl, notificationToken, publicKey } = req.body;
     
     if (!merchantToken) {
+      console.log('❌ Missing merchantToken in request');
       return res.status(400).json({
         success: false,
-        message: 'مفتاح التاجر مطلوب'
+        message: 'مفتاح التاجر مطلوب',
+        debug: 'merchantToken is required but not provided'
       });
     }
 
-    console.log('🔍 Testing Tamara connection...');
+    if (!merchantToken.trim()) {
+      console.log('❌ Empty merchantToken in request');
+      return res.status(400).json({
+        success: false,
+        message: 'مفتاح التاجر فارغ',
+        debug: 'merchantToken is empty'
+      });
+    }
+
+    console.log('🔍 Testing Tamara connection with token:', merchantToken.substring(0, 10) + '...');
 
     // Initialize Tamara service with provided credentials
     const tamaraService = new TamaraPaymentService(
@@ -2224,16 +2243,35 @@ export const testTamaraConnection = async (req, res) => {
     // Test connection
     const result = await tamaraService.testConnection();
 
+    console.log('✅ Tamara connection test successful');
     res.json({
       success: true,
       data: result,
       message: 'الاتصال بـ Tamara ناجح'
     });
   } catch (error) {
-    console.error('❌ Error testing Tamara connection:', error);
-    res.status(500).json({
+    console.error('❌ Error testing Tamara connection:', {
+      message: error.message,
+      stack: error.stack,
+      response: error.response?.data
+    });
+    
+    // Return more specific error based on the error type
+    let statusCode = 500;
+    let errorMessage = error.message || 'خطأ في اختبار الاتصال';
+    
+    if (error.message?.includes('مفتاح API غير صحيح')) {
+      statusCode = 401;
+    } else if (error.message?.includes('ليس لديك صلاحية')) {
+      statusCode = 403;
+    } else if (error.message?.includes('فشل في الاتصال')) {
+      statusCode = 502;
+    }
+    
+    res.status(statusCode).json({
       success: false,
-      message: error.message || 'خطأ في اختبار الاتصال'
+      message: errorMessage,
+      debug: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 };
