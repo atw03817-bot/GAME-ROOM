@@ -144,7 +144,10 @@ export const deleteSEO = async (req, res) => {
 // إنشاء Sitemap
 export const generateSitemap = async (req, res) => {
   try {
-    const baseUrl = process.env.FRONTEND_URL || 'https://yourdomain.com';
+    console.log('🗺️ Generating sitemap...');
+    console.log('🌐 FRONTEND_URL:', process.env.FRONTEND_URL);
+    
+    const baseUrl = process.env.FRONTEND_URL || 'https://www.ab-tw.com';
     
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -177,13 +180,62 @@ export const generateSitemap = async (req, res) => {
     <lastmod>${new Date().toISOString()}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
-  </url>
+  </url>`;
+
+    // إضافة المنتجات للـ sitemap
+    try {
+      const { default: Product } = await import('../models/Product.js');
+      const products = await Product.find({ status: 'active' }).select('_id slug updatedAt').limit(1000);
+      
+      console.log(`📦 Adding ${products.length} products to sitemap`);
+      
+      for (const product of products) {
+        const productSlug = product.slug || product._id.toString();
+        const lastmod = product.updatedAt ? product.updatedAt.toISOString() : new Date().toISOString();
+        
+        sitemap += `
+  <url>
+    <loc>${baseUrl}/products/${productSlug}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`;
+      }
+    } catch (error) {
+      console.log('⚠️ Could not load products for sitemap:', error.message);
+    }
+
+    // إضافة الفئات للـ sitemap
+    try {
+      const { default: Category } = await import('../models/Category.js');
+      const categories = await Category.find({ status: 'active' }).select('_id slug updatedAt');
+      
+      console.log(`📂 Adding ${categories.length} categories to sitemap`);
+      
+      for (const category of categories) {
+        const categorySlug = category.slug || category._id.toString();
+        const lastmod = category.updatedAt ? category.updatedAt.toISOString() : new Date().toISOString();
+        
+        sitemap += `
+  <url>
+    <loc>${baseUrl}/categories/${categorySlug}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>`;
+      }
+    } catch (error) {
+      console.log('⚠️ Could not load categories for sitemap:', error.message);
+    }
+
+    sitemap += `
 </urlset>`;
     
+    console.log('✅ Sitemap generated successfully');
     res.set('Content-Type', 'application/xml');
     res.send(sitemap);
   } catch (error) {
-    console.error('خطأ في إنشاء Sitemap:', error);
+    console.error('❌ خطأ في إنشاء Sitemap:', error);
     res.status(500).json({
       success: false,
       message: 'خطأ في إنشاء Sitemap',
@@ -195,13 +247,16 @@ export const generateSitemap = async (req, res) => {
 // إنشاء robots.txt
 export const generateRobots = async (req, res) => {
   try {
-    const baseUrl = process.env.FRONTEND_URL || 'https://yourdomain.com';
+    console.log('🤖 Generating robots.txt...');
+    console.log('🌐 FRONTEND_URL:', process.env.FRONTEND_URL);
+    
+    const baseUrl = process.env.FRONTEND_URL || 'https://www.ab-tw.com';
     
     const robots = `User-agent: *
 Allow: /
 
 # Sitemaps
-Sitemap: ${baseUrl}/sitemap.xml
+Sitemap: ${baseUrl}/api/seo/sitemap.xml
 
 # Disallow admin pages
 Disallow: /admin/
@@ -209,20 +264,43 @@ Disallow: /api/
 
 # Disallow search parameters
 Disallow: /*?*
+Disallow: /*utm_*
+Disallow: /*ref=*
+
+# Allow important pages
+Allow: /products/
+Allow: /categories/
+Allow: /deals/
+Allow: /about
+Allow: /contact
 
 # Allow specific search engines
 User-agent: Googlebot
 Allow: /
+Crawl-delay: 1
 
 User-agent: Bingbot
 Allow: /
+Crawl-delay: 1
 
-# Crawl delay
-Crawl-delay: 1`;
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+# Block bad bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /`;
     
+    console.log('✅ Robots.txt generated successfully');
     res.set('Content-Type', 'text/plain');
     res.send(robots);
   } catch (error) {
+    console.error('❌ خطأ في إنشاء robots.txt:', error);
     res.status(500).json({
       success: false,
       message: 'خطأ في إنشاء robots.txt',
