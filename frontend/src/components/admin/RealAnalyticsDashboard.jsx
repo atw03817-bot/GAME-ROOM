@@ -29,108 +29,129 @@ const RealAnalyticsDashboard = () => {
       setLoading(true);
       setError(null);
       
-      // محاولة المسار الجديد أولاً، ثم التراجع للمسار القديم
-      let response;
-      try {
-        response = await fetch(
-          `/api/real-analytics/dashboard?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`,
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-      } catch (error) {
-        console.log('المسار الجديد غير متاح، محاولة جلب البيانات من المسارات الموجودة...');
-        
-        // جلب البيانات من المسارات الموجودة
-        const [ordersResponse, usersResponse] = await Promise.all([
-          fetch('/api/orders', {
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`,
-              'Content-Type': 'application/json'
-            }
-          }),
-          fetch('/api/users', {
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`,
-              'Content-Type': 'application/json'
-            }
-          })
-        ]);
-
-        if (ordersResponse.ok && usersResponse.ok) {
-          const orders = await ordersResponse.json();
-          const users = await usersResponse.json();
+      console.log('🔍 محاولة جلب البيانات الحقيقية من السيرفر...');
+      
+      // قائمة المسارات المتاحة للتجربة
+      const endpoints = [
+        '/api/real-analytics/dashboard',
+        '/api/orders/admin/all', 
+        '/api/orders',
+        '/api/orders/all'
+      ];
+      
+      for (const endpoint of endpoints) {
+        try {
+          console.log(`🔗 محاولة الاتصال بـ: ${endpoint}`);
           
-          // حساب الإحصائيات محلياً
-          const mockData = calculateRealStats(orders, users);
-          setAnalyticsData(mockData);
-          return;
+          const response = await fetch(endpoint, {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          console.log(`📡 استجابة ${endpoint}:`, response.status, response.statusText);
+          
+          if (response.ok) {
+            const contentType = response.headers.get('content-type');
+            console.log(`📄 نوع المحتوى: ${contentType}`);
+            
+            if (contentType && contentType.includes('application/json')) {
+              const data = await response.json();
+              console.log(`✅ تم جلب البيانات من ${endpoint}:`, data);
+              
+              // إذا كانت البيانات من نظام التحليلات الحقيقي
+              if (endpoint.includes('real-analytics')) {
+                setAnalyticsData(data);
+                return;
+              }
+              
+              // إذا كانت البيانات من مسارات الطلبات، حساب الإحصائيات
+              const analyticsData = calculateStatsFromOrders(data);
+              setAnalyticsData(analyticsData);
+              return;
+            } else {
+              console.log(`❌ ${endpoint} أرجع HTML بدلاً من JSON`);
+            }
+          } else {
+            console.log(`❌ ${endpoint} أرجع خطأ: ${response.status}`);
+          }
+        } catch (error) {
+          console.log(`❌ خطأ في الاتصال بـ ${endpoint}:`, error.message);
         }
       }
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Response error:', errorText);
-        
-        if (response.status === 401) {
-          throw new Error('غير مصرح - يرجى تسجيل الدخول مرة أخرى');
-        } else if (response.status === 403) {
-          throw new Error('غير مصرح - مطلوب صلاحيات إدارية');
-        } else if (response.status === 404) {
-          throw new Error('نظام التحليلات الجديد غير متاح على السيرفر بعد');
-        } else {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-      }
-      
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        const text = await response.text();
-        console.error('Non-JSON response:', text);
-        throw new Error('الاستجابة ليست JSON صحيح');
-      }
-      
-      const data = await response.json();
-      console.log('البيانات الحقيقية المستلمة:', data);
-      setAnalyticsData(data);
+
+      // إذا فشلت جميع المحاولات
+      console.log('⚠️ فشل في جلب البيانات من جميع المسارات');
+      setAnalyticsData({
+        sales: { totalOrders: 0, paidOrders: 0, totalRevenue: 0, avgOrderValue: 0 },
+        customers: { totalCustomers: 0, customersWithOrders: 0 },
+        products: { totalProducts: 0, productsInStock: 0 },
+        today: { orders: 0, revenue: 0, newCustomers: 0 },
+        generatedAt: new Date(),
+        period: { startDate: dateRange.startDate, endDate: dateRange.endDate },
+        isEmpty: true,
+        errorMessage: 'لم يتم العثور على مسارات API متاحة على السيرفر'
+      });
       
     } catch (error) {
-      console.error('خطأ في جلب البيانات الحقيقية:', error);
-      setError(error.message);
+      console.error('❌ خطأ عام في جلب البيانات:', error);
+      setError('فشل في الاتصال بالسيرفر. يرجى المحاولة لاحقاً.');
     } finally {
       setLoading(false);
     }
   };
 
-  // دالة حساب الإحصائيات محلياً من البيانات الموجودة
-  const calculateRealStats = (ordersData, usersData) => {
-    const orders = ordersData.orders || ordersData || [];
-    const users = usersData.users || usersData || [];
+  // دالة حساب الإحصائيات من بيانات الطلبات
+  const calculateStatsFromOrders = (ordersData) => {
+    console.log('🧮 حساب الإحصائيات من البيانات:', ordersData);
     
+    // استخراج الطلبات من البيانات
+    let orders = [];
+    if (Array.isArray(ordersData)) {
+      orders = ordersData;
+    } else if (ordersData.orders && Array.isArray(ordersData.orders)) {
+      orders = ordersData.orders;
+    } else if (ordersData.data && Array.isArray(ordersData.data)) {
+      orders = ordersData.data;
+    }
+    
+    console.log(`📊 عدد الطلبات المستخرجة: ${orders.length}`);
+    
+    // فلترة الطلبات المدفوعة
     const paidOrders = orders.filter(order => 
-      order.paymentStatus === 'paid' || order.paymentStatus === 'approved'
+      order.paymentStatus === 'paid' || 
+      order.paymentStatus === 'approved' ||
+      order.orderStatus === 'delivered'
     );
     
-    const totalRevenue = paidOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+    console.log(`💰 عدد الطلبات المدفوعة: ${paidOrders.length}`);
     
+    // حساب الإيرادات
+    const totalRevenue = paidOrders.reduce((sum, order) => {
+      const orderTotal = parseFloat(order.total) || 0;
+      return sum + orderTotal;
+    }, 0);
+    
+    console.log(`💵 إجمالي الإيرادات: ${totalRevenue}`);
+    
+    // حساب إحصائيات اليوم
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    const todayOrders = orders.filter(order => 
-      new Date(order.createdAt) >= today
-    );
+    const todayOrders = orders.filter(order => {
+      const orderDate = new Date(order.createdAt);
+      return orderDate >= today;
+    });
     
     const todayRevenue = todayOrders
       .filter(order => order.paymentStatus === 'paid' || order.paymentStatus === 'approved')
-      .reduce((sum, order) => sum + (order.total || 0), 0);
+      .reduce((sum, order) => sum + (parseFloat(order.total) || 0), 0);
     
-    const todayUsers = users.filter(user => 
-      new Date(user.createdAt) >= today && 
-      (user.role === 'USER' || user.role === 'customer')
-    );
+    // حساب العملاء الفريدين
+    const uniqueCustomers = [...new Set(orders.map(order => order.user).filter(Boolean))];
+    
+    console.log(`👥 عدد العملاء الفريدين: ${uniqueCustomers.length}`);
 
     return {
       sales: {
@@ -140,23 +161,24 @@ const RealAnalyticsDashboard = () => {
         avgOrderValue: paidOrders.length > 0 ? totalRevenue / paidOrders.length : 0
       },
       customers: {
-        totalCustomers: users.filter(u => u.role === 'USER' || u.role === 'customer').length,
-        customersWithOrders: [...new Set(orders.map(o => o.user))].length
+        totalCustomers: uniqueCustomers.length,
+        customersWithOrders: uniqueCustomers.length
       },
       products: {
-        totalProducts: 0, // سيتم جلبها لاحقاً
+        totalProducts: 0, // غير متاح من بيانات الطلبات
         productsInStock: 0
       },
       today: {
         orders: todayOrders.length,
         revenue: todayRevenue,
-        newCustomers: todayUsers.length
+        newCustomers: 0 // غير متاح من بيانات الطلبات
       },
       generatedAt: new Date(),
       period: {
         startDate: dateRange.startDate,
         endDate: dateRange.endDate
-      }
+      },
+      dataSource: 'orders' // لتوضيح مصدر البيانات
     };
   };
 
@@ -399,27 +421,78 @@ const RealAnalyticsDashboard = () => {
             </div>
 
             {/* Data Source Info */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <div className={`border rounded-lg p-6 ${
+              analyticsData.isEmpty || analyticsData.errorMessage 
+                ? 'bg-yellow-50 border-yellow-200' 
+                : analyticsData.dataSource === 'orders'
+                ? 'bg-orange-50 border-orange-200'
+                : 'bg-blue-50 border-blue-200'
+            }`}>
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <FiTrendingUp className="h-8 w-8 text-blue-400" />
+                  {analyticsData.isEmpty || analyticsData.errorMessage ? (
+                    <FiAlertCircle className="h-8 w-8 text-yellow-500" />
+                  ) : analyticsData.dataSource === 'orders' ? (
+                    <FiRefreshCw className="h-8 w-8 text-orange-500" />
+                  ) : (
+                    <FiTrendingUp className="h-8 w-8 text-blue-400" />
+                  )}
                 </div>
                 <div className="mr-3">
-                  <h3 className="text-sm font-medium text-blue-800">
-                    بيانات حقيقية 100%
+                  <h3 className={`text-sm font-medium ${
+                    analyticsData.isEmpty || analyticsData.errorMessage 
+                      ? 'text-yellow-800'
+                      : analyticsData.dataSource === 'orders'
+                      ? 'text-orange-800'
+                      : 'text-blue-800'
+                  }`}>
+                    {analyticsData.isEmpty || analyticsData.errorMessage 
+                      ? 'تحذير: لا توجد بيانات'
+                      : analyticsData.dataSource === 'orders'
+                      ? 'بيانات حقيقية (وضع الطوارئ)'
+                      : 'بيانات حقيقية 100%'
+                    }
                   </h3>
-                  <div className="mt-2 text-sm text-blue-700">
-                    <p>
-                      جميع البيانات المعروضة مأخوذة مباشرة من قاعدة البيانات الحقيقية.
-                      آخر تحديث: {new Date(analyticsData.generatedAt).toLocaleString('ar-SA')}
-                    </p>
-                    <p className="mt-1">
-                      الفترة: من {analyticsData.period?.startDate} إلى {analyticsData.period?.endDate}
-                    </p>
-                    {!analyticsData.sales?.totalOrders && (
-                      <p className="mt-2 text-yellow-700 bg-yellow-100 p-2 rounded">
-                        ⚠️ نظام التحليلات الجديد قيد التحديث على السيرفر
-                      </p>
+                  <div className={`mt-2 text-sm ${
+                    analyticsData.isEmpty || analyticsData.errorMessage 
+                      ? 'text-yellow-700'
+                      : analyticsData.dataSource === 'orders'
+                      ? 'text-orange-700'
+                      : 'text-blue-700'
+                  }`}>
+                    {analyticsData.isEmpty || analyticsData.errorMessage ? (
+                      <div>
+                        <p>⚠️ نظام التحليلات الجديد غير متاح على السيرفر الحالي</p>
+                        {analyticsData.errorMessage && (
+                          <p className="mt-1 text-xs">{analyticsData.errorMessage}</p>
+                        )}
+                        <p className="mt-2 text-xs">
+                          يرجى رفع التحديثات الجديدة للسيرفر لتفعيل نظام التحليلات المتقدم
+                        </p>
+                      </div>
+                    ) : analyticsData.dataSource === 'orders' ? (
+                      <div>
+                        <p>
+                          البيانات محسوبة من الطلبات الحقيقية في قاعدة البيانات.
+                          آخر تحديث: {new Date(analyticsData.generatedAt).toLocaleString('ar-SA')}
+                        </p>
+                        <p className="mt-1">
+                          الفترة: من {analyticsData.period?.startDate} إلى {analyticsData.period?.endDate}
+                        </p>
+                        <p className="mt-2 text-xs bg-orange-100 p-2 rounded">
+                          💡 يتم استخدام بيانات الطلبات مباشرة لحين تفعيل نظام التحليلات المتقدم
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        <p>
+                          جميع البيانات المعروضة مأخوذة مباشرة من قاعدة البيانات الحقيقية.
+                          آخر تحديث: {new Date(analyticsData.generatedAt).toLocaleString('ar-SA')}
+                        </p>
+                        <p className="mt-1">
+                          الفترة: من {analyticsData.period?.startDate} إلى {analyticsData.period?.endDate}
+                        </p>
+                      </div>
                     )}
                   </div>
                 </div>
