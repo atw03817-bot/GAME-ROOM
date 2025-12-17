@@ -29,17 +29,68 @@ const RealAnalyticsDashboard = () => {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(
-        `/api/real-analytics/dashboard?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+      // محاولة المسار الجديد أولاً، ثم التراجع للمسار القديم
+      let response;
+      try {
+        response = await fetch(
+          `/api/real-analytics/dashboard?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+              'Content-Type': 'application/json'
+            }
           }
+        );
+      } catch (error) {
+        console.log('المسار الجديد غير متاح، محاولة جلب البيانات من المسارات الموجودة...');
+        
+        // جلب البيانات من المسارات الموجودة
+        const [ordersResponse, usersResponse] = await Promise.all([
+          fetch('/api/orders', {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+              'Content-Type': 'application/json'
+            }
+          }),
+          fetch('/api/users', {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+              'Content-Type': 'application/json'
+            }
+          })
+        ]);
+
+        if (ordersResponse.ok && usersResponse.ok) {
+          const orders = await ordersResponse.json();
+          const users = await usersResponse.json();
+          
+          // حساب الإحصائيات محلياً
+          const mockData = calculateRealStats(orders, users);
+          setAnalyticsData(mockData);
+          return;
         }
-      );
+      }
       
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const errorText = await response.text();
+        console.error('Response error:', errorText);
+        
+        if (response.status === 401) {
+          throw new Error('غير مصرح - يرجى تسجيل الدخول مرة أخرى');
+        } else if (response.status === 403) {
+          throw new Error('غير مصرح - مطلوب صلاحيات إدارية');
+        } else if (response.status === 404) {
+          throw new Error('نظام التحليلات الجديد غير متاح على السيرفر بعد');
+        } else {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+      }
+      
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Non-JSON response:', text);
+        throw new Error('الاستجابة ليست JSON صحيح');
       }
       
       const data = await response.json();
@@ -52,6 +103,61 @@ const RealAnalyticsDashboard = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // دالة حساب الإحصائيات محلياً من البيانات الموجودة
+  const calculateRealStats = (ordersData, usersData) => {
+    const orders = ordersData.orders || ordersData || [];
+    const users = usersData.users || usersData || [];
+    
+    const paidOrders = orders.filter(order => 
+      order.paymentStatus === 'paid' || order.paymentStatus === 'approved'
+    );
+    
+    const totalRevenue = paidOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const todayOrders = orders.filter(order => 
+      new Date(order.createdAt) >= today
+    );
+    
+    const todayRevenue = todayOrders
+      .filter(order => order.paymentStatus === 'paid' || order.paymentStatus === 'approved')
+      .reduce((sum, order) => sum + (order.total || 0), 0);
+    
+    const todayUsers = users.filter(user => 
+      new Date(user.createdAt) >= today && 
+      (user.role === 'USER' || user.role === 'customer')
+    );
+
+    return {
+      sales: {
+        totalOrders: orders.length,
+        paidOrders: paidOrders.length,
+        totalRevenue: totalRevenue,
+        avgOrderValue: paidOrders.length > 0 ? totalRevenue / paidOrders.length : 0
+      },
+      customers: {
+        totalCustomers: users.filter(u => u.role === 'USER' || u.role === 'customer').length,
+        customersWithOrders: [...new Set(orders.map(o => o.user))].length
+      },
+      products: {
+        totalProducts: 0, // سيتم جلبها لاحقاً
+        productsInStock: 0
+      },
+      today: {
+        orders: todayOrders.length,
+        revenue: todayRevenue,
+        newCustomers: todayUsers.length
+      },
+      generatedAt: new Date(),
+      period: {
+        startDate: dateRange.startDate,
+        endDate: dateRange.endDate
+      }
+    };
   };
 
   const handleDateRangeChange = (field, value) => {
@@ -310,6 +416,11 @@ const RealAnalyticsDashboard = () => {
                     <p className="mt-1">
                       الفترة: من {analyticsData.period?.startDate} إلى {analyticsData.period?.endDate}
                     </p>
+                    {!analyticsData.sales?.totalOrders && (
+                      <p className="mt-2 text-yellow-700 bg-yellow-100 p-2 rounded">
+                        ⚠️ نظام التحليلات الجديد قيد التحديث على السيرفر
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
