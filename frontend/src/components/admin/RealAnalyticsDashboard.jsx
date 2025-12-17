@@ -83,6 +83,20 @@ const RealAnalyticsDashboard = () => {
 
       // إذا فشلت جميع المحاولات
       console.log('⚠️ فشل في جلب البيانات من جميع المسارات');
+      console.log('🔍 تجربة مسار بسيط للتأكد من الاتصال...');
+      
+      // تجربة أخيرة مع مسار بسيط
+      try {
+        const healthResponse = await fetch('/api/health');
+        if (healthResponse.ok) {
+          console.log('✅ السيرفر شغال، المشكلة في مسارات الطلبات');
+        } else {
+          console.log('❌ السيرفر مش شغال أو مش متاح');
+        }
+      } catch (error) {
+        console.log('❌ مشكلة في الاتصال بالسيرفر:', error.message);
+      }
+      
       setAnalyticsData({
         sales: { totalOrders: 0, paidOrders: 0, totalRevenue: 0, avgOrderValue: 0 },
         customers: { totalCustomers: 0, customersWithOrders: 0 },
@@ -91,7 +105,12 @@ const RealAnalyticsDashboard = () => {
         generatedAt: new Date(),
         period: { startDate: dateRange.startDate, endDate: dateRange.endDate },
         isEmpty: true,
-        errorMessage: 'لم يتم العثور على مسارات API متاحة على السيرفر'
+        errorMessage: 'لم يتم العثور على مسارات API متاحة على السيرفر',
+        debugInfo: {
+          testedEndpoints: endpoints,
+          serverStatus: 'غير معروف',
+          suggestion: 'تحقق من أن السيرفر يحتوي على مسارات الطلبات'
+        }
       });
       
     } catch (error) {
@@ -315,6 +334,13 @@ const RealAnalyticsDashboard = () => {
               >
                 <FiRefreshCw className="ml-2" />
                 تحديث
+              </button>
+              <button
+                onClick={() => window.open('/QUICK_API_TEST.html', '_blank')}
+                className="flex items-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
+              >
+                <FiAlertCircle className="ml-2" />
+                اختبار API
               </button>
               <button
                 onClick={exportReport}

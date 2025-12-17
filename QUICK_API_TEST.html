@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار سريع للـ API</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .result { margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background: #f8f9fa; }
+        .success { border-color: #28a745; background: #d4edda; }
+        .error { border-color: #dc3545; background: #f8d7da; }
+        pre { font-size: 12px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 اختبار سريع للـ API</h1>
+        
+        <button onclick="testOrders()">اختبار /api/orders</button>
+        <button onclick="testOrdersAll()">اختبار /api/orders/all</button>
+        <button onclick="testOrdersAdmin()">اختبار /api/orders/admin/all</button>
+        <button onclick="testHealth()">اختبار /api/health</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        async function testAPI(endpoint, needsAuth = true) {
+            const resultsDiv = document.getElementById('results');
+            
+            try {
+                const headers = { 'Content-Type': 'application/json' };
+                
+                if (needsAuth) {
+                    const token = localStorage.getItem('token');
+                    if (token) {
+                        headers['Authorization'] = `Bearer ${token}`;
+                    }
+                }
+                
+                console.log(`🔍 اختبار ${endpoint}...`);
+                
+                const response = await fetch(endpoint, { headers });
+                const contentType = response.headers.get('content-type');
+                
+                let data;
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    data = await response.text();
+                }
+                
+                const resultDiv = document.createElement('div');
+                resultDiv.className = response.ok ? 'result success' : 'result error';
+                resultDiv.innerHTML = `
+                    <h3>${response.ok ? '✅' : '❌'} ${endpoint}</h3>
+                    <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                    <p><strong>Content-Type:</strong> ${contentType}</p>
+                    <p><strong>Response:</strong></p>
+                    <pre>${typeof data === 'string' ? data.substring(0, 500) : JSON.stringify(data, null, 2).substring(0, 500)}</pre>
+                `;
+                resultsDiv.appendChild(resultDiv);
+                
+                console.log(`${response.ok ? '✅' : '❌'} ${endpoint}:`, data);
+                
+            } catch (error) {
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <h3>❌ ${endpoint}</h3>
+                    <p><strong>خطأ:</strong> ${error.message}</p>
+                `;
+                resultsDiv.appendChild(resultDiv);
+                console.error(`❌ ${endpoint}:`, error);
+            }
+        }
+        
+        function testOrders() {
+            testAPI('/api/orders');
+        }
+        
+        function testOrdersAll() {
+            testAPI('/api/orders/all');
+        }
+        
+        function testOrdersAdmin() {
+            testAPI('/api/orders/admin/all');
+        }
+        
+        function testHealth() {
+            testAPI('/api/health', false);
+        }
+        
+        // تنظيف النتائج
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+    </script>
+</body>
+</html>
