@@ -12,6 +12,45 @@ import {
 } from 'react-icons/fi';
 
 const RealAnalyticsDashboard = () => {
+  // 🔒 الصفحة مقفلة مؤقتاً للصيانة
+  return (
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
+      <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8 text-center">
+        <div className="mb-6">
+          <div className="mx-auto w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
+            <FiAlertCircle className="w-8 h-8 text-yellow-600" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">صفحة التحليلات مغلقة مؤقتاً</h1>
+          <p className="text-gray-600 mb-4">
+            نعمل حالياً على تحسين نظام التحليلات لتقديم بيانات أكثر دقة وشمولية
+          </p>
+        </div>
+        
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <h3 className="font-semibold text-blue-800 mb-2">🔧 أعمال الصيانة الجارية:</h3>
+          <ul className="text-sm text-blue-700 text-right space-y-1">
+            <li>• تحسين اتصال قاعدة البيانات</li>
+            <li>• إضافة تحليلات جديدة ومتقدمة</li>
+            <li>• تحسين سرعة تحميل البيانات</li>
+            <li>• إضافة تقارير تفصيلية</li>
+          </ul>
+        </div>
+        
+        <div className="text-sm text-gray-500">
+          <p>سيتم إعادة تفعيل الصفحة قريباً</p>
+          <p className="mt-1">شكراً لصبركم 🙏</p>
+        </div>
+        
+        <button
+          onClick={() => window.history.back()}
+          className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          العودة للخلف
+        </button>
+      </div>
+    </div>
+  );
+
   const [analyticsData, setAnalyticsData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
