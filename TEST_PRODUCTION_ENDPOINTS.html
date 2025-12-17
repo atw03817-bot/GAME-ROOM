@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار مسارات السيرفر الحقيقي</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .endpoint { margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        .success { background: #d4edda; border-color: #c3e6cb; }
+        .error { background: #f8d7da; border-color: #f5c6cb; }
+        .loading { background: #fff3cd; border-color: #ffeaa7; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 12px; }
+        .token-input { width: 100%; padding: 8px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 اختبار مسارات API في السيرفر الحقيقي</h1>
+        
+        <div>
+            <label>🔑 Admin Token:</label>
+            <input type="text" id="tokenInput" class="token-input" placeholder="ضع الـ token هنا من localStorage">
+            <button onclick="getTokenFromStorage()">جلب Token من المتصفح</button>
+        </div>
+
+        <button onclick="testAllEndpoints()">🚀 اختبار جميع المسارات</button>
+        <button onclick="clearResults()">🗑️ مسح النتائج</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const endpoints = [
+            '/api/real-analytics/dashboard',
+            '/api/orders/admin/all',
+            '/api/orders',
+            '/api/orders/all',
+            '/api/users',
+            '/api/products',
+            '/api/health'
+        ];
+
+        function getTokenFromStorage() {
+            const token = localStorage.getItem('token');
+            if (token) {
+                document.getElementById('tokenInput').value = token;
+                console.log('✅ تم جلب Token من localStorage');
+            } else {
+                alert('❌ لم يتم العثور على Token في localStorage');
+            }
+        }
+
+        async function testEndpoint(endpoint) {
+            const resultsDiv = document.getElementById('results');
+            const endpointDiv = document.createElement('div');
+            endpointDiv.className = 'endpoint loading';
+            endpointDiv.innerHTML = `
+                <h3>🔗 ${endpoint}</h3>
+                <p>⏳ جاري الاختبار...</p>
+            `;
+            resultsDiv.appendChild(endpointDiv);
+
+            try {
+                const token = document.getElementById('tokenInput').value;
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                console.log(`🔍 اختبار ${endpoint}...`);
+                
+                const response = await fetch(endpoint, { headers });
+                
+                const contentType = response.headers.get('content-type');
+                let responseData;
+                
+                if (contentType && contentType.includes('application/json')) {
+                    responseData = await response.json();
+                } else {
+                    responseData = await response.text();
+                }
+
+                if (response.ok) {
+                    endpointDiv.className = 'endpoint success';
+                    endpointDiv.innerHTML = `
+                        <h3>✅ ${endpoint}</h3>
+                        <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                        <p><strong>Content-Type:</strong> ${contentType}</p>
+                        <p><strong>Response:</strong></p>
+                        <pre>${JSON.stringify(responseData, null, 2)}</pre>
+                    `;
+                    console.log(`✅ ${endpoint} نجح:`, responseData);
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                endpointDiv.className = 'endpoint error';
+                endpointDiv.innerHTML = `
+                    <h3>❌ ${endpoint}</h3>
+                    <p><strong>خطأ:</strong> ${error.message}</p>
+                    <pre>${error.stack || 'لا توجد تفاصيل إضافية'}</pre>
+                `;
+                console.error(`❌ ${endpoint} فشل:`, error);
+            }
+        }
+
+        async function testAllEndpoints() {
+            clearResults();
+            console.log('🚀 بدء اختبار جميع المسارات...');
+            
+            for (const endpoint of endpoints) {
+                await testEndpoint(endpoint);
+                // انتظار قصير بين الطلبات
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            console.log('✅ انتهى اختبار جميع المسارات');
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        // جلب Token تلقائياً عند تحميل الصفحة
+        window.onload = function() {
+            getTokenFromStorage();
+        };
+    </script>
+</body>
+</html>

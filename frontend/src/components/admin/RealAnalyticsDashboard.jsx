@@ -114,22 +114,43 @@ const RealAnalyticsDashboard = () => {
       orders = ordersData.orders;
     } else if (ordersData.data && Array.isArray(ordersData.data)) {
       orders = ordersData.data;
+    } else if (ordersData.success && ordersData.orders) {
+      orders = ordersData.orders;
     }
     
     console.log(`📊 عدد الطلبات المستخرجة: ${orders.length}`);
     
+    if (orders.length === 0) {
+      console.log('⚠️ لا توجد طلبات في البيانات');
+      return {
+        sales: { totalOrders: 0, paidOrders: 0, totalRevenue: 0, avgOrderValue: 0 },
+        customers: { totalCustomers: 0, customersWithOrders: 0 },
+        products: { totalProducts: 0, productsInStock: 0 },
+        today: { orders: 0, revenue: 0, newCustomers: 0 },
+        generatedAt: new Date(),
+        period: { startDate: dateRange.startDate, endDate: dateRange.endDate },
+        dataSource: 'orders',
+        isEmpty: true,
+        message: 'لا توجد طلبات في قاعدة البيانات'
+      };
+    }
+    
     // فلترة الطلبات المدفوعة
-    const paidOrders = orders.filter(order => 
-      order.paymentStatus === 'paid' || 
-      order.paymentStatus === 'approved' ||
-      order.orderStatus === 'delivered'
-    );
+    const paidOrders = orders.filter(order => {
+      const paymentStatus = order.paymentStatus?.toLowerCase();
+      const orderStatus = order.orderStatus?.toLowerCase();
+      return paymentStatus === 'paid' || 
+             paymentStatus === 'approved' || 
+             paymentStatus === 'completed' ||
+             orderStatus === 'delivered' ||
+             orderStatus === 'completed';
+    });
     
     console.log(`💰 عدد الطلبات المدفوعة: ${paidOrders.length}`);
     
     // حساب الإيرادات
     const totalRevenue = paidOrders.reduce((sum, order) => {
-      const orderTotal = parseFloat(order.total) || 0;
+      const orderTotal = parseFloat(order.total || order.totalAmount || order.amount) || 0;
       return sum + orderTotal;
     }, 0);
     
@@ -140,25 +161,44 @@ const RealAnalyticsDashboard = () => {
     today.setHours(0, 0, 0, 0);
     
     const todayOrders = orders.filter(order => {
-      const orderDate = new Date(order.createdAt);
+      const orderDate = new Date(order.createdAt || order.orderDate || order.date);
       return orderDate >= today;
     });
     
     const todayRevenue = todayOrders
-      .filter(order => order.paymentStatus === 'paid' || order.paymentStatus === 'approved')
-      .reduce((sum, order) => sum + (parseFloat(order.total) || 0), 0);
+      .filter(order => {
+        const paymentStatus = order.paymentStatus?.toLowerCase();
+        return paymentStatus === 'paid' || paymentStatus === 'approved';
+      })
+      .reduce((sum, order) => sum + (parseFloat(order.total || order.totalAmount || order.amount) || 0), 0);
     
     // حساب العملاء الفريدين
-    const uniqueCustomers = [...new Set(orders.map(order => order.user).filter(Boolean))];
+    const uniqueCustomers = [...new Set(orders.map(order => 
+      order.user || order.userId || order.customerId || order.customer
+    ).filter(Boolean))];
     
     console.log(`👥 عدد العملاء الفريدين: ${uniqueCustomers.length}`);
+
+    // إحصائيات تفصيلية
+    const pendingOrders = orders.filter(order => 
+      order.orderStatus?.toLowerCase() === 'pending' || 
+      order.paymentStatus?.toLowerCase() === 'pending'
+    ).length;
+
+    const cancelledOrders = orders.filter(order => 
+      order.orderStatus?.toLowerCase() === 'cancelled' ||
+      order.orderStatus?.toLowerCase() === 'canceled'
+    ).length;
 
     return {
       sales: {
         totalOrders: orders.length,
         paidOrders: paidOrders.length,
+        pendingOrders: pendingOrders,
+        cancelledOrders: cancelledOrders,
         totalRevenue: totalRevenue,
-        avgOrderValue: paidOrders.length > 0 ? totalRevenue / paidOrders.length : 0
+        avgOrderValue: paidOrders.length > 0 ? totalRevenue / paidOrders.length : 0,
+        conversionRate: orders.length > 0 ? (paidOrders.length / orders.length * 100).toFixed(1) : 0
       },
       customers: {
         totalCustomers: uniqueCustomers.length,
@@ -178,7 +218,13 @@ const RealAnalyticsDashboard = () => {
         startDate: dateRange.startDate,
         endDate: dateRange.endDate
       },
-      dataSource: 'orders' // لتوضيح مصدر البيانات
+      dataSource: 'orders', // لتوضيح مصدر البيانات
+      rawOrdersCount: orders.length,
+      debugInfo: {
+        sampleOrder: orders[0] || null,
+        orderStatuses: [...new Set(orders.map(o => o.orderStatus))],
+        paymentStatuses: [...new Set(orders.map(o => o.paymentStatus))]
+      }
     };
   };
 
@@ -466,6 +512,9 @@ const RealAnalyticsDashboard = () => {
                         {analyticsData.errorMessage && (
                           <p className="mt-1 text-xs">{analyticsData.errorMessage}</p>
                         )}
+                        {analyticsData.message && (
+                          <p className="mt-1 text-xs bg-yellow-200 p-1 rounded">{analyticsData.message}</p>
+                        )}
                         <p className="mt-2 text-xs">
                           يرجى رفع التحديثات الجديدة للسيرفر لتفعيل نظام التحليلات المتقدم
                         </p>
@@ -498,6 +547,38 @@ const RealAnalyticsDashboard = () => {
                 </div>
               </div>
             </div>
+
+            {/* Debug Info - للمطورين فقط */}
+            {analyticsData?.debugInfo && (
+              <div className="mt-8 bg-gray-50 border border-gray-200 rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">🔧 معلومات التشخيص</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p><strong>عدد الطلبات الخام:</strong> {analyticsData.rawOrdersCount}</p>
+                    <p><strong>مصدر البيانات:</strong> {analyticsData.dataSource}</p>
+                    <p><strong>حالات الطلبات:</strong> {analyticsData.debugInfo.orderStatuses?.join(', ') || 'غير محدد'}</p>
+                    <p><strong>حالات الدفع:</strong> {analyticsData.debugInfo.paymentStatuses?.join(', ') || 'غير محدد'}</p>
+                  </div>
+                  <div>
+                    <p><strong>نموذج طلب:</strong></p>
+                    <pre className="text-xs bg-white p-2 rounded border overflow-x-auto">
+                      {JSON.stringify(analyticsData.debugInfo.sampleOrder, null, 2)}
+                    </pre>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <button
+                    onClick={() => {
+                      console.log('🔍 بيانات التحليلات الكاملة:', analyticsData);
+                      alert('تم طباعة البيانات في الكونسول');
+                    }}
+                    className="px-3 py-1 bg-gray-600 text-white rounded text-xs hover:bg-gray-700"
+                  >
+                    طباعة البيانات في الكونسول
+                  </button>
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
