@@ -31,6 +31,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsConditions from './pages/TermsConditions';
 import ReturnPolicy from './pages/ReturnPolicy';
 import SearchResults from './pages/SearchResults';
+import CustomerAnalytics from './pages/CustomerAnalytics';
 
 // Admin
 import AdminLayout from './components/admin/AdminLayout';
@@ -52,6 +53,7 @@ import ThemeSettings from './pages/admin/ThemeSettings';
 import FooterSettings from './pages/admin/FooterSettings';
 import LegalPages from './pages/admin/LegalPages';
 import SEOManager from './pages/admin/SEOManager';
+import Analytics from './pages/admin/Analytics';
 
 function App() {
   const { i18n } = useTranslation();
@@ -107,6 +109,7 @@ function App() {
           {/* User Account */}
           <Route path="account" element={<Account />} />
           <Route path="orders" element={<Orders />} />
+          <Route path="my-analytics" element={<CustomerAnalytics />} />
           
           {/* Deals */}
           <Route path="deals" element={<Deals />} />
@@ -141,6 +144,7 @@ function App() {
           <Route path="tamara-payment-settings" element={<TamaraPaymentSettings />} />
 
           <Route path="seo" element={<SEOManager />} />
+          <Route path="analytics" element={<Analytics />} />
         </Route>
       </Routes>
     </>

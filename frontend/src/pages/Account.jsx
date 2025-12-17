@@ -12,7 +12,8 @@ import {
   FaTimes,
   FaClock,
   FaCheckCircle,
-  FaShoppingBag
+  FaShoppingBag,
+  FaChartBar
 } from 'react-icons/fa';
 import useAuthStore from '../store/useAuthStore';
 import api from '../utils/api';
@@ -238,6 +239,13 @@ function Account() {
                   <FaUser />
                   الملف الشخصي
                 </button>
+                <Link
+                  to="/my-analytics"
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition text-gray-700 hover:bg-gray-50"
+                >
+                  <FaChartBar />
+                  إحصائياتي الشخصية
+                </Link>
                 <button
                   onClick={() => setActiveTab('settings')}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
