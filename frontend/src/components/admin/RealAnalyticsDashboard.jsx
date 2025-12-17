@@ -24,6 +24,88 @@ const RealAnalyticsDashboard = () => {
     fetchRealAnalytics();
   }, [dateRange]);
 
+  // دالة فحص شاملة لجميع مسارات السيرفر
+  const runServerDiagnostics = async () => {
+    console.log('🚀 بدء فحص شامل للسيرفر...');
+    
+    const endpoints = [
+      '/api/health',
+      '/api/orders',
+      '/api/orders/all', 
+      '/api/orders/admin/all',
+      '/api/users',
+      '/api/products',
+      '/api/real-analytics/dashboard'
+    ];
+    
+    const results = [];
+    
+    for (const endpoint of endpoints) {
+      try {
+        const token = localStorage.getItem('token');
+        const headers = { 'Content-Type': 'application/json' };
+        
+        if (token && !endpoint.includes('health')) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
+        console.log(`🔗 اختبار: ${endpoint}`);
+        
+        const response = await fetch(endpoint, { headers });
+        const contentType = response.headers.get('content-type');
+        
+        if (response.ok) {
+          if (contentType && contentType.includes('application/json')) {
+            const data = await response.json();
+            console.log(`✅ ${endpoint} - نجح (JSON):`, data);
+            results.push({ endpoint, success: true, type: 'json', data, status: response.status });
+          } else {
+            const text = await response.text();
+            console.log(`⚠️ ${endpoint} - نجح (HTML):`, text.substring(0, 100));
+            results.push({ endpoint, success: true, type: 'html', data: text, status: response.status });
+          }
+        } else {
+          console.log(`❌ ${endpoint} - فشل: ${response.status} ${response.statusText}`);
+          results.push({ endpoint, success: false, status: response.status, error: response.statusText });
+        }
+      } catch (error) {
+        console.log(`💥 ${endpoint} - خطأ: ${error.message}`);
+        results.push({ endpoint, success: false, error: error.message });
+      }
+      
+      // انتظار قصير بين الطلبات
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
+    
+    console.log('📊 ملخص النتائج:');
+    console.table(results);
+    
+    // البحث عن مسارات الطلبات الشغالة
+    const workingOrderEndpoints = results.filter(r => 
+      r.success && 
+      r.type === 'json' && 
+      r.endpoint.includes('order')
+    );
+    
+    if (workingOrderEndpoints.length > 0) {
+      console.log('🎯 مسارات الطلبات الشغالة:');
+      workingOrderEndpoints.forEach(result => {
+        console.log(`✅ ${result.endpoint}`);
+        console.log('📦 نموذج البيانات:', result.data);
+        
+        // محاولة حساب الإحصائيات
+        const stats = calculateStatsFromOrders(result.data);
+        console.log('🧮 الإحصائيات المحسوبة:', stats);
+      });
+      
+      alert(`✅ تم العثور على ${workingOrderEndpoints.length} مسار شغال للطلبات!\nشوف الكونسول للتفاصيل`);
+    } else {
+      alert('❌ لا توجد مسارات طلبات شغالة\nشوف الكونسول للتفاصيل');
+    }
+    
+    return results;
+  };
+
   const fetchRealAnalytics = async () => {
     try {
       setLoading(true);
@@ -336,11 +418,11 @@ const RealAnalyticsDashboard = () => {
                 تحديث
               </button>
               <button
-                onClick={() => window.open('/QUICK_API_TEST.html', '_blank')}
+                onClick={runServerDiagnostics}
                 className="flex items-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
               >
                 <FiAlertCircle className="ml-2" />
-                اختبار API
+                فحص السيرفر
               </button>
               <button
                 onClick={exportReport}
