@@ -24,6 +24,7 @@ import legalPagesRoutes from './routes/legalPages.js';
 import seoRoutes from './routes/seo.js';
 import webhookRoutes from './routes/webhooks.js';
 import searchRoutes from './routes/search.js';
+import realAnalyticsRoutes from './routes/realAnalytics.js';
 
 dotenv.config();
 
@@ -103,6 +104,7 @@ app.use('/api/legal-pages', legalPagesRoutes);
 app.use('/api/seo', seoRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/real-analytics', realAnalyticsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
