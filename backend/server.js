@@ -115,6 +115,27 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// SEO routes في الجذر (للوصول المباشر)
+app.get('/sitemap.xml', async (req, res) => {
+  try {
+    const { generateSitemap } = await import('./controllers/seoController.js');
+    await generateSitemap(req, res);
+  } catch (error) {
+    console.error('خطأ في sitemap:', error);
+    res.status(500).send('خطأ في إنشاء sitemap');
+  }
+});
+
+app.get('/robots.txt', async (req, res) => {
+  try {
+    const { generateRobots } = await import('./controllers/seoController.js');
+    await generateRobots(req, res);
+  } catch (error) {
+    console.error('خطأ في robots:', error);
+    res.status(500).send('خطأ في إنشاء robots.txt');
+  }
+});
+
 // Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);

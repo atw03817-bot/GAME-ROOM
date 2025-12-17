@@ -147,7 +147,15 @@ export const generateSitemap = async (req, res) => {
     console.log('🗺️ Generating sitemap...');
     console.log('🌐 FRONTEND_URL:', process.env.FRONTEND_URL);
     
-    const baseUrl = process.env.FRONTEND_URL || 'https://www.ab-tw.com';
+    // تحديد الدومين الصحيح
+    let baseUrl = process.env.FRONTEND_URL || 'https://www.ab-tw.com';
+    
+    // إذا كان الدومين قديم، استخدم الدومين الجديد
+    if (baseUrl.includes('vercel.app') || baseUrl.includes('yourdomain.com')) {
+      baseUrl = 'https://www.ab-tw.com';
+    }
+    
+    console.log('🌐 Using base URL:', baseUrl);
     
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -250,7 +258,15 @@ export const generateRobots = async (req, res) => {
     console.log('🤖 Generating robots.txt...');
     console.log('🌐 FRONTEND_URL:', process.env.FRONTEND_URL);
     
-    const baseUrl = process.env.FRONTEND_URL || 'https://www.ab-tw.com';
+    // تحديد الدومين الصحيح
+    let baseUrl = process.env.FRONTEND_URL || 'https://www.ab-tw.com';
+    
+    // إذا كان الدومين قديم، استخدم الدومين الجديد
+    if (baseUrl.includes('vercel.app') || baseUrl.includes('yourdomain.com')) {
+      baseUrl = 'https://www.ab-tw.com';
+    }
+    
+    console.log('🌐 Using base URL:', baseUrl);
     
     const robots = `User-agent: *
 Allow: /
