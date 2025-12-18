@@ -46,12 +46,14 @@ const ProductSEO = ({ product }) => {
   const url = `/products/${productSlug}`;
 
   // Schema.org Product markup محسن
+  const productPrice = parseFloat(product.price) || parseFloat(product.salePrice) || 1;
+  
   const schema = {
     "@context": "https://schema.org",
     "@type": "Product",
     "name": productName,
-    "description": productDesc || `${productName} - متوفر في أبعاد التواصل`,
-    "image": product.images && product.images.length > 0 ? product.images : ["/default-product.jpg"],
+    "description": productDesc || `${productName} - منتج عالي الجودة من أبعاد التواصل`,
+    "image": product.images && product.images.length > 0 ? product.images : ["https://www.ab-tw.com/default-product.jpg"],
     "brand": {
       "@type": "Brand",
       "name": product.brand || 'أبعاد التواصل'
@@ -60,18 +62,55 @@ const ProductSEO = ({ product }) => {
     "mpn": product._id || product.id,
     "offers": {
       "@type": "Offer",
-      "price": product.price || 0,
+      "url": `https://www.ab-tw.com/products/${productSlug}`,
+      "price": productPrice,
       "priceCurrency": "SAR",
       "availability": product.stock > 0 
         ? "https://schema.org/InStock" 
         : "https://schema.org/OutOfStock",
-      "priceValidUntil": new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      "priceValidUntil": new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      "shippingDetails": {
+        "@type": "OfferShippingDetails",
+        "shippingRate": {
+          "@type": "MonetaryAmount",
+          "value": "0",
+          "currency": "SAR"
+        },
+        "shippingDestination": {
+          "@type": "DefinedRegion",
+          "addressCountry": "SA"
+        },
+        "deliveryTime": {
+          "@type": "ShippingDeliveryTime",
+          "handlingTime": {
+            "@type": "QuantitativeValue",
+            "minValue": 1,
+            "maxValue": 2,
+            "unitCode": "DAY"
+          },
+          "transitTime": {
+            "@type": "QuantitativeValue",
+            "minValue": 1,
+            "maxValue": 3,
+            "unitCode": "DAY"
+          }
+        }
+      },
       "seller": {
         "@type": "Organization",
         "name": "أبعاد التواصل",
-        "url": "https://ab-tw.com"
-      },
-      "url": `https://ab-tw.com/products/${productSlug}`
+        "url": "https://www.ab-tw.com",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "شارع الملك فهد",
+          "addressLocality": "الرياض",
+          "addressRegion": "الرياض",
+          "postalCode": "12345",
+          "addressCountry": "SA"
+        },
+        "telephone": "+966-50-123-4567",
+        "email": "info@ab-tw.com"
+      }
     },
     "aggregateRating": product.rating && product.rating.average ? {
       "@type": "AggregateRating",
