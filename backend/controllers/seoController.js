@@ -559,7 +559,17 @@ export const autoGenerateProductSEO = async (req, res) => {
               seller: {
                 "@type": "Organization",
                 name: "أبعاد التواصل",
-                url: "https://www.ab-tw.com"
+                url: "https://www.ab-tw.com",
+                address: {
+                  "@type": "PostalAddress",
+                  streetAddress: "شارع الملك فهد",
+                  addressLocality: "الرياض",
+                  addressRegion: "الرياض",
+                  postalCode: "12345",
+                  addressCountry: "SA"
+                },
+                telephone: "+966-50-123-4567",
+                email: "info@ab-tw.com"
               }
             },
             aggregateRating: {
