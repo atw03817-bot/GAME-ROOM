@@ -474,8 +474,18 @@ export const autoGenerateProductSEO = async (req, res) => {
     // استيراد Product model ديناميكياً
     const { default: Product } = await import('../models/Product.js');
     
-    const products = await Product.find({});
+    const products = await Product.find({}).select('name nameAr description descriptionAr price salePrice slug brand categoryName images stock _id');
     console.log(`📦 تم العثور على ${products.length} منتج`);
+    
+    if (products.length > 0) {
+      console.log('📋 نموذج منتج:', {
+        name: products[0].name,
+        nameAr: products[0].nameAr,
+        price: products[0].price,
+        slug: products[0].slug,
+        _id: products[0]._id
+      });
+    }
     
     if (products.length === 0) {
       return res.json({
@@ -492,9 +502,12 @@ export const autoGenerateProductSEO = async (req, res) => {
       const existingSEO = await SEO.findOne({ pageId: product._id.toString() });
       
       // استخراج الاسم (يدعم النماذج القديمة والجديدة)
-      const productName = product.name?.ar || product.nameAr || product.name || 'منتج';
-      const productDesc = product.description?.ar || product.descriptionAr || product.description || '';
+      const productName = product.name?.ar || product.nameAr || product.name || `منتج ${product._id}`;
+      const productDesc = product.description?.ar || product.descriptionAr || product.description || `وصف ${productName}`;
       const productSlug = product.slug || product._id.toString();
+      const productPrice = parseFloat(product.price) || parseFloat(product.salePrice) || 1; // تجنب السعر صفر
+      
+      console.log(`📝 معالجة منتج: ${productName} - السعر: ${productPrice} - الرابط: ${productSlug}`);
       
       console.log(`📝 معالجة منتج: ${productName}`);
       
@@ -541,7 +554,7 @@ export const autoGenerateProductSEO = async (req, res) => {
             "@context": "https://schema.org/",
             "@type": "Product",
             name: productName,
-            description: productDesc || `${productName} - منتج عالي الجودة من أبعاد التواصل`,
+            description: productDesc,
             image: product.images && product.images.length > 0 ? product.images : [`https://www.ab-tw.com/default-product.jpg`],
             brand: {
               "@type": "Brand",
@@ -552,7 +565,7 @@ export const autoGenerateProductSEO = async (req, res) => {
             offers: {
               "@type": "Offer",
               url: `https://www.ab-tw.com/products/${productSlug}`,
-              price: product.price || 0,
+              price: productPrice,
               priceCurrency: "SAR",
               availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
               priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -602,7 +615,9 @@ export const autoGenerateProductSEO = async (req, res) => {
             aggregateRating: {
               "@type": "AggregateRating",
               ratingValue: "4.5",
-              reviewCount: "10"
+              reviewCount: "10",
+              bestRating: "5",
+              worstRating: "1"
             },
             review: {
               "@type": "Review",
