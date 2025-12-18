@@ -501,9 +501,65 @@ export const autoGenerateProductSEO = async (req, res) => {
     for (const product of products) {
       const existingSEO = await SEO.findOne({ pageId: product._id.toString() });
       
-      // استخراج الاسم (يدعم النماذج القديمة والجديدة)
-      const productName = product.name?.ar || product.nameAr || product.name || `منتج ${product._id}`;
-      const productDesc = product.description?.ar || product.descriptionAr || product.description || `وصف ${productName}`;
+      // استخراج الاسم بطريقة شاملة وآمنة
+      const extractProductName = (product) => {
+        let name = null;
+        
+        // البنية الجديدة: name.ar
+        if (product.name && typeof product.name === 'object' && product.name.ar && product.name.ar.trim() !== '') {
+          name = product.name.ar;
+        }
+        // البنية القديمة: nameAr
+        else if (product.nameAr && typeof product.nameAr === 'string' && product.nameAr.trim() !== '') {
+          name = product.nameAr;
+        }
+        // البنية الجديدة: name.en كبديل
+        else if (product.name && typeof product.name === 'object' && product.name.en && product.name.en.trim() !== '') {
+          name = product.name.en;
+        }
+        // البنية القديمة: nameEn كبديل
+        else if (product.nameEn && typeof product.nameEn === 'string' && product.nameEn.trim() !== '') {
+          name = product.nameEn;
+        }
+        // إذا كان name هو string مباشر (نماذج قديمة جداً)
+        else if (typeof product.name === 'string' && product.name.trim() !== '') {
+          name = product.name;
+        }
+        
+        // إذا لم نجد اسم صالح، استخدم ID مع تحذير
+        if (!name || name.trim() === '') {
+          name = `منتج ${product._id || 'غير محدد'}`;
+          console.warn(`⚠️ منتج بدون اسم صالح: ${product._id}`, {
+            name: product.name,
+            nameAr: product.nameAr,
+            nameEn: product.nameEn
+          });
+        }
+        
+        return name.trim();
+      };
+      
+      // استخراج الوصف بطريقة شاملة
+      const extractProductDescription = (product) => {
+        let desc = null;
+        
+        if (product.description && typeof product.description === 'object' && product.description.ar && product.description.ar.trim() !== '') {
+          desc = product.description.ar;
+        } else if (product.descriptionAr && typeof product.descriptionAr === 'string' && product.descriptionAr.trim() !== '') {
+          desc = product.descriptionAr;
+        } else if (product.description && typeof product.description === 'object' && product.description.en && product.description.en.trim() !== '') {
+          desc = product.description.en;
+        } else if (product.descriptionEn && typeof product.descriptionEn === 'string' && product.descriptionEn.trim() !== '') {
+          desc = product.descriptionEn;
+        } else if (typeof product.description === 'string' && product.description.trim() !== '') {
+          desc = product.description;
+        }
+        
+        return desc || '';
+      };
+      
+      const productName = extractProductName(product);
+      const productDesc = extractProductDescription(product);
       const productSlug = product.slug || product._id.toString();
       const productPrice = parseFloat(product.price) || parseFloat(product.salePrice) || 1; // تجنب السعر صفر
       

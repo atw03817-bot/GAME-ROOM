@@ -175,8 +175,51 @@ function ProductDetail() {
 
   // إنشاء Schema markup للمنتج محسن ومطابق لمعايير Google
   const createProductSchema = () => {
-    const productName = product.name?.ar || product.nameAr || product.name || `منتج ${product._id}`;
-    const productDesc = product.description?.ar || product.descriptionAr || product.description || '';
+    // استخراج الاسم بطريقة شاملة
+    const extractProductName = (product) => {
+      let name = null;
+      
+      if (product.name && typeof product.name === 'object' && product.name.ar) {
+        name = product.name.ar;
+      } else if (product.nameAr && product.nameAr.trim() !== '') {
+        name = product.nameAr;
+      } else if (product.name && typeof product.name === 'object' && product.name.en) {
+        name = product.name.en;
+      } else if (product.nameEn && product.nameEn.trim() !== '') {
+        name = product.nameEn;
+      } else if (typeof product.name === 'string' && product.name.trim() !== '') {
+        name = product.name;
+      }
+      
+      if (!name || name.trim() === '') {
+        name = `منتج ${product._id || 'غير محدد'}`;
+        console.warn(`⚠️ منتج بدون اسم: ${product._id}`, product);
+      }
+      
+      return name.trim();
+    };
+    
+    // استخراج الوصف بطريقة شاملة
+    const extractProductDescription = (product) => {
+      let desc = null;
+      
+      if (product.description && typeof product.description === 'object' && product.description.ar) {
+        desc = product.description.ar;
+      } else if (product.descriptionAr && product.descriptionAr.trim() !== '') {
+        desc = product.descriptionAr;
+      } else if (product.description && typeof product.description === 'object' && product.description.en) {
+        desc = product.description.en;
+      } else if (product.descriptionEn && product.descriptionEn.trim() !== '') {
+        desc = product.descriptionEn;
+      } else if (typeof product.description === 'string' && product.description.trim() !== '') {
+        desc = product.description;
+      }
+      
+      return desc || '';
+    };
+    
+    const productName = extractProductName(product);
+    const productDesc = extractProductDescription(product);
     const productSlug = product.slug || product._id;
     const productPrice = parseFloat(product.price) || parseFloat(product.salePrice) || 99; // تجنب السعر صفر
 

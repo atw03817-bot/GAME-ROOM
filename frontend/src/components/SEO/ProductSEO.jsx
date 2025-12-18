@@ -4,9 +4,71 @@ import SEOHead from './SEOHead';
 const ProductSEO = ({ product }) => {
   if (!product) return null;
 
-  // استخراج الاسم (يدعم النماذج القديمة والجديدة)
-  const productName = product.name?.ar || product.nameAr || product.name || 'منتج';
-  const productDesc = product.description?.ar || product.descriptionAr || product.description || '';
+  // استخراج الاسم بطريقة شاملة (يدعم جميع النماذج)
+  const extractProductName = (product) => {
+    // محاولة الحصول على الاسم من جميع المصادر الممكنة
+    let name = null;
+    
+    // البنية الجديدة: name.ar
+    if (product.name && typeof product.name === 'object' && product.name.ar) {
+      name = product.name.ar;
+    }
+    // البنية القديمة: nameAr
+    else if (product.nameAr && product.nameAr.trim() !== '') {
+      name = product.nameAr;
+    }
+    // البنية الجديدة: name.en كبديل
+    else if (product.name && typeof product.name === 'object' && product.name.en) {
+      name = product.name.en;
+    }
+    // البنية القديمة: nameEn كبديل
+    else if (product.nameEn && product.nameEn.trim() !== '') {
+      name = product.nameEn;
+    }
+    // إذا كان name هو string مباشر (نماذج قديمة جداً)
+    else if (typeof product.name === 'string' && product.name.trim() !== '') {
+      name = product.name;
+    }
+    
+    // إذا لم نجد اسم صالح، استخدم ID
+    if (!name || name.trim() === '') {
+      name = `منتج ${product._id || 'غير محدد'}`;
+      console.warn(`⚠️ منتج بدون اسم: ${product._id}`, product);
+    }
+    
+    return name.trim();
+  };
+  
+  const productName = extractProductName(product);
+  // استخراج الوصف بطريقة شاملة
+  const extractProductDescription = (product) => {
+    let desc = null;
+    
+    // البنية الجديدة: description.ar
+    if (product.description && typeof product.description === 'object' && product.description.ar) {
+      desc = product.description.ar;
+    }
+    // البنية القديمة: descriptionAr
+    else if (product.descriptionAr && product.descriptionAr.trim() !== '') {
+      desc = product.descriptionAr;
+    }
+    // البنية الجديدة: description.en كبديل
+    else if (product.description && typeof product.description === 'object' && product.description.en) {
+      desc = product.description.en;
+    }
+    // البنية القديمة: descriptionEn كبديل
+    else if (product.descriptionEn && product.descriptionEn.trim() !== '') {
+      desc = product.descriptionEn;
+    }
+    // إذا كان description هو string مباشر
+    else if (typeof product.description === 'string' && product.description.trim() !== '') {
+      desc = product.description;
+    }
+    
+    return desc || '';
+  };
+  
+  const productDesc = extractProductDescription(product);
   const productSlug = product.slug || product._id;
 
   // تحميل اسم الموقع من الإعدادات
