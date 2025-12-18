@@ -556,6 +556,33 @@ export const autoGenerateProductSEO = async (req, res) => {
               priceCurrency: "SAR",
               availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
               priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+              shippingDetails: {
+                "@type": "OfferShippingDetails",
+                shippingRate: {
+                  "@type": "MonetaryAmount",
+                  value: "0",
+                  currency: "SAR"
+                },
+                shippingDestination: {
+                  "@type": "DefinedRegion",
+                  addressCountry: "SA"
+                },
+                deliveryTime: {
+                  "@type": "ShippingDeliveryTime",
+                  handlingTime: {
+                    "@type": "QuantitativeValue",
+                    minValue: 1,
+                    maxValue: 2,
+                    unitCode: "DAY"
+                  },
+                  transitTime: {
+                    "@type": "QuantitativeValue",
+                    minValue: 1,
+                    maxValue: 3,
+                    unitCode: "DAY"
+                  }
+                }
+              },
               seller: {
                 "@type": "Organization",
                 name: "أبعاد التواصل",
