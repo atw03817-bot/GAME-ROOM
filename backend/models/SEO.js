@@ -20,14 +20,14 @@ const seoSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
-    maxlength: 60
+    maxlength: 80
   },
   
   // الوصف
   description: {
     type: String,
     required: true,
-    maxlength: 160
+    maxlength: 180
   },
   
   // الكلمات المفتاحية
@@ -48,7 +48,7 @@ const seoSchema = new mongoose.Schema({
   // العنوان الكامل للصفحة
   h1: {
     type: String,
-    maxlength: 70
+    maxlength: 90
   },
   
   // الصورة المميزة
