@@ -1,4 +1,5 @@
 import SEO from '../models/SEO.js';
+import mongoose from 'mongoose';
 // Product model سيتم استيراده ديناميكياً لتجنب مشاكل التبعيات
 
 // الحصول على جميع إعدادات SEO
@@ -88,18 +89,164 @@ export const createSEO = async (req, res) => {
 export const updateSEO = async (req, res) => {
   try {
     const { id } = req.params;
-    const seoData = await SEO.findByIdAndUpdate(
-      id,
-      { ...req.body, lastModified: new Date() },
-      { new: true, runValidators: true }
-    );
     
-    if (!seoData) {
+    console.log('🔄 SEO Update Request:', {
+      id,
+      bodyKeys: Object.keys(req.body),
+      bodySize: JSON.stringify(req.body).length
+    });
+    
+    // التحقق من صحة ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'معرف SEO غير صحيح'
+      });
+    }
+    
+    // البحث عن السجل أولاً
+    const existingSEO = await SEO.findById(id);
+    if (!existingSEO) {
       return res.status(404).json({
         success: false,
         message: 'لم يتم العثور على إعدادات SEO'
       });
     }
+    
+    console.log('📋 Existing SEO found:', {
+      pageId: existingSEO.pageId,
+      pageType: existingSEO.pageType,
+      title: existingSEO.title?.substring(0, 50) + '...'
+    });
+    
+    // تنظيف البيانات المرسلة
+    const updateData = { ...req.body };
+    updateData.lastModified = new Date();
+    
+    // إزالة الحقول التي لا يجب تحديثها
+    delete updateData._id;
+    delete updateData.__v;
+    delete updateData.createdAt;
+    delete updateData.updatedAt;
+    
+    // الحفاظ على pageId الأصلي إذا لم يتم إرسال واحد جديد
+    if (!updateData.pageId || updateData.pageId.trim() === '') {
+      updateData.pageId = existingSEO.pageId;
+    }
+    
+    // معالجة slug - إذا كان فارغ، احذفه من التحديث لتجنب مشاكل unique constraint
+    if (!updateData.slug || updateData.slug.trim() === '') {
+      delete updateData.slug;
+    } else {
+      // تنظيف slug
+      updateData.slug = updateData.slug.toLowerCase().trim();
+      
+      // التحقق من تضارب slug إذا تم تحديثه
+      if (updateData.slug !== existingSEO.slug) {
+        const slugExists = await SEO.findOne({ 
+          slug: updateData.slug, 
+          _id: { $ne: id } 
+        });
+        
+        if (slugExists) {
+          return res.status(400).json({
+            success: false,
+            message: 'الرابط المخصص موجود مسبقاً',
+            errors: ['slug: الرابط المخصص موجود مسبقاً']
+          });
+        }
+      }
+    }
+    
+    // تنظيف البيانات الفارغة أو غير الصحيحة
+    if (updateData.keywords && Array.isArray(updateData.keywords)) {
+      updateData.keywords = updateData.keywords.filter(keyword => 
+        keyword && typeof keyword === 'string' && keyword.trim() !== ''
+      );
+    }
+    
+    // تنظيف schemaMarkup
+    if (updateData.schemaMarkup) {
+      if (!updateData.schemaMarkup.type) {
+        updateData.schemaMarkup.type = 'WebSite';
+      }
+      if (!updateData.schemaMarkup.data || typeof updateData.schemaMarkup.data !== 'object') {
+        updateData.schemaMarkup.data = {};
+      }
+    }
+    
+    // تنظيف الصور - إزالة الصور الفارغة
+    if (updateData.featuredImage) {
+      if (!updateData.featuredImage.url || updateData.featuredImage.url.trim() === '') {
+        delete updateData.featuredImage;
+      } else {
+        // تنظيف بيانات الصورة
+        updateData.featuredImage = {
+          url: updateData.featuredImage.url.trim(),
+          alt: updateData.featuredImage.alt || '',
+          width: updateData.featuredImage.width || 1200,
+          height: updateData.featuredImage.height || 630
+        };
+      }
+    }
+    
+    if (updateData.openGraph && updateData.openGraph.image) {
+      if (!updateData.openGraph.image.url || updateData.openGraph.image.url.trim() === '') {
+        delete updateData.openGraph.image;
+      } else {
+        updateData.openGraph.image = {
+          url: updateData.openGraph.image.url.trim(),
+          alt: updateData.openGraph.image.alt || '',
+          width: updateData.openGraph.image.width || 1200,
+          height: updateData.openGraph.image.height || 630
+        };
+      }
+    }
+    
+    // تنظيف twitter image
+    if (updateData.twitter && updateData.twitter.image) {
+      if (!updateData.twitter.image || updateData.twitter.image.trim() === '') {
+        delete updateData.twitter.image;
+      } else {
+        updateData.twitter.image = updateData.twitter.image.trim();
+      }
+    }
+    
+    // التأكد من صحة indexing
+    if (updateData.indexing) {
+      updateData.indexing = {
+        index: Boolean(updateData.indexing.index),
+        follow: Boolean(updateData.indexing.follow),
+        sitemap: Boolean(updateData.indexing.sitemap),
+        priority: Math.max(0, Math.min(1, parseFloat(updateData.indexing.priority) || 0.5)),
+        changeFreq: updateData.indexing.changeFreq || 'weekly'
+      };
+    }
+    
+    console.log('🔧 Update data prepared:', {
+      keys: Object.keys(updateData),
+      hasTitle: !!updateData.title,
+      hasDescription: !!updateData.description,
+      keywordsCount: updateData.keywords?.length || 0,
+      schemaType: updateData.schemaMarkup?.type,
+      pageId: updateData.pageId,
+      slug: updateData.slug || 'empty'
+    });
+    
+    const seoData = await SEO.findByIdAndUpdate(
+      id,
+      updateData,
+      { 
+        new: true, 
+        runValidators: true,
+        context: 'query' // مهم للـ validation
+      }
+    );
+    
+    console.log('✅ SEO updated successfully:', {
+      id: seoData._id,
+      title: seoData.title?.substring(0, 50) + '...'
+    });
     
     res.json({
       success: true,
@@ -107,10 +254,53 @@ export const updateSEO = async (req, res) => {
       data: seoData
     });
   } catch (error) {
+    console.error('❌ SEO Update Error:', {
+      message: error.message,
+      name: error.name,
+      code: error.code,
+      stack: error.stack?.split('\n').slice(0, 3)
+    });
+    
+    // معالجة أنواع مختلفة من الأخطاء
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map(err => ({
+        field: err.path,
+        message: err.message,
+        value: err.value
+      }));
+      
+      console.error('🔍 Validation errors details:', validationErrors);
+      
+      return res.status(400).json({
+        success: false,
+        message: 'خطأ في التحقق من البيانات',
+        errors: validationErrors.map(err => `${err.field}: ${err.message}`),
+        details: validationErrors
+      });
+    }
+    
+    if (error.code === 11000) {
+      const duplicateField = Object.keys(error.keyPattern || {})[0] || 'unknown';
+      return res.status(400).json({
+        success: false,
+        message: `${duplicateField === 'slug' ? 'الرابط المخصص' : 'القيمة'} موجود مسبقاً`,
+        error: error.message
+      });
+    }
+    
+    if (error.name === 'CastError') {
+      return res.status(400).json({
+        success: false,
+        message: 'معرف غير صحيح',
+        error: error.message
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: 'خطأ في تحديث إعدادات SEO',
-      error: error.message
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 };

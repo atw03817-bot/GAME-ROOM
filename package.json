@@ -12,10 +12,20 @@
     "build:backend": "cd backend && npm run build",
     "start": "cd backend && npm start"
   },
-  "keywords": ["mobile", "store", "ecommerce", "vite", "react"],
+  "keywords": [
+    "mobile",
+    "store",
+    "ecommerce",
+    "vite",
+    "react"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "mongodb": "^7.0.0"
   }
 }

@@ -111,16 +111,59 @@ const SEOManager = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const url = editingPage 
-        ? `/api/seo/${editingPage._id}`
-        : '/api/seo';
+      console.log('📤 Sending SEO data:', {
+        method: editingPage ? 'PUT' : 'POST',
+        id: editingPage?._id,
+        formDataKeys: Object.keys(formData),
+        title: formData.title,
+        description: formData.description?.substring(0, 50) + '...',
+        keywordsCount: formData.keywords?.length
+      });
       
-      const method = editingPage ? 'put' : 'post';
+      // تنظيف البيانات قبل الإرسال
+      const cleanedData = { ...formData };
+      
+      // تنظيف slug - إذا كان فارغ، احذفه
+      if (!cleanedData.slug || cleanedData.slug.trim() === '') {
+        delete cleanedData.slug;
+      } else {
+        cleanedData.slug = cleanedData.slug.toLowerCase().trim();
+      }
+      
+      // تنظيف الصور الفارغة
+      if (cleanedData.featuredImage && (!cleanedData.featuredImage.url || cleanedData.featuredImage.url.trim() === '')) {
+        delete cleanedData.featuredImage;
+      }
+      
+      if (cleanedData.openGraph && cleanedData.openGraph.image && (!cleanedData.openGraph.image.url || cleanedData.openGraph.image.url.trim() === '')) {
+        delete cleanedData.openGraph.image;
+      }
+      
+      if (cleanedData.twitter && (!cleanedData.twitter.image || cleanedData.twitter.image.trim() === '')) {
+        delete cleanedData.twitter.image;
+      }
+      
+      // تنظيف الكلمات المفتاحية
+      if (cleanedData.keywords) {
+        cleanedData.keywords = cleanedData.keywords.filter(k => k && k.trim() !== '');
+      }
+      
+      // إزالة الحقول غير المطلوبة
+      delete cleanedData._id;
+      delete cleanedData.__v;
+      delete cleanedData.createdAt;
+      delete cleanedData.updatedAt;
+      
+      console.log('🧹 Cleaned data:', {
+        keys: Object.keys(cleanedData),
+        hasSlug: !!cleanedData.slug,
+        keywordsCount: cleanedData.keywords?.length || 0
+      });
       
       if (editingPage) {
-        await api.put(`/seo/${editingPage._id}`, formData);
+        await api.put(`/seo/${editingPage._id}`, cleanedData);
       } else {
-        await api.post('/seo', formData);
+        await api.post('/seo', cleanedData);
       }
 
       setShowModal(false);
@@ -128,7 +171,15 @@ const SEOManager = () => {
       resetForm();
       fetchSEOPages();
     } catch (error) {
-      console.error('خطأ في حفظ إعدادات SEO:', error);
+      console.error('❌ خطأ في حفظ إعدادات SEO:', error);
+      console.error('📋 Response data:', error.response?.data);
+      console.error('📊 Status:', error.response?.status);
+      
+      // عرض رسالة خطأ مفصلة
+      const errorMessage = error.response?.data?.message || error.message;
+      const errorDetails = error.response?.data?.errors || error.response?.data?.details;
+      
+      alert(`خطأ في حفظ SEO: ${errorMessage}${errorDetails ? '\nالتفاصيل: ' + JSON.stringify(errorDetails) : ''}`);
     }
   };
 
@@ -686,15 +737,18 @@ const SEOManager = () => {
                 {/* Slug */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    الرابط المخصص (Slug)
+                    الرابط المخصص (Slug) - اختياري
                   </label>
                   <input
                     type="text"
                     value={formData.slug}
                     onChange={(e) => setFormData({...formData, slug: e.target.value})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    required
+                    placeholder="مثال: products/my-product أو اتركه فارغاً"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    إذا تُرك فارغاً، سيتم استخدام معرف الصفحة كرابط افتراضي
+                  </p>
                 </div>
 
                 {/* Featured Image */}
