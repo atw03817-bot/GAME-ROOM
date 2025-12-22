@@ -4,7 +4,7 @@ import Order from '../models/Order.js';
 import TapPaymentService from '../services/tapPaymentService.js';
 import TamaraPaymentService from '../services/tamaraPaymentService.js';
 
-// import axios from 'axios'; // سنضيفها لاحقاً عند الحاجة
+import axios from 'axios';
 
 // @desc    Get payment settings
 // @route   GET /api/payments/settings
