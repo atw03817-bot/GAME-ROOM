@@ -1,0 +1,61 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Store",
+  "name": "متجر أبعاد التواصل",
+  "alternateName": "أبعاد التواصل",
+  "description": "أفضل متجر هواتف ذكية وإلكترونيات في السعودية. آيفون، سامسونج، هواوي بأفضل الأسعار مع ضمان أصلي وتوصيل مجاني.",
+  "url": "https://ab-tw.com",
+  "logo": "https://ab-tw.com/logo.png",
+  "image": "https://ab-tw.com/og-home.jpg",
+  "telephone": "+966500000000",
+  "email": "info@ab-tw.com",
+  "address": {
+    "@type": "PostalAddress",
+    "addressCountry": "SA",
+    "addressRegion": "الرياض",
+    "addressLocality": "الرياض",
+    "streetAddress": "شارع الملك فهد"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": "24.7136",
+    "longitude": "46.6753"
+  },
+  "openingHours": "Mo-Su 09:00-23:00",
+  "priceRange": "$$",
+  "acceptedPaymentMethod": [
+    "http://purl.org/goodrelations/v1#ByBankTransferInAdvance",
+    "http://purl.org/goodrelations/v1#Cash",
+    "http://purl.org/goodrelations/v1#PayPal"
+  ],
+  "currenciesAccepted": "SAR",
+  "paymentAccepted": "نقداً، فيزا، ماستركارد، مدى، تحويل بنكي",
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "منتجات متجر أبعاد التواصل",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Product",
+          "name": "هواتف ذكية",
+          "category": "Electronics"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Product",
+          "name": "إكسسوارات الجوالات",
+          "category": "Electronics"
+        }
+      }
+    ]
+  },
+  "sameAs": [
+    "https://twitter.com/abadtawasul",
+    "https://instagram.com/abadtawasul",
+    "https://facebook.com/abadtawasul"
+  ],
+  "keywords": "متجر أبعاد التواصل، أبعاد التواصل، هواتف ذكية، آيفون، سامسونج، جوالات السعودية، متجر إلكتروني، إكسسوارات"
+}

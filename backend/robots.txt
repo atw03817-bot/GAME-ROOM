@@ -1,0 +1,26 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://ab-tw.com/sitemap.xml
+
+# متجر أبعاد التواصل - أفضل متجر هواتف في السعودية
+# Abad Tawasul Store - Best Mobile Store in Saudi Arabia
+
+# Allow important pages
+Allow: /products/
+Allow: /categories/
+Allow: /deals/
+Allow: /about
+Allow: /contact
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /login
+Disallow: /register
+Disallow: /checkout/
+Disallow: /account/
+
+# Crawl delay
+Crawl-delay: 1
