@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 
 // Routes
-import authRoutes from './routes/auth.js';
+import authRoutes from './routes/authNew.js';
 import productRoutes from './routes/products.js';
 import categoryRoutes from './routes/categories.js';
 import orderRoutes from './routes/orders.js';

@@ -1,0 +1,24 @@
+# الخطوات الصحيحة لتحديث السيرفر
+
+# المشكلة: git fetch يسحب التحديثات لكن ما يطبقها!
+# الحل: استخدم git pull أو git reset
+
+# الطريقة 1: git pull (الأسهل)
+cd ~/mobile-store-vite
+git pull origin main
+
+# الطريقة 2: git reset (إذا ما اشتغل pull)
+cd ~/mobile-store-vite
+git fetch origin
+git reset --hard origin/main
+
+# بعد أي طريقة، إعادة تشغيل Backend
+pm2 restart mobile-store-backend
+
+# تحقق من الكود
+grep -n "رقم الجوال مستخدم" backend/controllers/authController.js
+
+# اختبار
+curl -X POST https://api.ab-tw.com/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"phone":"0509999999","password":"123456"}'
