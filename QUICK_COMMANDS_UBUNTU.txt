@@ -1,0 +1,49 @@
+# أوامر سريعة لإصلاح السيرفر - نسخ ولصق
+
+# 1. تثبيت المتطلبات الأساسية
+sudo apt update
+sudo apt install git mongodb nodejs npm -y
+
+# 2. تثبيت PM2
+sudo npm install -g pm2
+
+# 3. إيقاف العمليات القديمة
+sudo fuser -k 5000/tcp
+pm2 delete all
+
+# 4. حذف المجلد القديم
+sudo rm -rf /mobile-store-vite
+
+# 5. استنساخ المشروع الجديد
+cd /
+sudo git clone https://github.com/info-makerhgj/mobile-store-vite.git
+sudo chown -R ubuntu:ubuntu /mobile-store-vite
+
+# 6. إعداد Backend
+cd /mobile-store-vite/backend
+npm install
+
+# 7. إنشاء ملف .env
+cat > .env << 'EOF'
+MONGODB_URI=mongodb://localhost:27017/mobile_store
+PORT=5000
+NODE_ENV=production
+FRONTEND_URL=https://www.ab-tw.com
+JWT_SECRET=mobile-store-secret-key-2025
+API_URL=https://api.ab-tw.com
+EOF
+
+# 8. تشغيل MongoDB
+sudo systemctl start mongodb
+sudo systemctl enable mongodb
+
+# 9. تشغيل Backend
+cd /mobile-store-vite/backend
+pm2 start server.js --name mobile-store-backend
+
+# 10. تحقق من الحالة
+pm2 status
+pm2 logs
+
+# 11. اختبار
+curl http://localhost:5000/api/products

@@ -1,0 +1,26 @@
+# الحل البسيط - نسخ ولصق فقط
+
+# 1. تثبيت MongoDB
+sudo apt install mongodb -y
+sudo systemctl start mongodb
+
+# 2. إيقاف العمليات القديمة
+sudo fuser -k 5000/tcp
+pm2 delete all
+
+# 3. تحديث ملف .env
+cd ~/mobile-store-vite/backend
+cat > .env << 'EOF'
+MONGODB_URI=mongodb://localhost:27017/mobile_store
+PORT=5000
+NODE_ENV=production
+FRONTEND_URL=https://www.ab-tw.com
+JWT_SECRET=mobile-store-secret-key-2025
+API_URL=https://api.ab-tw.com
+EOF
+
+# 4. تشغيل Backend
+pm2 start server.js --name mobile-store-backend
+
+# 5. تحقق
+pm2 logs mobile-store-backend

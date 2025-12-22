@@ -1,0 +1,40 @@
+# نسخ ولصق هذه الأوامر على السيرفر Ubuntu
+
+# 1. تحقق من MongoDB
+sudo systemctl status mongod
+
+# 2. شغل MongoDB
+sudo systemctl start mongod
+sudo systemctl enable mongod
+
+# 3. تحقق من مجلد المشروع
+cd /mobile-store-vite/backend
+pwd
+ls -la
+
+# 4. تحقق من ملف .env
+cat .env 2>/dev/null || echo "ملف .env غير موجود"
+
+# 5. إنشاء ملف .env إذا لم يكن موجود
+cat > .env << 'EOF'
+MONGODB_URI=mongodb+srv://atw03817_db_user:jP9AouAfbaifknI4@mobile-store-cluster.cylotee.mongodb.net/mobile_store?retryWrites=true&w=majority
+PORT=5000
+NODE_ENV=production
+FRONTEND_URL=https://www.ab-tw.com
+JWT_SECRET=mobile-store-secret-key-2024
+EOF
+
+# 6. تحقق من محتوى .env
+cat .env
+
+# 7. أعد تشغيل PM2
+pm2 restart all
+
+# 8. شوف الحالة
+pm2 status
+
+# 9. شوف logs
+pm2 logs --lines 20
+
+# 10. اختبر API
+curl https://api.ab-tw.com/api/products

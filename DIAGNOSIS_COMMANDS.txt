@@ -1,0 +1,27 @@
+# أوامر تشخيص المشكلة على السيرفر
+
+# 1. تحقق من MongoDB
+sudo systemctl status mongodb
+sudo systemctl status mongod
+
+# 2. تحقق من العمليات
+pm2 status
+ps aux | grep node
+
+# 3. تحقق من Port 5000
+sudo netstat -tlnp | grep :5000
+sudo lsof -i :5000
+
+# 4. تحقق من ملف .env
+cd ~/mobile-store-vite/backend
+ls -la .env
+cat .env
+
+# 5. تحقق من logs
+pm2 logs --lines 50
+
+# 6. اختبار MongoDB محلياً
+mongo --eval "db.runCommand('ping')"
+
+# 7. اختبار API
+curl -v http://localhost:5000/api/products
