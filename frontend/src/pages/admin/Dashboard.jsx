@@ -46,6 +46,15 @@ function Dashboard() {
       const productsRes = await api.get('/products', { params: { limit: 1000 } })
       const products = productsRes.data.products || []
 
+      // Fetch customers count
+      let customersCount = 0
+      try {
+        const customersRes = await api.get('/customers', { params: { limit: 1 } })
+        customersCount = customersRes.data.pagination?.total || 0
+      } catch (error) {
+        console.error('Error fetching customers count:', error)
+      }
+
       // Calculate stats
       const totalRevenue = orders.reduce((sum, order) => sum + (order.total || 0), 0)
       
@@ -53,7 +62,7 @@ function Dashboard() {
         totalOrders: orders.length,
         totalProducts: products.length,
         totalRevenue: totalRevenue,
-        totalCustomers: 1234, // TODO: Get from API
+        totalCustomers: customersCount,
       })
 
     } catch (error) {
