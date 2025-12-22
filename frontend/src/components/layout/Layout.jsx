@@ -5,9 +5,13 @@ import BackToTop from '../BackToTop';
 import TopBanner from './TopBanner';
 import SEOHead from '../SEOHead';
 import useSEOSettings from '../../hooks/useSEOSettings';
+import useFaviconUpdater from '../../hooks/useFaviconUpdater';
 
 function Layout() {
   const { seoSettings } = useSEOSettings();
+  
+  // تحديث الفافيكون والأيقونات تلقائياً
+  useFaviconUpdater(seoSettings.favicon, seoSettings.appleTouchIcon);
 
   return (
     <div className="flex flex-col min-h-screen" style={{ overscrollBehavior: 'none' }}>
