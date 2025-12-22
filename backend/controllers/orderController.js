@@ -1,6 +1,8 @@
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import Shipment from '../models/Shipment.js';
+import User from '../models/User.js';
+import mongoose from 'mongoose';
 import redboxService from '../services/redboxServiceProduction.js';
 
 // إنشاء طلب جديد مع تكامل الشحن
@@ -236,6 +238,10 @@ export const createOrder = async (req, res) => {
     });
 
     // إنشاء الطلب
+    // للدفع الإلكتروني: ننشئ الطلب بحالة draft أولاً
+    // للدفع عند الاستلام: ننشئ الطلب بحالة pending مباشرة
+    const initialStatus = paymentMethod === 'cod' ? 'pending' : 'draft';
+    
     const order = new Order({
       orderNumber,
       user: req.user._id,
@@ -248,15 +254,16 @@ export const createOrder = async (req, res) => {
       tax,
       total,
       shippingCompany: shippingProvider || 'redbox',
+      status: initialStatus,
       statusHistory: [{
-        status: 'pending',
-        note: 'تم إنشاء الطلب',
+        status: initialStatus,
+        note: paymentMethod === 'cod' ? 'تم إنشاء الطلب' : 'في انتظار الدفع',
         date: new Date()
       }]
     });
 
     await order.save();
-    console.log('✅ تم حفظ الطلب:', orderNumber);
+    console.log(`✅ تم حفظ الطلب بحالة ${initialStatus}:`, orderNumber);
 
     // إنشاء شحنة مع RedBox (للدفع عند الاستلام فقط)
     // Tamara: الشحنة تُنشأ بعد موافقة العميل على الدفع
@@ -437,8 +444,11 @@ export const getMyOrders = async (req, res) => {
     
     console.log('🔍 جلب طلبات العميل:', userId);
     
-    // بناء الاستعلام
-    let query = { user: userId };
+    // بناء الاستعلام - استبعاد الطلبات المسودة
+    let query = { 
+      user: userId,
+      status: { $ne: 'draft' } // استبعاد الطلبات المسودة
+    };
     
     if (status && status !== 'all') {
       query.orderStatus = status;
@@ -498,7 +508,25 @@ export const getMyOrders = async (req, res) => {
 // جلب تفاصيل الطلب
 export const getOrderById = async (req, res) => {
   try {
-    let order = await Order.findById(req.params.id)
+    const { id } = req.params;
+    
+    // بناء الاستعلام بشكل صحيح
+    let query = {};
+    
+    // إذا كان ID صالح كـ ObjectId، ابحث بواسطة _id أيضاً
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      query = {
+        $or: [
+          { orderNumber: id },
+          { _id: id }
+        ]
+      };
+    } else {
+      // إذا لم يكن ObjectId صالح، ابحث فقط بواسطة orderNumber
+      query = { orderNumber: id };
+    }
+    
+    let order = await Order.findOne(query)
       .populate('user', 'name nameAr email phone');
 
     if (!order) {
@@ -719,6 +747,127 @@ export const trackOrder = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'خطأ في تتبع الطلب',
+      error: error.message
+    });
+  }
+};
+
+// تأكيد الطلب بعد نجاح الدفع
+export const confirmOrder = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { paymentData } = req.body;
+
+    console.log('✅ تأكيد الطلب بعد نجاح الدفع:', orderId);
+
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'الطلب غير موجود'
+      });
+    }
+
+    // التحقق من أن الطلب في حالة مسودة
+    if (order.status !== 'draft') {
+      return res.status(400).json({
+        success: false,
+        message: 'الطلب مؤكد مسبقاً'
+      });
+    }
+
+    // تحديث المخزون للمنتجات
+    if (!order.stockUpdated) {
+      for (const item of order.items) {
+        const product = await Product.findById(item.product);
+        if (product) {
+          product.stock = Math.max(0, product.stock - item.quantity);
+          product.sales = (product.sales || 0) + item.quantity;
+          await product.save();
+          console.log(`📦 تم تحديث مخزون ${product.name?.ar || product.nameAr}: ${product.stock}`);
+        }
+      }
+      order.stockUpdated = true;
+    }
+
+    // تحديث حالة الطلب
+    order.status = 'pending';
+    order.paymentStatus = 'paid';
+    order.paidAt = new Date();
+
+    // إضافة سجل في تاريخ الحالة
+    order.statusHistory.push({
+      status: 'pending',
+      note: 'تم تأكيد الطلب بعد نجاح الدفع',
+      date: new Date()
+    });
+
+    // حفظ بيانات الدفع إذا كانت متوفرة
+    if (paymentData) {
+      order.paymentData = paymentData;
+    }
+
+    await order.save();
+
+    // إنشاء شحنة مع RedBox إذا كان مطلوباً
+    if (order.shippingCompany === 'redbox') {
+      try {
+        console.log('📦 إنشاء شحنة مع RedBox...');
+        
+        const shipmentResult = await redboxService.createShipment({
+          orderNumber: order.orderNumber,
+          shippingAddress: order.shippingAddress,
+          items: order.items,
+          subtotal: order.subtotal,
+          total: order.total,
+          paymentMethod: order.paymentMethod
+        });
+
+        if (shipmentResult.success) {
+          // حفظ معلومات الشحنة
+          const shipment = new Shipment({
+            orderId: order._id,
+            providerId: null,
+            trackingNumber: shipmentResult.trackingNumber,
+            shippingCost: shipmentResult.cost,
+            estimatedDelivery: shipmentResult.estimatedDelivery,
+            status: 'created'
+          });
+
+          await shipment.save();
+
+          // تحديث الطلب برقم التتبع
+          order.trackingNumber = shipmentResult.trackingNumber;
+          order.orderStatus = 'confirmed';
+          order.statusHistory.push({
+            status: 'confirmed',
+            note: `تم إنشاء شحنة مع RedBox - رقم التتبع: ${shipmentResult.trackingNumber}`,
+            date: new Date()
+          });
+          
+          await order.save();
+          
+          console.log('✅ تم إنشاء شحنة RedBox:', shipmentResult.trackingNumber);
+        }
+      } catch (shipmentError) {
+        console.error('❌ خطأ في إنشاء شحنة RedBox:', shipmentError.message);
+        // الطلب يبقى مؤكد حتى لو فشلت الشحنة
+      }
+    }
+
+    console.log('✅ تم تأكيد الطلب بنجاح:', order.orderNumber);
+
+    res.json({
+      success: true,
+      order,
+      message: 'تم تأكيد الطلب بنجاح'
+    });
+
+  } catch (error) {
+    console.error('❌ خطأ في تأكيد الطلب:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في تأكيد الطلب',
       error: error.message
     });
   }

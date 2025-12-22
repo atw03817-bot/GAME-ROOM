@@ -9,13 +9,17 @@ import {
   updateOrderStatus,
   updatePaymentStatus,
   trackOrder,
-  getMyOrders 
+  getMyOrders,
+  confirmOrder
 } from '../controllers/orderController.js';
 
 const router = express.Router();
 
 // Create order
 router.post('/', auth, createOrder);
+
+// Confirm order after payment success
+router.post('/:orderId/confirm', auth, confirmOrder);
 
 // Get my orders (العميل الحالي)
 router.get('/my-orders', auth, getMyOrders);

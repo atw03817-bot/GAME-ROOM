@@ -66,6 +66,11 @@ const orderSchema = new mongoose.Schema({
     enum: ['pending', 'paid', 'failed', 'refunded', 'approved', 'declined', 'expired', 'authorized', 'cancelled'],
     default: 'pending'
   },
+  status: {
+    type: String,
+    enum: ['draft', 'pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'],
+    default: 'pending'
+  },
   orderStatus: {
     type: String,
     enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'],
@@ -100,6 +105,7 @@ const orderSchema = new mongoose.Schema({
   cancelledAt: Date,
   refundedAt: Date,
   stockUpdated: { type: Boolean, default: false },
+  paymentData: Object, // لحفظ بيانات الدفع
   
   statusHistory: [{
     status: String,

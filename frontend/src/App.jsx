@@ -35,6 +35,8 @@ import CustomerAnalytics from './pages/CustomerAnalytics';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 
+import OrderDetails from './pages/OrderDetails';
+
 // Admin
 import AdminLayout from './components/admin/AdminLayout';
 import AdminDashboard from './pages/admin/Dashboard';
@@ -112,6 +114,7 @@ function App() {
           {/* User Account */}
           <Route path="account" element={<Account />} />
           <Route path="orders" element={<Orders />} />
+          <Route path="orders/:id" element={<OrderDetails />} />
           <Route path="my-analytics" element={<CustomerAnalytics />} />
           
           {/* Deals */}
