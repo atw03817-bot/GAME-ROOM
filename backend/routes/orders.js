@@ -8,7 +8,8 @@ import {
   getAllOrders, 
   updateOrderStatus,
   updatePaymentStatus,
-  trackOrder 
+  trackOrder,
+  getMyOrders 
 } from '../controllers/orderController.js';
 
 const router = express.Router();
@@ -16,7 +17,10 @@ const router = express.Router();
 // Create order
 router.post('/', auth, createOrder);
 
-// Get user orders
+// Get my orders (العميل الحالي)
+router.get('/my-orders', auth, getMyOrders);
+
+// Get user orders (للتوافق مع الكود القديم)
 router.get('/user/me', auth, async (req, res) => {
   try {
     const userId = req.user._id || req.user.userId;

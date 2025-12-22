@@ -429,6 +429,72 @@ export const updateOrderStatus = async (req, res) => {
   }
 };
 
+// جلب طلبات العميل الحالي
+export const getMyOrders = async (req, res) => {
+  try {
+    const { page = 1, limit = 20, status } = req.query;
+    const userId = req.user._id || req.user.userId;
+    
+    console.log('🔍 جلب طلبات العميل:', userId);
+    
+    // بناء الاستعلام
+    let query = { user: userId };
+    
+    if (status && status !== 'all') {
+      query.orderStatus = status;
+    }
+
+    const orders = await Order.find(query)
+      .populate('items.product', 'name nameAr images price')
+      .sort('-createdAt')
+      .limit(limit * 1)
+      .skip((page - 1) * limit);
+
+    const count = await Order.countDocuments(query);
+
+    console.log(`📦 تم العثور على ${orders.length} طلب للعميل`);
+
+    // تنسيق البيانات
+    const formattedOrders = orders.map(order => ({
+      ...order.toObject(),
+      items: order.items.map(item => ({
+        ...item,
+        optionsDisplay: {
+          color: item.selectedOptions?.color ? {
+            name: item.selectedOptions.color.nameAr || item.selectedOptions.color.name,
+            value: item.selectedOptions.color.value
+          } : null,
+          storage: item.selectedOptions?.storage ? {
+            name: item.selectedOptions.storage.nameAr || item.selectedOptions.storage.name,
+            value: item.selectedOptions.storage.value
+          } : null
+        }
+      }))
+    }));
+
+    res.json({
+      success: true,
+      orders: formattedOrders,
+      data: formattedOrders, // للتوافق مع الكود القديم
+      pagination: {
+        totalPages: Math.ceil(count / limit),
+        currentPage: parseInt(page),
+        total: count,
+        hasNext: page < Math.ceil(count / limit),
+        hasPrev: page > 1
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ خطأ في جلب طلبات العميل:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'خطأ في جلب تفاصيل الطلب',
+      error: error.message 
+    });
+  }
+};
+
 // جلب تفاصيل الطلب
 export const getOrderById = async (req, res) => {
   try {

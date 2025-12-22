@@ -169,7 +169,7 @@ function Customers() {
           <div className="flex-1 relative">
             <input
               type="text"
-              placeholder="ابحث عن عميل (الاسم، البريد، الجوال)..."
+              placeholder="ابحث عن عميل (الاسم، رقم الجوال، البريد)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -229,14 +229,16 @@ function Customers() {
                 </div>
 
                 <div className="space-y-3 mb-4">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <FiMail size={16} />
-                    <span className="truncate">{customer.email}</span>
-                  </div>
                   {customer.phone && (
                     <div className="flex items-center gap-2 text-sm text-gray-600" dir="ltr">
                       <FiPhone size={16} />
-                      <span>{customer.phone}</span>
+                      <span className="font-medium">{customer.phone}</span>
+                    </div>
+                  )}
+                  {customer.email && (
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <FiMail size={16} />
+                      <span className="truncate">{customer.email}</span>
                     </div>
                   )}
                 </div>
@@ -264,18 +266,22 @@ function Customers() {
                 )}
 
                 <div className="flex gap-2">
-                  <a
-                    href={`mailto:${customer.email}`}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition text-sm"
-                  >
-                    إرسال بريد
-                  </a>
                   {customer.phone && (
                     <a
                       href={`tel:${customer.phone}`}
-                      className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary-50 text-primary-600 border border-primary-200 rounded-lg hover:bg-primary-100 transition text-sm font-medium"
                     >
-                      <FiPhone size={18} />
+                      <FiPhone size={16} />
+                      اتصال
+                    </a>
+                  )}
+                  {customer.email && (
+                    <a
+                      href={`mailto:${customer.email}`}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition text-sm"
+                    >
+                      <FiMail size={16} />
+                      بريد
                     </a>
                   )}
                 </div>

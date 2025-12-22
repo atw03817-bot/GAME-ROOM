@@ -20,11 +20,21 @@ export const getCustomers = async (req, res) => {
     console.log('📋 Initial query:', JSON.stringify(query));
     
     if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
-        { phone: { $regex: search, $options: 'i' } }
+      // البحث في الاسم ورقم الجوال والإيميل
+      const searchRegex = { $regex: search, $options: 'i' };
+      query.$and = [
+        query.$or ? { $or: query.$or } : {},
+        {
+          $or: [
+            { name: searchRegex },
+            { phone: searchRegex },
+            { email: searchRegex }
+          ]
+        }
       ];
+      
+      // إزالة الشرط القديم لتجنب التعارض
+      delete query.$or;
     }
     
     if (status) {
@@ -152,7 +162,18 @@ export const updateCustomer = async (req, res) => {
       });
     }
     
-    // Check if email is already taken by another user
+    // Check if phone is already taken by another user
+    if (phone && phone !== customer.phone) {
+      const existingUser = await User.findOne({ phone });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: 'رقم الجوال مستخدم بالفعل'
+        });
+      }
+    }
+    
+    // Check if email is already taken by another user (if provided)
     if (email && email !== customer.email) {
       const existingUser = await User.findOne({ email });
       if (existingUser) {
