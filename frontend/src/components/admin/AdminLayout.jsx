@@ -1,10 +1,21 @@
-import { useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Outlet, Navigate } from 'react-router-dom'
 import { FiMenu } from 'react-icons/fi'
 import AdminSidebar from './AdminSidebar'
+import useAuthStore from '../../store/useAuthStore'
 
 function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { user, isAuthenticated } = useAuthStore()
+
+  // التحقق من تسجيل الدخول والصلاحيات
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />
+  }
+
+  if (user?.role !== 'ADMIN') {
+    return <Navigate to="/" replace />
+  }
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
@@ -25,6 +36,7 @@ function AdminLayout() {
               </button>
               <div className="flex-1 lg:mr-4">
                 <h1 className="text-xl font-bold text-gray-800">لوحة الإدارة</h1>
+                <p className="text-sm text-gray-600">مرحباً {user?.name || user?.phone}</p>
               </div>
             </div>
           </header>

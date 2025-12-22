@@ -36,7 +36,7 @@ const useAuthStore = create((set) => ({
     if (token) {
       try {
         // Verify token and get user data
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5001/api'}/auth/profile`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/auth/profile`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
