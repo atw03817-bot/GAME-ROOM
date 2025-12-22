@@ -1,0 +1,12 @@
+نسخ والصق هذه الأوامر في السيرفر:
+
+cd /var/www/mobile-store
+git pull origin main
+pm2 restart all
+
+أو إذا ما اشتغل:
+pm2 stop all
+pm2 start backend/server.js --name mobile-store
+
+تأكد من التحديث:
+pm2 logs --lines 10

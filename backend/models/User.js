@@ -30,9 +30,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: false,
     unique: true,
-    sparse: true,
+    sparse: true, // هذا يسمح بـ null values متعددة
     lowercase: true,
-    trim: true
+    trim: true,
+    default: undefined // بدلاً من null
   },
   role: {
     type: String,
