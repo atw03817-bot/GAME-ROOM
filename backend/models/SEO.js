@@ -19,17 +19,15 @@ const seoSchema = new mongoose.Schema({
   // العنوان الأساسي
   title: {
     type: String,
-    required: [true, 'العنوان مطلوب'],
-    maxlength: [60, 'العنوان يجب أن يكون أقل من 60 حرف'],
-    trim: true
+    required: true,
+    maxlength: 60
   },
   
   // الوصف
   description: {
     type: String,
-    required: [true, 'الوصف مطلوب'],
-    maxlength: [160, 'الوصف يجب أن يكون أقل من 160 حرف'],
-    trim: true
+    required: true,
+    maxlength: 160
   },
   
   // الكلمات المفتاحية
@@ -42,18 +40,9 @@ const seoSchema = new mongoose.Schema({
   slug: {
     type: String,
     unique: true,
-    sparse: true, // يسمح بقيم فارغة متعددة
     lowercase: true,
     trim: true,
-    validate: {
-      validator: function(v) {
-        // إذا كان فارغ، فهو صالح
-        if (!v || v.trim() === '') return true;
-        // إذا كان موجود، يجب أن يكون صالح
-        return /^[a-z0-9-\/]+$/.test(v);
-      },
-      message: 'الرابط المخصص يجب أن يحتوي على أحرف إنجليزية صغيرة وأرقام وشرطات فقط'
-    }
+    default: ''
   },
   
   // العنوان الكامل للصفحة
@@ -103,10 +92,7 @@ const seoSchema = new mongoose.Schema({
       type: String,
       enum: ['Product', 'Organization', 'WebSite', 'BreadcrumbList', 'Article', 'LocalBusiness']
     },
-    data: {
-      type: mongoose.Schema.Types.Mixed,
-      default: {}
-    }
+    data: mongoose.Schema.Types.Mixed
   },
   
   // إعدادات الفهرسة
