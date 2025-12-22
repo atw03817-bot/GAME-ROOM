@@ -195,11 +195,11 @@ const Blog = () => {
                       className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow group"
                     >
                       {post.featuredImage?.url && (
-                        <div className="relative h-64 overflow-hidden">
+                        <div className="relative w-full h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden bg-white">
                           <img
                             src={post.featuredImage.url}
                             alt={post.featuredImage.alt}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                           />
                           <div className="absolute top-3 right-3">
                             <span className="px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded-full">

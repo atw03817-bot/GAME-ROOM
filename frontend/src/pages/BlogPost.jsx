@@ -118,11 +118,11 @@ const BlogPost = () => {
             {/* Featured Image */}
             {post.featuredImage?.url && (
               <div className="relative w-full overflow-hidden rounded-lg">
-                <div className="w-full h-[800px] max-w-[800px] mx-auto">
+                <div className="w-full h-64 sm:h-80 md:h-96 lg:h-[400px] bg-white">
                   <img
                     src={post.featuredImage.url}
                     alt={post.featuredImage.alt}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
@@ -251,11 +251,11 @@ const BlogPost = () => {
                     className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow group"
                   >
                     {similarPost.featuredImage?.url && (
-                      <div className="h-56 overflow-hidden">
+                      <div className="w-full h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden bg-white">
                         <img
                           src={similarPost.featuredImage.url}
                           alt={similarPost.featuredImage.alt}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                         />
                       </div>
                     )}
@@ -294,11 +294,11 @@ const BlogPost = () => {
                     className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow group"
                   >
                     {product.images?.[0] && (
-                      <div className="h-56 overflow-hidden">
+                      <div className="w-full h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden bg-white">
                         <img
                           src={product.images[0]}
                           alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                         />
                       </div>
                     )}
