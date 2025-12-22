@@ -128,6 +128,9 @@ function Navbar() {
               <Link to="/products" onClick={() => setIsMenuOpen(false)} className="py-2 hover:text-primary-600 transition">
                 جميع المنتجات
               </Link>
+              <Link to="/blog" onClick={() => setIsMenuOpen(false)} className="py-2 hover:text-primary-600 transition">
+                المدونة
+              </Link>
               <Link to="/deals" onClick={() => setIsMenuOpen(false)} className="py-2 text-red-600 hover:text-red-700 transition">
                 العروض
               </Link>

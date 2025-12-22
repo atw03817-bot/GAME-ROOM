@@ -25,6 +25,7 @@ import seoRoutes from './routes/seo.js';
 import webhookRoutes from './routes/webhooks.js';
 import searchRoutes from './routes/search.js';
 import realAnalyticsRoutes from './routes/realAnalytics.js';
+import blogRoutes from './routes/blog.js';
 
 dotenv.config();
 
@@ -105,6 +106,7 @@ app.use('/api/seo', seoRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/real-analytics', realAnalyticsRoutes);
+app.use('/api/blog', blogRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

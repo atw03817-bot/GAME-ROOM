@@ -636,24 +636,34 @@ const SEOManager = () => {
                     الكلمات المفتاحية (كل سطر = كلمة مفتاحية)
                   </label>
                   
-                  {/* عرض الكلمات الحالية */}
+                  {/* عرض الكلمات الحالية مع عداد */}
                   {formData.keywords.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-3 p-3 bg-gray-50 rounded-lg">
-                      {formData.keywords.map((keyword, index) => (
-                        <span
-                          key={index}
-                          className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
-                        >
-                          {keyword}
-                          <button
-                            type="button"
-                            onClick={() => removeKeyword(index)}
-                            className="text-blue-600 hover:text-blue-800"
+                    <div className="mb-3">
+                      <div className="text-sm text-gray-600 mb-2">
+                        الكلمات المفتاحية المضافة ({formData.keywords.length} كلمة):
+                      </div>
+                      <div className="flex flex-wrap gap-2 p-3 bg-gray-50 rounded-lg max-h-32 overflow-y-auto">
+                        {formData.keywords.map((keyword, index) => (
+                          <span
+                            key={index}
+                            className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
                           >
-                            ✕
-                          </button>
-                        </span>
-                      ))}
+                            {keyword}
+                            <button
+                              type="button"
+                              onClick={() => removeKeyword(index)}
+                              className="text-blue-600 hover:text-blue-800"
+                            >
+                              ✕
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                      {formData.keywords.length > 50 && (
+                        <div className="mt-2 text-xs text-amber-600">
+                          ⚠️ لديك {formData.keywords.length} كلمة مفتاحية. للحصول على أفضل نتائج SEO، يُنصح بـ 10-20 كلمة مفتاحية مركزة.
+                        </div>
+                      )}
                     </div>
                   )}
 

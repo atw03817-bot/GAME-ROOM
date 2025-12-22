@@ -17,6 +17,7 @@ import {
   FiFileText,
   FiSearch,
   FiBarChart2,
+  FiBookOpen,
 } from 'react-icons/fi'
 import api from '../../utils/api'
 
@@ -63,6 +64,7 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
     if (path.includes('/admin/legal-pages')) return 'legal-pages'
     if (path.includes('/admin/seo')) return 'seo'
     if (path.includes('/admin/analytics')) return 'analytics'
+    if (path.includes('/admin/blog')) return 'blog'
     if (path.includes('/admin/settings')) return 'settings'
     return ''
   }
@@ -76,6 +78,7 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
     { id: 'categories', path: '/admin/categories', icon: FiGrid, label: 'الفئات' },
     { id: 'orders', path: '/admin/orders', icon: FiShoppingBag, label: 'الطلبات' },
     { id: 'customers', path: '/admin/customers', icon: FiUsers, label: 'العملاء' },
+    { id: 'blog', path: '/admin/blog', icon: FiBookOpen, label: 'المدونة' },
     { id: 'analytics', path: '/admin/analytics', icon: FiBarChart2, label: 'التحليلات' },
     { id: 'deals', path: '/admin/deals', icon: FiTag, label: 'العروض' },
     { id: 'distribution', path: '/admin/distribution', icon: FiTruck, label: 'التوزيع' },

@@ -32,6 +32,8 @@ import TermsConditions from './pages/TermsConditions';
 import ReturnPolicy from './pages/ReturnPolicy';
 import SearchResults from './pages/SearchResults';
 import CustomerAnalytics from './pages/CustomerAnalytics';
+import Blog from './pages/Blog';
+import BlogPost from './pages/BlogPost';
 
 // Admin
 import AdminLayout from './components/admin/AdminLayout';
@@ -54,6 +56,7 @@ import FooterSettings from './pages/admin/FooterSettings';
 import LegalPages from './pages/admin/LegalPages';
 import SEOManager from './pages/admin/SEOManager';
 import Analytics from './pages/admin/Analytics';
+import BlogManager from './pages/admin/BlogManager';
 
 function App() {
   const { i18n } = useTranslation();
@@ -114,6 +117,10 @@ function App() {
           {/* Deals */}
           <Route path="deals" element={<Deals />} />
           
+          {/* Blog */}
+          <Route path="blog" element={<Blog />} />
+          <Route path="blog/:slug" element={<BlogPost />} />
+          
           {/* Info Pages */}
           <Route path="about" element={<About />} />
           <Route path="contact" element={<Contact />} />
@@ -134,6 +141,7 @@ function App() {
           <Route path="customers" element={<AdminCustomers />} />
           <Route path="categories" element={<AdminCategories />} />
           <Route path="deals" element={<AdminDeals />} />
+          <Route path="blog" element={<BlogManager />} />
           <Route path="homepage-builder" element={<AdminHomepageBuilder />} />
           <Route path="distribution" element={<div className="p-8 text-center"><h1 className="text-2xl font-bold">التوزيع - قريباً</h1></div>} />
           <Route path="settings" element={<AdminSettings />} />
