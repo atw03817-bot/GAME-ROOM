@@ -598,30 +598,36 @@ const SEOManager = () => {
                 {/* Title & Description */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    العنوان ({formData.title.length}/60)
+                    العنوان ({formData.title.length}/80)
                   </label>
                   <input
                     type="text"
                     value={formData.title}
                     onChange={(e) => setFormData({...formData, title: e.target.value})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    maxLength="60"
+                    maxLength="80"
                     required
                   />
+                  <div className="mt-1 text-xs text-gray-500">
+                    💡 الطول المثالي: 50-80 حرف لأفضل ظهور في نتائج البحث
+                  </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    الوصف ({formData.description.length}/160)
+                    الوصف ({formData.description.length}/180)
                   </label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({...formData, description: e.target.value})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     rows="3"
-                    maxLength="160"
+                    maxLength="180"
                     required
                   />
+                  <div className="mt-1 text-xs text-gray-500">
+                    💡 الطول المثالي: 120-180 حرف لأفضل ظهور في نتائج البحث
+                  </div>
                 </div>
 
                 {/* Keywords */}
