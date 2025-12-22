@@ -1,0 +1,58 @@
+# 🚨 إصلاح طارئ - الخادم متوقف مرة أخرى
+
+## المشكلة:
+- CORS errors مرة أخرى
+- 502 Bad Gateway
+- الخادم لا يستجيب
+
+## الحل السريع:
+
+### في الخادم، نفذ هذه الأوامر بالترتيب:
+
+```bash
+# 1. تحقق من حالة العمليات
+pm2 status
+
+# 2. شاهد السجلات للتأكد من المشكلة
+pm2 logs mobile-store-backend --lines 20
+
+# 3. أعد تشغيل الخادم
+pm2 restart mobile-store-backend
+
+# 4. إذا لم يعمل، احذف العملية وأعد إنشاؤها
+pm2 delete mobile-store-backend
+cd /home/ubuntu/mobile-store-vite/backend
+pm2 start ecosystem.config.js
+
+# 5. أو تشغيل مباشر
+pm2 start server.js --name mobile-store-backend
+```
+
+## إذا استمرت المشكلة:
+
+```bash
+# تحقق من MongoDB
+sudo systemctl status mongod
+sudo systemctl restart mongod
+
+# تحقق من البورت
+netstat -tulpn | grep :5000
+
+# أعد تشغيل كل شيء
+pm2 delete all
+cd /home/ubuntu/mobile-store-vite/backend
+npm install
+pm2 start server.js --name mobile-store-backend
+```
+
+## السبب المحتمل:
+- الخادم يتوقف بسبب خطأ في الكود الجديد
+- مشكلة في قاعدة البيانات
+- نفاد الذاكرة
+
+## للتحقق من السبب:
+```bash
+pm2 logs mobile-store-backend --lines 50
+```
+
+نفذ الأوامر وأرسل لي النتيجة!

@@ -1,6 +1,5 @@
 // نموذج مقالات المدونة
 import mongoose from 'mongoose';
-import mongoosePaginate from 'mongoose-paginate-v2';
 
 const blogPostSchema = new mongoose.Schema({
   // العنوان
@@ -186,7 +185,7 @@ blogPostSchema.methods.getSimilarPosts = async function(limit = 3) {
   .select('title slug excerpt featuredImage publishedAt stats.readingTime');
 };
 
-// إضافة pagination plugin
-blogPostSchema.plugin(mongoosePaginate);
+// إضافة pagination plugin - سنضيفها لاحقاً عند الحاجة
+// blogPostSchema.plugin(mongoosePaginate);
 
 export default mongoose.model('BlogPost', blogPostSchema);

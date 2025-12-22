@@ -47,16 +47,25 @@ export const getAllPosts = async (req, res) => {
       populate: 'relatedProducts'
     };
 
-    const posts = await BlogPost.paginate(query, options);
+    // استخدام pagination عادي بدلاً من المكتبة
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const posts = await BlogPost.find(query)
+      .populate('relatedProducts')
+      .sort(sort)
+      .skip(skip)
+      .limit(parseInt(limit));
+    
+    const total = await BlogPost.countDocuments(query);
+    const totalPages = Math.ceil(total / parseInt(limit));
 
     res.json({
       success: true,
-      data: posts.docs,
+      data: posts,
       pagination: {
-        page: posts.page,
-        pages: posts.totalPages,
-        total: posts.totalDocs,
-        limit: posts.limit
+        page: parseInt(page),
+        pages: totalPages,
+        total: total,
+        limit: parseInt(limit)
       }
     });
   } catch (error) {

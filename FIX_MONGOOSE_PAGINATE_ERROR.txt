@@ -1,0 +1,44 @@
+# 🚨 إصلاح خطأ mongoose-paginate-v2
+
+## المشكلة:
+```
+ERR_MODULE_NOT_FOUND: Cannot find package 'mongoose-paginate-v2'
+```
+
+## الحل:
+
+### في الخادم، نفذ هذه الأوامر:
+
+```bash
+# توقف عن تشغيل الخادم
+pm2 stop mobile-store-backend
+
+# اذهب لمجلد backend
+cd /home/ubuntu/mobile-store-vite/backend
+
+# ثبت الحزمة المفقودة
+npm install mongoose-paginate-v2
+
+# أعد تشغيل الخادم
+pm2 start mobile-store-backend
+
+# أو إذا لم يعمل:
+pm2 restart mobile-store-backend
+```
+
+### إذا استمر الخطأ:
+```bash
+# ثبت جميع الحزم مرة أخرى
+npm install
+
+# أعد تشغيل
+pm2 restart mobile-store-backend
+```
+
+### تحقق من النتيجة:
+```bash
+pm2 logs mobile-store-backend --lines 10
+```
+
+## السبب:
+عندما أضفنا نظام المدونة، استخدمنا حزمة mongoose-paginate-v2 للتصفح بين الصفحات، لكنها لم تكن مثبتة في الخادم.
