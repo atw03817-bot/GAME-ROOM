@@ -66,31 +66,35 @@ const userSchema = new mongoose.Schema({
 // فهرس للبحث السريع برقم الجوال
 userSchema.index({ phone: 1 });
 
-// Hash password before saving
+// Hash password and format phone before saving
 userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
+  try {
+    // تنسيق رقم الجوال
+    if (this.phone) {
+      // إزالة المسافات والشرطات
+      this.phone = this.phone.replace(/[\s-]/g, '');
+      
+      // إضافة 0 في البداية إذا كان الرقم يبدأ بـ 5
+      if (this.phone.startsWith('5') && this.phone.length === 9) {
+        this.phone = '0' + this.phone;
+      }
+    }
+
+    // تشفير كلمة المرور
+    if (this.isModified('password')) {
+      this.password = await bcrypt.hash(this.password, 10);
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
 // Compare password method
 userSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
-
-// تنسيق رقم الجوال قبل الحفظ
-userSchema.pre('save', function(next) {
-  if (this.phone) {
-    // إزالة المسافات والشرطات
-    this.phone = this.phone.replace(/[\s-]/g, '');
-    
-    // إضافة 0 في البداية إذا كان الرقم يبدأ بـ 5
-    if (this.phone.startsWith('5') && this.phone.length === 9) {
-      this.phone = '0' + this.phone;
-    }
-  }
-  next();
-});
 
 // دالة للحصول على الاسم من آخر عنوان شحن
 userSchema.methods.getDisplayName = function() {
