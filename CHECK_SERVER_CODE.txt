@@ -1,0 +1,21 @@
+# تحقق من الكود الفعلي على السيرفر
+
+# تحقق من محتوى authController على السيرفر
+cat ~/mobile-store-vite/backend/controllers/authController.js | grep -A 5 -B 5 "البريد الإلكتروني"
+
+# تحقق من محتوى authController للرسالة الصحيحة
+cat ~/mobile-store-vite/backend/controllers/authController.js | grep -A 5 -B 5 "رقم الجوال مستخدم"
+
+# تحقق من آخر commit
+cd ~/mobile-store-vite
+git log --oneline -3
+
+# تحقق من الفرق بين النسخة المحلية والسيرفر
+git status
+
+# إذا كان الملف لسه قديم، اعمل reset قوي
+git fetch origin
+git reset --hard origin/main
+
+# إعادة تشغيل
+pm2 restart mobile-store-backend

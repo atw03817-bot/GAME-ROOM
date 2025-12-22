@@ -1,0 +1,37 @@
+# إجبار تحديث السيرفر - الحل النهائي
+
+# المشكلة: السيرفر لسه يستخدم الكود القديم مع إن git pull اشتغل
+
+# الحل النهائي:
+
+# 1. إيقاف كل العمليات
+pm2 delete all
+
+# 2. إجبار سحب التحديثات
+cd ~/mobile-store-vite
+git fetch origin
+git reset --hard origin/main
+
+# 3. تحقق من الكود الجديد
+grep -n "رقم الجوال مستخدم" backend/controllers/authController.js
+
+# إذا ما طلع نتيجة، معناها المشكلة في الملف
+# اعمل الآتي:
+
+# 4. حذف الملف وإعادة إنشاؤه
+rm backend/controllers/authController.js
+git checkout HEAD -- backend/controllers/authController.js
+
+# 5. تحقق مرة أخرى
+grep -n "رقم الجوال مستخدم" backend/controllers/authController.js
+
+# 6. إعادة تشغيل
+cd backend
+pm2 start server.js --name mobile-store-backend
+
+# 7. اختبار
+curl -X POST https://api.ab-tw.com/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"phone":"0509999999","password":"123456"}'
+
+# يجب أن تظهر: "رقم الجوال مستخدم بالفعل"
