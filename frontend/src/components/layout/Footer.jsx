@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { FiMail, FiPhone, FiInstagram, FiTwitter, FiFacebook, FiYoutube } from 'react-icons/fi';
+import { FiMail, FiPhone, FiInstagram, FiFacebook } from 'react-icons/fi';
+import { SiTiktok, SiSnapchat } from 'react-icons/si';
 import api from '../../utils/api';
 
 function Footer() {
@@ -39,9 +40,9 @@ function Footer() {
         },
         social: {
           instagram: 'https://instagram.com',
-          twitter: 'https://twitter.com',
+          twitter: 'https://tiktok.com',      // سيظهر كأيقونة TikTok
           facebook: 'https://facebook.com',
-          youtube: '',
+          youtube: 'https://snapchat.com',    // سيظهر كأيقونة Snapchat
           tiktok: '',
           snapchat: ''
         },
@@ -159,8 +160,9 @@ function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary-600 transition"
+                title="TikTok"
               >
-                <FiTwitter size={20} />
+                <SiTiktok size={20} />
               </a>
             )}
             {footerData.social?.facebook && (
@@ -179,8 +181,9 @@ function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary-600 transition"
+                title="Snapchat"
               >
-                <FiYoutube size={20} />
+                <SiSnapchat size={20} />
               </a>
             )}
           </div>
@@ -230,8 +233,9 @@ function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary-600 transition"
+                  title="TikTok"
                 >
-                  <FiTwitter size={18} />
+                  <SiTiktok size={18} />
                 </a>
               )}
               {footerData.social?.facebook && (
@@ -250,8 +254,9 @@ function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary-600 transition"
+                  title="Snapchat"
                 >
-                  <FiYoutube size={18} />
+                  <SiSnapchat size={18} />
                 </a>
               )}
             </div>
