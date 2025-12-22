@@ -1,0 +1,38 @@
+# تشخيص مشكلة السيرفر الحقيقي
+
+# المشكلة: السيرفر المحلي يعمل، السيرفر الحقيقي خطأ 500
+
+# التشخيص على السيرفر Ubuntu:
+
+# 1. تحقق من logs PM2
+pm2 logs mobile-store-backend --lines 50
+
+# 2. تحقق من ملف .env على السيرفر
+cd ~/mobile-store-vite/backend
+cat .env
+
+# 3. تحقق من الكود الجديد
+ls -la routes/authNew.js
+grep -n "authNew" server.js
+
+# 4. اختبار الاتصال بقاعدة البيانات
+node -e "
+const mongoose = require('mongoose');
+require('dotenv').config();
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('✅ MongoDB connected'))
+  .catch(err => console.log('❌ MongoDB error:', err.message));
+"
+
+# 5. اختبار API مباشرة
+curl -v -X POST http://localhost:5000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"phone":"0509999999","password":"123456"}'
+
+# 6. إذا لسه مشكلة، تحقق من Node modules
+cd ~/mobile-store-vite/backend
+npm install
+
+# 7. إعادة تشغيل كامل
+pm2 delete all
+pm2 start server.js --name mobile-store-backend

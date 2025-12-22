@@ -67,15 +67,13 @@ export const register = async (req, res) => {
       });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     // التحقق من أول مستخدم (جعله مدير)
     const userCount = await User.countDocuments();
     const isFirstUser = userCount === 0;
 
     const user = new User({
       phone: formattedPhone,
-      password: hashedPassword,
+      password: password, // بدون hash لأن الـ model يقوم بالـ hash
       role: isFirstUser ? 'ADMIN' : 'USER',
     });
 
