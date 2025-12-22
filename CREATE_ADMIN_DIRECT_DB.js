@@ -3,9 +3,12 @@
 // سكريبت إنشاء حساب مدير مباشرة في قاعدة البيانات MongoDB
 // يعمل بدون الحاجة لـ API أو server
 
-const { MongoClient } = require('mongodb');
-const bcrypt = require('bcryptjs');
-const crypto = require('crypto');
+import { MongoClient } from 'mongodb';
+import bcrypt from 'bcryptjs';
+import dotenv from 'dotenv';
+
+// تحميل متغيرات البيئة
+dotenv.config();
 
 // إعدادات قاعدة البيانات - غير هذه حسب إعداداتك
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/mobile-store';
@@ -13,8 +16,8 @@ const DB_NAME = 'mobile-store'; // اسم قاعدة البيانات
 
 // بيانات المدير - غير هذه البيانات
 const ADMIN_DATA = {
-  phone: '0501234567',        // ضع رقم جوالك
-  password: 'Admin@123456',   // ضع كلمة مرور قوية
+  phone: '0500909030',        // رقم الجوال
+  password: '123456',         // كلمة المرور
   role: 'ADMIN'
 };
 
