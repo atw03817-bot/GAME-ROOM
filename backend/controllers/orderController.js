@@ -624,6 +624,63 @@ export const getOrderById = async (req, res) => {
   }
 };
 
+// جلب تفاصيل الطلب بواسطة رقم الطلب (للفاتورة)
+export const getOrderByNumber = async (req, res) => {
+  try {
+    const { orderNumber } = req.params;
+    
+    let order = await Order.findOne({ orderNumber })
+      .populate('user', 'name nameAr email phone');
+
+    if (!order) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'الطلب غير موجود' 
+      });
+    }
+
+    // تحويل إلى object عادي للتعديل
+    order = order.toObject();
+
+    // جلب تفاصيل المنتجات يدوياً
+    for (let i = 0; i < order.items.length; i++) {
+      const item = order.items[i];
+      if (item.product) {
+        try {
+          const product = await Product.findById(item.product);
+          if (product) {
+            order.items[i].product = product.toObject();
+          }
+        } catch (productError) {
+          console.log('Product not found:', item.product);
+        }
+      }
+    }
+
+    // إضافة معلومات العميل من الطلب نفسه إذا لم تكن موجودة
+    if (!order.customerInfo && order.shippingAddress) {
+      order.customerInfo = {
+        name: order.shippingAddress.name || order.shippingAddress.fullName,
+        phone: order.shippingAddress.phone,
+        email: order.user?.email
+      };
+    }
+
+    res.json({ 
+      success: true, 
+      data: order 
+    });
+
+  } catch (error) {
+    console.error('❌ خطأ في جلب تفاصيل الطلب بالرقم:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'خطأ في جلب تفاصيل الطلب',
+      error: error.message 
+    });
+  }
+};
+
 // جلب جميع الطلبات (للإدارة)
 export const getAllOrders = async (req, res) => {
   try {

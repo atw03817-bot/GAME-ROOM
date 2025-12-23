@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FaBox, FaTruck, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+import { useNavigate, Link } from 'react-router-dom';
+import { FaBox, FaTruck, FaCheckCircle, FaTimesCircle, FaFileInvoice } from 'react-icons/fa';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
 
@@ -201,9 +201,21 @@ function Orders() {
                         {order.total?.toFixed(2)} ر.س
                       </p>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(order.status)}`}>
-                      {getStatusText(order.status)}
-                    </span>
+                    
+                    {/* Action Buttons */}
+                    <div className="flex flex-col gap-2">
+                      <Link
+                        to={`/invoice/${order.orderNumber || order._id?.slice(-8)}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex items-center gap-1 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-sm rounded-lg transition"
+                      >
+                        <FaFileInvoice size={12} />
+                        فاتورة
+                      </Link>
+                      <span className={`px-3 py-1 rounded-full text-sm font-semibold text-center ${getStatusColor(order.status)}`}>
+                        {getStatusText(order.status)}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>

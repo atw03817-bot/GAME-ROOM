@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import {
   FiSearch,
   FiEye,
   FiDownload,
   FiShoppingBag,
+  FiPrinter,
 } from 'react-icons/fi'
 import api from '../../utils/api'
 
@@ -280,13 +281,23 @@ function Orders() {
                     </p>
                   </div>
 
-                  <button
-                    onClick={() => navigate(`/admin/orders/${orderId}`)}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
-                  >
-                    <FiEye size={16} />
-                    عرض التفاصيل
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => navigate(`/admin/orders/${orderId}`)}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+                    >
+                      <FiEye size={16} />
+                      عرض التفاصيل
+                    </button>
+                    <Link
+                      to={`/invoice/${order.orderNumber}`}
+                      target="_blank"
+                      className="flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition"
+                    >
+                      <FiPrinter size={16} />
+                      فاتورة
+                    </Link>
+                  </div>
                 </div>
               )
             })}
@@ -333,12 +344,21 @@ function Orders() {
                         {new Date(order.createdAt).toLocaleDateString('ar-SA')}
                       </td>
                       <td className="py-4 px-6">
-                        <button
-                          onClick={() => navigate(`/admin/orders/${orderId}`)}
-                          className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
-                        >
-                          <FiEye size={16} />
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => navigate(`/admin/orders/${orderId}`)}
+                            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+                          >
+                            <FiEye size={16} />
+                          </button>
+                          <Link
+                            to={`/invoice/${order.orderNumber}`}
+                            target="_blank"
+                            className="p-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition"
+                          >
+                            <FiPrinter size={16} />
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   )

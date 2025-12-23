@@ -5,6 +5,7 @@ import { auth, adminAuth } from '../middleware/auth.js';
 import { 
   createOrder, 
   getOrderById, 
+  getOrderByNumber,
   getAllOrders, 
   updateOrderStatus,
   updatePaymentStatus,
@@ -43,6 +44,9 @@ router.get('/', adminAuth, getAllOrders);
 
 // Get order by ID
 router.get('/:id', auth, getOrderById);
+
+// Get order by number (for invoice - public access)
+router.get('/number/:orderNumber', getOrderByNumber);
 
 // Update order status (Admin)
 router.patch('/:id/status', adminAuth, updateOrderStatus);

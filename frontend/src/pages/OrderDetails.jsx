@@ -121,7 +121,8 @@ function OrderDetails() {
   };
 
   const handlePrint = () => {
-    window.print();
+    // فتح الفاتورة في تبويب جديد
+    window.open(`/invoice/${order.orderNumber}`, '_blank');
   };
 
   const handleWhatsAppSupport = () => {
@@ -190,10 +191,10 @@ function OrderDetails() {
             <div className="flex items-center gap-3">
               <button
                 onClick={handlePrint}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition print:hidden"
+                className="flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition print:hidden"
               >
                 <FaPrint />
-                طباعة
+                طباعة الفاتورة
               </button>
               <button
                 onClick={handleWhatsAppSupport}

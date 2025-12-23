@@ -21,6 +21,7 @@ function Settings() {
     storeDescriptionAr: '',
     contactEmail: '',
     contactPhone: '',
+    vatNumber: '',
     currency: 'SAR',
     taxRate: 15,
     shippingEnabled: true,
@@ -310,6 +311,22 @@ function Settings() {
                   placeholder="+966 50 123 4567"
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                الرقم الضريبي
+              </label>
+              <input
+                type="text"
+                value={settings.vatNumber}
+                onChange={(e) => handleChange('vatNumber', e.target.value)}
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                placeholder="123456789012345"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                الرقم الضريبي للمنشأة (15 رقم) - مطلوب للفواتير الضريبية
+              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { 
   FiArrowRight, 
   FiPackage, 
@@ -143,7 +143,8 @@ function OrderDetailsNew() {
   }
 
   const handlePrint = () => {
-    window.print()
+    // فتح الفاتورة في تبويب جديد
+    window.open(`/invoice/${order.orderNumber}`, '_blank');
   }
 
   const handleExport = () => {
@@ -237,10 +238,10 @@ function OrderDetailsNew() {
           <div className="flex items-center gap-3">
             <button
               onClick={handlePrint}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition print:hidden"
+              className="flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition print:hidden"
             >
               <FiPrinter />
-              طباعة
+              طباعة الفاتورة
             </button>
             <button
               onClick={handleExport}

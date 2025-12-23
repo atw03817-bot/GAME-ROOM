@@ -36,6 +36,7 @@ import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 
 import OrderDetails from './pages/OrderDetails';
+import Invoice from './components/invoice/Invoice';
 
 // Admin
 import AdminLayout from './components/admin/AdminLayout';
@@ -117,6 +118,7 @@ function App() {
           <Route path="account" element={<Account />} />
           <Route path="orders" element={<Orders />} />
           <Route path="orders/:id" element={<OrderDetails />} />
+          <Route path="invoice/:orderNumber" element={<Invoice />} />
           <Route path="my-analytics" element={<CustomerAnalytics />} />
           
           {/* Deals */}
