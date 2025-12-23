@@ -170,8 +170,29 @@ export const createOrder = async (req, res) => {
     }
 
     const finalShippingCost = shippingCost || 30;
-    const tax = subtotal * 0.15; // ضريبة القيمة المضافة 15%
-    const total = subtotal + finalShippingCost + tax;
+    
+    // حساب عمولة تمارا إذا كانت طريقة الدفع تمارا
+    let tamaraCommission = {
+      amount: 0,
+      rate: 0,
+      displayName: 'عمولة الأقساط - تمارا'
+    };
+    
+    if (paymentMethod === 'tamara') {
+      try {
+        // استيراد نموذج إعدادات تمارا
+        const { default: TamaraSettings } = await import('../models/TamaraSettings.js');
+        const commission = await TamaraSettings.calculateCommission(subtotal);
+        tamaraCommission = commission;
+        console.log('💰 عمولة تمارا محسوبة:', commission);
+      } catch (error) {
+        console.error('❌ خطأ في حساب عمولة تمارا:', error);
+        // في حالة الخطأ، نستخدم القيم الافتراضية (بدون عمولة)
+      }
+    }
+    
+    const tax = (subtotal + tamaraCommission.amount) * 0.15; // ضريبة القيمة المضافة 15%
+    const total = subtotal + tamaraCommission.amount + finalShippingCost + tax;
 
     // إنشاء رقم الطلب
     const orderCount = await Order.countDocuments();
@@ -252,6 +273,7 @@ export const createOrder = async (req, res) => {
       subtotal,
       shippingCost: finalShippingCost,
       tax,
+      tamaraCommission,
       total,
       shippingCompany: shippingProvider || 'redbox',
       status: initialStatus,

@@ -369,7 +369,10 @@ function Checkout() {
           {/* Order Summary Sidebar */}
           <div className="lg:col-span-1">
             <div className="sticky top-4">
-              <OrderSummary shippingCost={selectedShipping?.cost || 0} />
+              <OrderSummary 
+                shippingCost={selectedShipping?.cost || 0} 
+                selectedPayment={selectedPayment}
+              />
             </div>
           </div>
         </div>

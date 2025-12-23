@@ -2,16 +2,34 @@ import { useState, useEffect } from 'react';
 import useCartStore from '../../store/useCartStore';
 import api from '../../utils/api';
 
-function OrderSummary({ shippingCost = 0, taxRate = 0.15 }) {
+function OrderSummary({ shippingCost = 0, taxRate = 0.15, selectedPayment = 'cod' }) {
   const { items, getTotal } = useCartStore();
   const [settings, setSettings] = useState({
     freeShippingEnabled: false,
     freeShippingThreshold: 0
   });
+  const [tamaraCommission, setTamaraCommission] = useState({
+    amount: 0,
+    rate: 0,
+    displayName: 'عمولة الأقساط - تمارا'
+  });
 
   useEffect(() => {
     fetchSettings();
   }, []);
+
+  useEffect(() => {
+    // حساب عمولة تمارا عند تغيير طريقة الدفع أو المجموع
+    if (selectedPayment === 'tamara') {
+      calculateTamaraCommission();
+    } else {
+      setTamaraCommission({
+        amount: 0,
+        rate: 0,
+        displayName: 'عمولة الأقساط - تمارا'
+      });
+    }
+  }, [selectedPayment, items]);
 
   const fetchSettings = async () => {
     try {
@@ -27,6 +45,26 @@ function OrderSummary({ shippingCost = 0, taxRate = 0.15 }) {
     }
   };
 
+  const calculateTamaraCommission = async () => {
+    try {
+      const subtotal = getTotal();
+      const response = await api.post('/tamara-settings/calculate-commission', {
+        subtotal
+      });
+      
+      if (response.data.success) {
+        setTamaraCommission(response.data.data.commission);
+      }
+    } catch (error) {
+      console.error('Error calculating Tamara commission:', error);
+      setTamaraCommission({
+        amount: 0,
+        rate: 0,
+        displayName: 'عمولة الأقساط - تمارا'
+      });
+    }
+  };
+
   const subtotal = getTotal();
   
   // Check if free shipping applies
@@ -36,9 +74,12 @@ function OrderSummary({ shippingCost = 0, taxRate = 0.15 }) {
   
   const actualShipping = isFreeShipping ? 0 : shippingCost;
   
-  // Calculate tax on subtotal + shipping
-  const tax = (subtotal + actualShipping) * taxRate;
-  const finalTotal = subtotal + actualShipping + tax;
+  // Add Tamara commission to calculation
+  const subtotalWithCommission = subtotal + tamaraCommission.amount;
+  
+  // Calculate tax on subtotal + commission + shipping
+  const tax = (subtotalWithCommission + actualShipping) * taxRate;
+  const finalTotal = subtotalWithCommission + actualShipping + tax;
 
   return (
     <div className="bg-gray-50 rounded-lg p-6">
@@ -67,6 +108,17 @@ function OrderSummary({ shippingCost = 0, taxRate = 0.15 }) {
           <span className="text-gray-600">المجموع الفرعي</span>
           <span className="font-semibold">{subtotal.toFixed(2)} ر.س</span>
         </div>
+
+        {/* Tamara Commission */}
+        {selectedPayment === 'tamara' && tamaraCommission.amount > 0 && (
+          <div className="flex justify-between text-sm">
+            <div className="flex items-center gap-1">
+              <span className="text-gray-600">{tamaraCommission.displayName}</span>
+              <span className="text-xs text-gray-400">({tamaraCommission.rate}%)</span>
+            </div>
+            <span className="font-semibold text-orange-600">{tamaraCommission.amount.toFixed(2)} ر.س</span>
+          </div>
+        )}
 
         {/* Shipping */}
         <div className="flex justify-between text-sm">

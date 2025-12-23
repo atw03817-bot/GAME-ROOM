@@ -26,6 +26,7 @@ import webhookRoutes from './routes/webhooks.js';
 import searchRoutes from './routes/search.js';
 import realAnalyticsRoutes from './routes/realAnalytics.js';
 import blogRoutes from './routes/blog.js';
+import tamaraSettingsRoutes from './routes/tamaraSettings.js';
 
 dotenv.config();
 
@@ -107,6 +108,7 @@ app.use('/api/webhooks', webhookRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/real-analytics', realAnalyticsRoutes);
 app.use('/api/blog', blogRoutes);
+app.use('/api/tamara-settings', tamaraSettingsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

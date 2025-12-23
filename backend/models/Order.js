@@ -88,6 +88,21 @@ const orderSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  // عمولة تمارا
+  tamaraCommission: {
+    amount: {
+      type: Number,
+      default: 0
+    },
+    rate: {
+      type: Number,
+      default: 0
+    },
+    displayName: {
+      type: String,
+      default: 'عمولة الأقساط - تمارا'
+    }
+  },
   total: {
     type: Number,
     required: true
