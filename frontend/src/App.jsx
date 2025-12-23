@@ -60,6 +60,7 @@ import SEOManager from './pages/admin/SEOManager';
 import Analytics from './pages/admin/Analytics';
 import BlogManager from './pages/admin/BlogManager';
 import TamaraSettings from './pages/admin/TamaraSettings';
+import ShippingRates from './pages/admin/ShippingRates';
 
 function App() {
   const { i18n } = useTranslation();
@@ -157,6 +158,7 @@ function App() {
 
           <Route path="seo" element={<SEOManager />} />
           <Route path="tamara-settings" element={<TamaraSettings />} />
+          <Route path="shipping-rates" element={<ShippingRates />} />
           <Route path="analytics" element={<Analytics />} />
         </Route>
       </Routes>

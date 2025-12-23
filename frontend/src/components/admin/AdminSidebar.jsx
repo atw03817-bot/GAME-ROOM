@@ -65,6 +65,7 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
     if (path.includes('/admin/legal-pages')) return 'legal-pages'
     if (path.includes('/admin/seo')) return 'seo'
     if (path.includes('/admin/tamara-settings')) return 'tamara-settings'
+    if (path.includes('/admin/shipping-rates')) return 'shipping-rates'
     if (path.includes('/admin/analytics')) return 'analytics'
     if (path.includes('/admin/blog')) return 'blog'
     if (path.includes('/admin/settings')) return 'settings'
@@ -90,6 +91,7 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
   const settingsItems = [
     { id: 'seo', path: '/admin/seo', icon: FiSearch, label: 'تحسين محركات البحث' },
     { id: 'tamara-settings', path: '/admin/tamara-settings', icon: FiCreditCard, label: 'إعدادات تمارا' },
+    { id: 'shipping-rates', path: '/admin/shipping-rates', icon: FiTruck, label: 'أسعار الشحن' },
     { id: 'theme-settings', path: '/admin/theme-settings', icon: FiEdit3, label: 'إعدادات الثيم' },
     { id: 'footer-settings', path: '/admin/footer-settings', icon: FiLayers, label: 'إعدادات Footer' },
     { id: 'legal-pages', path: '/admin/legal-pages', icon: FiFileText, label: 'الصفحات القانونية' },

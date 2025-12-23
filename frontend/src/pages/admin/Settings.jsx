@@ -481,10 +481,15 @@ function Settings() {
               )}
             </div>
 
-            <div className="p-4 bg-primary-50 rounded-lg border border-primary-200">
-              <p className="text-sm text-primary-800">
-                💡 يمكنك إدارة شركات الشحن وأسعارها من صفحة الإعدادات المتقدمة
+            <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="text-sm text-blue-800 mb-2">
+                ✅ أسعار الشحن تُدار من هنا مباشرة:
               </p>
+              <ul className="text-sm text-blue-700 space-y-1">
+                <li>• السعر المحدد هنا يُستخدم لجميع المدن</li>
+                <li>• التغييرات تظهر فوراً للعملاء في صفحة الدفع</li>
+                <li>• يمكن تحديد سعر مختلف لكل شركة شحن</li>
+              </ul>
             </div>
           </div>
         </div>
@@ -568,7 +573,7 @@ function Settings() {
                           }}
                         />
                         <p className="text-xs text-gray-500 mt-1">
-                          السعر الافتراضي للشحن لجميع المدن (يمكن تخصيص أسعار مختلفة لكل مدينة من صفحة Shipping Rates)
+                          السعر الفعلي للشحن لجميع المدن. يمكن تعديله وسيظهر فوراً للعملاء.
                         </p>
                       </div>
                     </div>
@@ -667,6 +672,20 @@ function Settings() {
                   )}
                 </div>
               ))}
+
+              {/* Important Notice */}
+              <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <div className="text-blue-600 text-lg">💡</div>
+                  <div>
+                    <h4 className="font-semibold text-blue-800 mb-2">أسعار الشحن الموحدة</h4>
+                    <p className="text-sm text-blue-700">
+                      الأسعار المحددة أعلاه تُستخدم لجميع المدن في المملكة. 
+                      عند تعديل السعر هنا، سيظهر التغيير فوراً لجميع العملاء في صفحة الدفع.
+                    </p>
+                  </div>
+                </div>
+              </div>
 
               {shippingProviders.length === 0 && (
                 <div className="text-center py-12 text-gray-500">

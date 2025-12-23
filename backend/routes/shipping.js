@@ -4,6 +4,10 @@ import {
   getAllShippingProviders,
   updateShippingProvider,
   getShippingRates,
+  getAllShippingRates,
+  createShippingRate,
+  updateShippingRate,
+  deleteShippingRate,
   calculateShipping,
   createShipment,
   getShipmentByOrder,
@@ -32,6 +36,10 @@ router.get('/shipments/order/:orderId', auth, getShipmentByOrder);
 router.get('/providers/all', adminAuth, getAllShippingProviders);
 router.put('/providers/:id', adminAuth, updateShippingProvider);
 router.put('/providers/:id/api', adminAuth, updateShippingProvider);
+router.get('/rates/all', adminAuth, getAllShippingRates);
+router.post('/rates', adminAuth, createShippingRate);
+router.put('/rates/:id', adminAuth, updateShippingRate);
+router.delete('/rates/:id', adminAuth, deleteShippingRate);
 router.post('/shipments', adminAuth, createShipment);
 router.put('/shipments/:id/status', adminAuth, updateShipmentStatus);
 router.post('/shipments/:id/cancel', adminAuth, cancelShipment);

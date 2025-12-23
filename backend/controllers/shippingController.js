@@ -84,6 +84,138 @@ export const updateShippingProvider = async (req, res) => {
   }
 };
 
+// @desc    Get all shipping rates (Admin)
+// @route   GET /api/shipping/rates/all
+// @access  Private/Admin
+export const getAllShippingRates = async (req, res) => {
+  try {
+    const rates = await ShippingRate.find()
+      .populate('providerId', 'name displayName enabled')
+      .sort({ city: 1, providerId: 1 });
+    
+    res.json({
+      success: true,
+      data: rates
+    });
+  } catch (error) {
+    console.error('Error getting all shipping rates:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في جلب أسعار الشحن'
+    });
+  }
+};
+
+// @desc    Create shipping rate
+// @route   POST /api/shipping/rates
+// @access  Private/Admin
+export const createShippingRate = async (req, res) => {
+  try {
+    const { providerId, city, price, estimatedDays } = req.body;
+    
+    if (!providerId || !city || !price || !estimatedDays) {
+      return res.status(400).json({
+        success: false,
+        message: 'جميع الحقول مطلوبة'
+      });
+    }
+    
+    // Check if rate already exists
+    const existingRate = await ShippingRate.findOne({ providerId, city });
+    if (existingRate) {
+      return res.status(400).json({
+        success: false,
+        message: 'يوجد سعر بالفعل لهذه المدينة وشركة الشحن'
+      });
+    }
+    
+    const rate = await ShippingRate.create({
+      providerId,
+      city,
+      price: parseFloat(price),
+      estimatedDays: parseInt(estimatedDays)
+    });
+    
+    await rate.populate('providerId', 'name displayName enabled');
+    
+    res.status(201).json({
+      success: true,
+      data: rate,
+      message: 'تم إنشاء سعر الشحن بنجاح'
+    });
+  } catch (error) {
+    console.error('Error creating shipping rate:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في إنشاء سعر الشحن'
+    });
+  }
+};
+
+// @desc    Update shipping rate
+// @route   PUT /api/shipping/rates/:id
+// @access  Private/Admin
+export const updateShippingRate = async (req, res) => {
+  try {
+    const { price, estimatedDays } = req.body;
+    
+    const rate = await ShippingRate.findByIdAndUpdate(
+      req.params.id,
+      {
+        price: parseFloat(price),
+        estimatedDays: parseInt(estimatedDays)
+      },
+      { new: true, runValidators: true }
+    ).populate('providerId', 'name displayName enabled');
+    
+    if (!rate) {
+      return res.status(404).json({
+        success: false,
+        message: 'سعر الشحن غير موجود'
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: rate,
+      message: 'تم تحديث سعر الشحن بنجاح'
+    });
+  } catch (error) {
+    console.error('Error updating shipping rate:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في تحديث سعر الشحن'
+    });
+  }
+};
+
+// @desc    Delete shipping rate
+// @route   DELETE /api/shipping/rates/:id
+// @access  Private/Admin
+export const deleteShippingRate = async (req, res) => {
+  try {
+    const rate = await ShippingRate.findByIdAndDelete(req.params.id);
+    
+    if (!rate) {
+      return res.status(404).json({
+        success: false,
+        message: 'سعر الشحن غير موجود'
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: 'تم حذف سعر الشحن بنجاح'
+    });
+  } catch (error) {
+    console.error('Error deleting shipping rate:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في حذف سعر الشحن'
+    });
+  }
+};
+
 // @desc    Get shipping rates for a city
 // @route   GET /api/shipping/rates/:city
 // @access  Public
@@ -91,15 +223,39 @@ export const getShippingRates = async (req, res) => {
   try {
     const { city } = req.params;
     
-    const rates = await ShippingRate.find({ city })
-      .populate('providerId', 'name displayName enabled');
+    // جلب جميع شركات الشحن المفعلة
+    const enabledProviders = await ShippingProvider.find({ enabled: true });
     
-    // Filter only enabled providers
-    const enabledRates = rates.filter(rate => rate.providerId && rate.providerId.enabled);
+    if (enabledProviders.length === 0) {
+      return res.json({
+        success: true,
+        data: []
+      });
+    }
+    
+    const rates = [];
+    
+    for (const provider of enabledProviders) {
+      // استخدام السعر من إعدادات الشركة مباشرة
+      const defaultPrice = provider.settings?.defaultPrice || 30;
+      rates.push({
+        _id: `settings_${provider._id}`, // معرف من الإعدادات
+        providerId: {
+          _id: provider._id,
+          name: provider.name,
+          displayName: provider.displayName,
+          enabled: provider.enabled
+        },
+        city: city,
+        price: defaultPrice,
+        estimatedDays: 2, // افتراضي
+        source: 'settings_price'
+      });
+    }
     
     res.json({
       success: true,
-      data: enabledRates
+      data: rates
     });
   } catch (error) {
     console.error('Error getting shipping rates:', error);
@@ -133,26 +289,17 @@ export const calculateShipping = async (req, res) => {
       });
     }
     
-    // Get rate for this city
-    const rate = await ShippingRate.findOne({
-      providerId,
-      city
-    });
+    // استخدام السعر من إعدادات الشركة مباشرة
+    const cost = provider.settings?.defaultPrice || 30; // 30 ريال افتراضي
+    const estimatedDays = 2; // يومين افتراضي
     
-    if (!rate) {
-      return res.status(404).json({
-        success: false,
-        message: 'لا يوجد شحن لهذه المدينة'
-      });
-    }
-    
-    // Calculate cost (can add weight-based calculation here)
-    let cost = rate.price;
+    console.log(`📦 استخدام السعر من الإعدادات لـ ${provider.displayName} في ${city}: ${cost} ر.س`);
     
     // Add weight-based cost if needed
+    let finalCost = cost;
     if (weight && weight > 5) {
       const extraWeight = weight - 5;
-      cost += extraWeight * 2; // 2 SAR per extra kg
+      finalCost += extraWeight * 2; // 2 SAR per extra kg
     }
     
     res.json({
@@ -163,9 +310,10 @@ export const calculateShipping = async (req, res) => {
           name: provider.displayName
         },
         city,
-        cost,
-        estimatedDays: rate.estimatedDays,
-        weight
+        cost: finalCost,
+        estimatedDays,
+        weight,
+        source: 'settings_price' // دائماً من الإعدادات
       }
     });
   } catch (error) {
