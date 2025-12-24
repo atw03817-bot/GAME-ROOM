@@ -114,7 +114,6 @@ function OrderSummary({ shippingCost = 0, taxRate = 0.15, selectedPayment = 'cod
           <div className="flex justify-between text-sm">
             <div className="flex items-center gap-1">
               <span className="text-gray-600">{tamaraCommission.displayName}</span>
-              <span className="text-xs text-gray-400">({tamaraCommission.rate}%)</span>
             </div>
             <span className="font-semibold text-orange-600">{tamaraCommission.amount.toFixed(2)} ر.س</span>
           </div>

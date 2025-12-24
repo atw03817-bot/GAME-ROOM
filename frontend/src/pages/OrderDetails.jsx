@@ -403,7 +403,6 @@ function OrderDetails() {
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-1">
                       <span className="text-gray-600">{order.tamaraCommission.displayName}:</span>
-                      <span className="text-xs text-gray-400">({order.tamaraCommission.rate}%)</span>
                     </div>
                     <span className="font-bold text-orange-600">{formatPrice(order.tamaraCommission.amount)} ر.س</span>
                   </div>

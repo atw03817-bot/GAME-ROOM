@@ -190,7 +190,7 @@ function TamaraSettings() {
               {testResult && (
                 <div className="text-sm space-y-1">
                   <p>المبلغ الفرعي: <span className="font-semibold">{testResult.subtotal} ر.س</span></p>
-                  <p>العمولة ({testResult.commission.rate}%): <span className="font-semibold text-orange-600">{testResult.commission.amount} ر.س</span></p>
+                  <p>العمولة: <span className="font-semibold text-orange-600">{testResult.commission.amount} ر.س</span></p>
                   <p>المجموع مع العمولة: <span className="font-semibold">{(testResult.subtotal + testResult.commission.amount).toFixed(2)} ر.س</span></p>
                 </div>
               )}
@@ -220,7 +220,6 @@ function TamaraSettings() {
                 <div className="flex justify-between">
                   <div className="flex items-center gap-1">
                     <span className="text-gray-600">{settings.commissionDisplayName || 'عمولة الأقساط - تمارا'}</span>
-                    <span className="text-xs text-gray-400">({settings.commissionRate || 0}%)</span>
                   </div>
                   <span className="font-semibold text-orange-600">
                     {((500 * (settings.commissionRate || 0)) / 100).toFixed(2)} ر.س
