@@ -250,9 +250,10 @@ function MaintenanceRequest() {
       }
     }
     
-    if (images.length < 3) {
-      errors.push('يجب رفع 3 صور على الأقل للجهاز (أمام، خلف، جانب)')
-    }
+    // التحقق من الصور (اختياري مؤقتاً للاختبار)
+    // if (images.length < 3) {
+    //   errors.push('يجب رفع 3 صور على الأقل للجهاز (أمام، خلف، جانب)')
+    // }
     
     const phoneRegex = /^(05|5)[0-9]{8}$/
     if (formData.customerPhone && !phoneRegex.test(formData.customerPhone.replace(/\s/g, ''))) {
@@ -688,9 +689,9 @@ function MaintenanceRequest() {
               {/* رفع الصور */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">
-                  صور الجهاز <span className="text-red-500">*</span>
+                  صور الجهاز (اختياري)
                   <span className="text-xs text-gray-500 block mt-1">
-                    مطلوب 3 صور على الأقل: (أمام، خلف، جانب) - حتى 5 صور
+                    يمكنك رفع حتى 5 صور للجهاز (أمام، خلف، جانب، إلخ)
                   </span>
                 </label>
                 
@@ -716,8 +717,8 @@ function MaintenanceRequest() {
                       <p className="text-sm font-medium text-gray-700">
                         الصور المرفوعة ({images.length}/5)
                       </p>
-                      <p className={`text-xs ${images.length >= 3 ? 'text-green-600' : 'text-red-600'}`}>
-                        {images.length >= 3 ? '✅ تم رفع العدد المطلوب' : `❌ يجب رفع ${3 - images.length} صور إضافية`}
+                      <p className={`text-xs text-gray-600`}>
+                        {images.length > 0 ? `✅ تم رفع ${images.length} صور` : 'لم يتم رفع صور بعد'}
                       </p>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
