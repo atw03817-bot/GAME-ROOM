@@ -100,9 +100,30 @@ export const register = async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Register error:', error);
+    
+    // التعامل مع أخطاء MongoDB المختلفة
+    if (error.code === 11000) {
+      // خطأ duplicate key
+      if (error.keyPattern?.phone) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'رقم الجوال مستخدم بالفعل' 
+        });
+      }
+    }
+    
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({ 
+        success: false, 
+        message: messages.join(', ') 
+      });
+    }
+    
     res.status(500).json({ 
       success: false, 
-      message: 'حدث خطأ في الخادم' 
+      message: 'حدث خطأ في الخادم',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
@@ -172,7 +193,6 @@ export const login = async (req, res) => {
         id: user._id.toString(),
         phone: user.phone,
         name: user.getDisplayName(),
-        email: user.email,
         role: user.role,
       },
       message: 'تم تسجيل الدخول بنجاح'
@@ -204,7 +224,6 @@ export const getProfile = async (req, res) => {
         id: user._id.toString(),
         phone: user.phone,
         name: user.getDisplayName(),
-        email: user.email,
         role: user.role,
         permissions: user.permissions,
         department: user.department,
@@ -224,27 +243,12 @@ export const getProfile = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { email } = req.body;
-    
-    // التحقق من الإيميل إذا تم تغييره
-    if (email) {
-      const existingEmailUser = await User.findOne({ 
-        email, 
-        _id: { $ne: req.user._id } 
-      });
-      
-      if (existingEmailUser) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'البريد الإلكتروني مستخدم بالفعل' 
-        });
-      }
-    }
+    const { name } = req.body;
     
     const user = await User.findByIdAndUpdate(
       req.user._id,
       { 
-        email: email || undefined,
+        name: name || undefined,
         updatedAt: new Date() 
       },
       { new: true }
@@ -263,7 +267,6 @@ export const updateProfile = async (req, res) => {
         id: user._id.toString(),
         phone: user.phone,
         name: user.getDisplayName(),
-        email: user.email,
         role: user.role,
         permissions: user.permissions,
         department: user.department,
