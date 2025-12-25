@@ -8,7 +8,7 @@ export const createMaintenanceRequest = async (req, res) => {
     console.log('📥 Received maintenance request data:', JSON.stringify(req.body, null, 2));
     console.log('📋 Request headers:', req.headers);
     
-    const { customerInfo, device, issue, shipping } = req.body;
+    const { customerInfo, device, issue, shipping, userId } = req.body;
     
     // التحقق من البيانات المطلوبة بشكل أكثر تفصيلاً
     if (!customerInfo || !customerInfo.name || !customerInfo.phone) {
@@ -73,6 +73,7 @@ export const createMaintenanceRequest = async (req, res) => {
     console.log('📦 Processed shipping data:', shippingData);
     
     const maintenanceRequest = new MaintenanceRequest({
+      userId: userId, // ربط الطلب بحساب العميل
       customerInfo,
       device,
       issue,

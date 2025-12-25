@@ -4,10 +4,12 @@ import { FiSmartphone, FiTool, FiUser, FiSend, FiAlertCircle, FiX, FiCamera } fr
 import api from '../utils/api'
 import toast from 'react-hot-toast'
 import PatternInput from '../components/PatternInput'
+import useAuthStore from '../store/useAuthStore'
 import '../styles/maintenance-clean.css'
 
 function MaintenanceRequest() {
   const navigate = useNavigate()
+  const { user, isAuthenticated } = useAuthStore()
   const [loading, setLoading] = useState(false)
   const [images, setImages] = useState([])
   const [products, setProducts] = useState([])
@@ -58,6 +60,25 @@ function MaintenanceRequest() {
     fetchProducts()
     fetchShippingProviders()
   }, [])
+
+  // التحقق من تسجيل الدخول
+  useEffect(() => {
+    if (!isAuthenticated) {
+      toast.error('يجب تسجيل الدخول أولاً لإنشاء طلب صيانة')
+      navigate('/login')
+      return
+    }
+    
+    // ملء بيانات العميل من الحساب المسجل
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        customerName: user.name || '',
+        customerPhone: user.phone || '',
+        customerEmail: user.email || ''
+      }))
+    }
+  }, [isAuthenticated, user, navigate])
 
   const fetchShippingProviders = async () => {
     try {
@@ -313,6 +334,7 @@ function MaintenanceRequest() {
       console.log('📸 Uploaded images:', imageUrls.length, 'out of', images.length)
 
       const requestData = {
+        userId: user?.id, // ربط الطلب بحساب العميل
         customerInfo: {
           name: formData.customerName,
           phone: formData.customerPhone,
@@ -770,13 +792,16 @@ function MaintenanceRequest() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   رقم الجوال <span className="text-red-500">*</span>
+                  <span className="text-xs text-gray-500 block mt-1">
+                    مأخوذ من حسابك المسجل - لا يمكن تغييره
+                  </span>
                 </label>
                 <input
                   type="tel"
                   value={formData.customerPhone}
-                  onChange={(e) => handleInputChange('customerPhone', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="05xxxxxxxx"
+                  readOnly
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
+                  placeholder="سيتم ملؤه تلقائياً من حسابك"
                   required
                 />
               </div>
