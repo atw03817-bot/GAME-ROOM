@@ -37,8 +37,30 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['USER', 'ADMIN', 'customer', 'admin'],
-    default: 'USER'
+    enum: ['customer', 'admin', 'technician', 'manager'],
+    default: 'customer'
+  },
+  permissions: [{
+    type: String,
+    enum: [
+      'maintenance_view',
+      'maintenance_create', 
+      'maintenance_edit',
+      'maintenance_delete',
+      'products_view',
+      'products_manage',
+      'orders_view',
+      'orders_manage',
+      'users_view',
+      'users_manage',
+      'analytics_view',
+      'settings_manage'
+    ]
+  }],
+  department: {
+    type: String,
+    enum: ['maintenance', 'sales', 'admin', 'warehouse'],
+    default: null
   },
   addresses: [{
     name: String,

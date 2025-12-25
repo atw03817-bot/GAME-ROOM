@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
-import { FiSave, FiSettings, FiType, FiLayout } from 'react-icons/fi';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { FiSave, FiSettings, FiType, FiLayout, FiArrowLeft } from 'react-icons/fi';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
 
 function ThemeSettings() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState('header');
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'header');
   const [logoFile, setLogoFile] = useState(null);
   const [logoPreview, setLogoPreview] = useState(null);
   const [uploadingIcon, setUploadingIcon] = useState(null);
@@ -153,6 +156,13 @@ function ThemeSettings() {
     
     ensureDefaultSettings();
   }, []);
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['banner', 'header', 'colors', 'fonts', 'layout', 'metadata'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   const fetchSettings = async () => {
     try {
@@ -582,6 +592,17 @@ function ThemeSettings() {
 
   return (
     <div>
+      {/* Back Button */}
+      <div className="mb-6">
+        <button
+          onClick={() => navigate('/admin/settings')}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <FiArrowLeft className="w-4 h-4" />
+          العودة إلى مركز الإعدادات
+        </button>
+      </div>
+
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>

@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FaSave, FaCalculator, FaCreditCard, FaInfoCircle } from 'react-icons/fa';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
 
 function TamaraSettings() {
+  const navigate = useNavigate();
   const [settings, setSettings] = useState({
     // إعدادات العمولة
     commissionEnabled: true,
@@ -98,6 +100,19 @@ function TamaraSettings() {
 
   return (
     <div className="space-y-6">
+      {/* Back Button */}
+      <div className="mb-6">
+        <button
+          onClick={() => navigate('/admin/settings/old?tab=payment')}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          العودة لإعدادات الدفع
+        </button>
+      </div>
+
       {/* Header */}
       <div className="bg-white rounded-lg shadow-lg p-6">
         <div className="flex items-center gap-3 mb-4">

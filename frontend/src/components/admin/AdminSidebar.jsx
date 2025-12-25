@@ -12,13 +12,10 @@ import {
   FiGrid,
   FiTag,
   FiTruck,
-  FiEdit3,
-  FiLayers,
-  FiFileText,
-  FiSearch,
   FiBarChart2,
   FiBookOpen,
-  FiCreditCard,
+  FiTool,
+  FiUserCheck,
 } from 'react-icons/fi'
 import api from '../../utils/api'
 
@@ -57,17 +54,13 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
     if (path.includes('/admin/products')) return 'products'
     if (path.includes('/admin/orders')) return 'orders'
     if (path.includes('/admin/customers')) return 'customers'
+    if (path.includes('/admin/users')) return 'users'
     if (path.includes('/admin/categories')) return 'categories'
     if (path.includes('/admin/deals')) return 'deals'
     if (path.includes('/admin/distribution')) return 'distribution'
-    if (path.includes('/admin/theme-settings')) return 'theme-settings'
-    if (path.includes('/admin/footer-settings')) return 'footer-settings'
-    if (path.includes('/admin/legal-pages')) return 'legal-pages'
-    if (path.includes('/admin/seo')) return 'seo'
-    if (path.includes('/admin/tamara-settings')) return 'tamara-settings'
-    if (path.includes('/admin/shipping-rates')) return 'shipping-rates'
     if (path.includes('/admin/analytics')) return 'analytics'
     if (path.includes('/admin/blog')) return 'blog'
+    if (path.includes('/admin/maintenance')) return 'maintenance'
     if (path.includes('/admin/settings')) return 'settings'
     return ''
   }
@@ -75,27 +68,28 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
   const activePage = getActivePage()
 
   const menuItems = [
-    { id: 'dashboard', path: '/admin/dashboard', icon: FiHome, label: 'الرئيسية' },
-    { id: 'homepage', path: '/admin/homepage-builder', icon: FiLayout, label: 'الصفحة الرئيسية' },
-    { id: 'products', path: '/admin/products', icon: FiPackage, label: 'المنتجات' },
-    { id: 'categories', path: '/admin/categories', icon: FiGrid, label: 'الفئات' },
-    { id: 'orders', path: '/admin/orders', icon: FiShoppingBag, label: 'الطلبات' },
-    { id: 'customers', path: '/admin/customers', icon: FiUsers, label: 'العملاء' },
-    { id: 'blog', path: '/admin/blog', icon: FiBookOpen, label: 'المدونة' },
-    { id: 'analytics', path: '/admin/analytics', icon: FiBarChart2, label: 'التحليلات' },
-    { id: 'deals', path: '/admin/deals', icon: FiTag, label: 'العروض' },
-    { id: 'distribution', path: '/admin/distribution', icon: FiTruck, label: 'التوزيع' },
-    { id: 'settings', path: '/admin/settings', icon: FiSettings, label: 'الإعدادات' },
+    { id: 'dashboard', path: '/admin/dashboard', icon: FiHome, label: 'الرئيسية', roles: ['admin', 'manager'] },
+    { id: 'homepage', path: '/admin/homepage-builder', icon: FiLayout, label: 'الصفحة الرئيسية', roles: ['admin', 'manager'] },
+    { id: 'products', path: '/admin/products', icon: FiPackage, label: 'المنتجات', roles: ['admin', 'manager'] },
+    { id: 'categories', path: '/admin/categories', icon: FiGrid, label: 'الفئات', roles: ['admin', 'manager'] },
+    { id: 'orders', path: '/admin/orders', icon: FiShoppingBag, label: 'الطلبات', roles: ['admin', 'manager'] },
+    { id: 'customers', path: '/admin/customers', icon: FiUsers, label: 'العملاء', roles: ['admin', 'manager'] },
+    { id: 'users', path: '/admin/users', icon: FiUserCheck, label: 'إدارة المستخدمين', roles: ['admin'] },
+    { id: 'maintenance', path: '/admin/maintenance', icon: FiTool, label: 'الصيانة', roles: ['admin', 'manager', 'technician'] },
+    { id: 'blog', path: '/admin/blog', icon: FiBookOpen, label: 'المدونة', roles: ['admin', 'manager'] },
+    { id: 'analytics', path: '/admin/analytics', icon: FiBarChart2, label: 'التحليلات', roles: ['admin', 'manager'] },
+    { id: 'deals', path: '/admin/deals', icon: FiTag, label: 'العروض', roles: ['admin', 'manager'] },
+    { id: 'distribution', path: '/admin/distribution', icon: FiTruck, label: 'التوزيع', roles: ['admin', 'manager'] },
+    { id: 'settings', path: '/admin/settings', icon: FiSettings, label: 'الإعدادات', roles: ['admin'] },
   ]
 
-  const settingsItems = [
-    { id: 'seo', path: '/admin/seo', icon: FiSearch, label: 'تحسين محركات البحث' },
-    { id: 'tamara-settings', path: '/admin/tamara-settings', icon: FiCreditCard, label: 'إعدادات تمارا' },
-    { id: 'shipping-rates', path: '/admin/shipping-rates', icon: FiTruck, label: 'أسعار الشحن' },
-    { id: 'theme-settings', path: '/admin/theme-settings', icon: FiEdit3, label: 'إعدادات الثيم' },
-    { id: 'footer-settings', path: '/admin/footer-settings', icon: FiLayers, label: 'إعدادات Footer' },
-    { id: 'legal-pages', path: '/admin/legal-pages', icon: FiFileText, label: 'الصفحات القانونية' },
-  ]
+  // فلترة القائمة حسب دور المستخدم
+  const userRole = user?.role?.toLowerCase();
+  const filteredMenuItems = menuItems.filter(item => 
+    item.roles.includes(userRole)
+  );
+
+  const settingsItems = []
 
   return (
     <aside
@@ -127,7 +121,9 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
                 <div>
                   <p className="font-bold text-sm">{user.name}</p>
                   <p className="text-xs text-gray-400">
-                    {user.role === 'ADMIN' ? 'مدير' : 'مستخدم'}
+                    {user.role === 'admin' ? 'مدير' : 
+                     user.role === 'technician' ? 'فني صيانة' :
+                     user.role === 'manager' ? 'مدير قسم' : 'مستخدم'}
                   </p>
                 </div>
               </div>
@@ -135,7 +131,7 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
           )}
 
           <nav className="space-y-2">
-            {menuItems.map((item) => {
+            {filteredMenuItems.map((item) => {
               const Icon = item.icon
               const isActive = activePage === item.id
               
@@ -155,31 +151,6 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
                 </Link>
               )
             })}
-            
-            {/* قسم الإعدادات المتقدمة */}
-            <div className="pt-4 mt-4 border-t border-slate-700">
-              <p className="text-xs text-gray-400 px-4 mb-2 font-semibold">إعدادات التصميم</p>
-              {settingsItems.map((item) => {
-                const Icon = item.icon
-                const isActive = activePage === item.id
-                
-                return (
-                  <Link
-                    key={item.id}
-                    to={item.path}
-                    onClick={() => setSidebarOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition ${
-                      isActive
-                        ? 'bg-primary-600 font-bold shadow-lg'
-                        : 'hover:bg-slate-700'
-                    }`}
-                  >
-                    <Icon size={18} />
-                    <span className="text-sm">{item.label}</span>
-                  </Link>
-                )
-              })}
-            </div>
           </nav>
         </div>
 

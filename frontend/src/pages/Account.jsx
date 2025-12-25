@@ -13,11 +13,14 @@ import {
   FaClock,
   FaCheckCircle,
   FaShoppingBag,
-  FaChartBar
+  FaChartBar,
+  FaTools,
+  FaWrench
 } from 'react-icons/fa';
 import useAuthStore from '../store/useAuthStore';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
+import PatternDisplay from '../components/PatternDisplay';
 
 function Account() {
   const navigate = useNavigate();
@@ -27,6 +30,7 @@ function Account() {
   const [addresses, setAddresses] = useState([]);
   const [orders, setOrders] = useState([]);
   const [favorites, setFavorites] = useState([]);
+  const [maintenanceRequests, setMaintenanceRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({
@@ -41,6 +45,26 @@ function Account() {
     }
     fetchData();
   }, [user, navigate]);
+
+  // تحديث البيانات عند تغيير التبويب للصيانة
+  useEffect(() => {
+    if (activeTab === 'maintenance' && user?.phone) {
+      fetchMaintenanceRequests();
+    }
+  }, [activeTab]);
+
+  const fetchMaintenanceRequests = async () => {
+    if (!user?.phone) return;
+    
+    try {
+      const maintenanceRes = await api.get('/maintenance/customer/requests', {
+        params: { phone: user.phone }
+      });
+      setMaintenanceRequests(maintenanceRes.data.data || []);
+    } catch (error) {
+      console.error('Error fetching maintenance requests:', error);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -73,6 +97,19 @@ function Account() {
         const allProducts = productsRes.data.data || productsRes.data || [];
         const favoriteProducts = allProducts.filter(p => favoriteIds.includes(p.id || p._id));
         setFavorites(favoriteProducts);
+      }
+
+      // جلب طلبات الصيانة إذا كان لدى المستخدم رقم جوال
+      if (profileRes.data.user.phone) {
+        try {
+          const maintenanceRes = await api.get('/maintenance/customer/requests', {
+            params: { phone: profileRes.data.user.phone }
+          });
+          setMaintenanceRequests(maintenanceRes.data.data || []);
+        } catch (error) {
+          console.error('Error fetching maintenance requests:', error);
+          // لا نعرض خطأ للمستخدم هنا لأن طلبات الصيانة قد تكون فارغة
+        }
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -107,6 +144,114 @@ function Account() {
     localStorage.setItem('favorites', JSON.stringify(newFavorites));
     setFavorites(favorites.filter(p => (p.id || p._id) !== productId));
     toast.success('تم إزالة المنتج من المفضلة');
+  };
+
+  const getMaintenanceStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'received':
+        return 'bg-blue-100 text-blue-700';
+      case 'diagnosed':
+        return 'bg-yellow-100 text-yellow-700';
+      case 'waiting_approval':
+        return 'bg-orange-100 text-orange-700';
+      case 'approved':
+        return 'bg-green-100 text-green-700';
+      case 'in_progress':
+        return 'bg-purple-100 text-purple-700';
+      case 'testing':
+        return 'bg-indigo-100 text-indigo-700';
+      case 'ready':
+        return 'bg-green-200 text-green-800';
+      case 'completed':
+        return 'bg-gray-100 text-gray-800';
+      case 'cancelled':
+        return 'bg-red-100 text-red-700';
+      case 'on_hold':
+        return 'bg-gray-200 text-gray-700';
+      default:
+        return 'bg-gray-100 text-gray-700';
+    }
+  };
+
+  const getMaintenanceStatusText = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'received':
+        return 'تم الاستلام';
+      case 'diagnosed':
+        return 'تم الفحص';
+      case 'waiting_approval':
+        return 'في انتظار الموافقة';
+      case 'approved':
+        return 'تمت الموافقة';
+      case 'in_progress':
+        return 'قيد الإصلاح';
+      case 'testing':
+        return 'قيد الاختبار';
+      case 'ready':
+        return 'جاهز للاستلام';
+      case 'completed':
+        return 'مكتمل';
+      case 'cancelled':
+        return 'ملغي';
+      case 'on_hold':
+        return 'معلق';
+      default:
+        return status;
+    }
+  };
+
+  const getIssueCategoryText = (category) => {
+    switch (category?.toLowerCase()) {
+      case 'hardware':
+        return 'عتاد/هاردوير';
+      case 'software':
+        return 'برمجيات/سوفتوير';
+      case 'screen':
+        return 'الشاشة';
+      case 'battery':
+        return 'البطارية';
+      case 'charging':
+        return 'الشحن';
+      case 'camera':
+        return 'الكاميرا';
+      case 'audio':
+        return 'الصوت';
+      case 'network':
+        return 'الشبكة';
+      case 'performance':
+        return 'الأداء';
+      case 'other':
+        return 'أخرى';
+      default:
+        return category;
+    }
+  };
+
+  const getMaintenanceStatusIcon = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'received':
+        return <FaBox />;
+      case 'diagnosed':
+        return <FaWrench />;
+      case 'waiting_approval':
+        return <FaClock />;
+      case 'approved':
+        return <FaCheckCircle />;
+      case 'in_progress':
+        return <FaTools />;
+      case 'testing':
+        return <FaClock />;
+      case 'ready':
+        return <FaCheckCircle />;
+      case 'completed':
+        return <FaCheckCircle />;
+      case 'cancelled':
+        return <FaTimes />;
+      case 'on_hold':
+        return <FaClock />;
+      default:
+        return <FaClock />;
+    }
   };
 
   const getStatusColor = (status) => {
@@ -206,6 +351,24 @@ function Account() {
                   <FaShoppingBag />
                   طلباتي ({orders.length})
                 </button>
+                <button
+                  onClick={() => setActiveTab('maintenance')}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+                    activeTab === 'maintenance'
+                      ? 'bg-primary-50 text-primary-600 font-semibold'
+                      : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <FaTools />
+                  طلبات الصيانة ({maintenanceRequests.length})
+                </button>
+                <Link
+                  to="/maintenance"
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition text-gray-700 hover:bg-gray-50"
+                >
+                  <FaWrench />
+                  طلب صيانة جديد
+                </Link>
                 <button
                   onClick={() => setActiveTab('wishlist')}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
@@ -350,6 +513,181 @@ function Account() {
                               عرض التفاصيل
                             </Link>
                           </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Maintenance Requests Tab */}
+              {activeTab === 'maintenance' && (
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-bold">طلبات الصيانة</h2>
+                    <Link
+                      to="/maintenance"
+                      className="bg-primary-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-primary-700 transition flex items-center gap-2"
+                    >
+                      <FaTools />
+                      طلب صيانة جديد
+                    </Link>
+                  </div>
+                  
+                  {maintenanceRequests.length === 0 ? (
+                    <div className="bg-white rounded-lg p-12 text-center">
+                      <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <FaTools className="text-4xl text-gray-400" />
+                      </div>
+                      <h3 className="text-xl font-bold mb-2">لا توجد طلبات صيانة</h3>
+                      <p className="text-gray-600 mb-6">لم تقم بأي طلبات صيانة بعد</p>
+                      <Link
+                        to="/maintenance"
+                        className="inline-block bg-primary-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-primary-700 transition"
+                      >
+                        طلب صيانة جديد
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {maintenanceRequests.map((request) => (
+                        <div key={request._id} className="bg-white rounded-lg p-6 hover:shadow-md transition border border-gray-200">
+                          <div className="flex items-center justify-between mb-4">
+                            <div>
+                              <h3 className="font-bold text-lg flex items-center gap-2">
+                                <FaWrench className="text-primary-600" />
+                                {request.requestNumber}
+                              </h3>
+                              <p className="text-sm text-gray-600">
+                                {new Date(request.createdAt).toLocaleDateString('ar-SA')}
+                              </p>
+                            </div>
+                            <span className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold ${getMaintenanceStatusColor(request.status.current)}`}>
+                              {getMaintenanceStatusIcon(request.status.current)}
+                              {getMaintenanceStatusText(request.status.current)}
+                            </span>
+                          </div>
+
+                          {/* Device Info */}
+                          <div className="border-t border-b py-3 my-3">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                              <div>
+                                <span className="text-gray-600 font-medium">نوع الجهاز:</span>
+                                <p className="font-bold text-gray-800">{request.device.model}</p>
+                              </div>
+                              <div>
+                                <span className="text-gray-600 font-medium">المشكلة:</span>
+                                <p className="font-bold text-gray-800">{getIssueCategoryText(request.issue.category)}</p>
+                              </div>
+                              <div>
+                                <span className="text-gray-600 font-medium">الأولوية:</span>
+                                <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                                  request.issue.priority === 'emergency' ? 'bg-red-100 text-red-800' :
+                                  request.issue.priority === 'urgent' ? 'bg-orange-100 text-orange-800' :
+                                  'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {request.issue.priority === 'emergency' ? 'طارئ' :
+                                   request.issue.priority === 'urgent' ? 'عاجل' : 'عادي'}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Device Protection Info */}
+                          {request.device.hasPassword && (
+                            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="text-blue-800 font-medium text-sm">
+                                  🔐 الجهاز محمي بـ {
+                                    request.device.passwordType === 'text' ? 'كلمة سر نصية' :
+                                    request.device.passwordType === 'pattern' ? 'نمط الفتح' : 'غير محدد'
+                                  }
+                                </span>
+                              </div>
+                              
+                              {request.device.passwordType === 'text' && request.device.passwordValue && (
+                                <div className="mt-2 p-2 bg-white border border-blue-300 rounded text-center">
+                                  <p className="text-xs text-blue-800 mb-1">كلمة السر:</p>
+                                  <p className="font-mono text-blue-900 font-bold">
+                                    {request.device.passwordValue}
+                                  </p>
+                                </div>
+                              )}
+                              
+                              {request.device.passwordType === 'pattern' && request.device.patternValue && (
+                                <div className="mt-2 flex justify-center">
+                                  <PatternDisplay 
+                                    patternValue={request.device.patternValue} 
+                                    size={60}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Cost Info */}
+                          <div className="flex items-center justify-between gap-4">
+                            <div className="flex-1">
+                              <p className="text-sm text-gray-600">التكلفة المقدرة</p>
+                              <p className="font-bold text-lg text-primary-600">
+                                {request.cost.totalEstimated?.toLocaleString('en-US')} ر.س
+                              </p>
+                            </div>
+                            
+                            <div className="text-center">
+                              <p className="text-sm text-gray-600">حالة الدفع</p>
+                              <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                                request.cost.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' :
+                                request.cost.paymentStatus === 'partial' ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-red-100 text-red-800'
+                              }`}>
+                                {request.cost.paymentStatus === 'paid' ? 'مدفوع' :
+                                 request.cost.paymentStatus === 'partial' ? 'مدفوع جزئياً' : 'غير مدفوع'}
+                              </span>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                              <Link
+                                to={`/maintenance/${request.requestNumber}`}
+                                className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition text-sm font-bold whitespace-nowrap text-center"
+                              >
+                                عرض التفاصيل
+                              </Link>
+                              
+                              {request.status.current === 'ready' && (
+                                <span className="bg-green-100 text-green-800 px-3 py-1 rounded-lg text-xs font-bold text-center">
+                                  جاهز للاستلام
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Timeline Preview */}
+                          {request.status.history && request.status.history.length > 0 && (
+                            <div className="mt-4 pt-4 border-t">
+                              <p className="text-sm font-medium text-gray-700 mb-2">آخر التحديثات:</p>
+                              <div className="space-y-1">
+                                {request.status.history.slice(-2).reverse().map((history, index) => (
+                                  <div key={index} className="flex items-center gap-2 text-xs text-gray-600">
+                                    <div className="w-2 h-2 bg-primary-600 rounded-full"></div>
+                                    <span className="font-medium">
+                                      {getMaintenanceStatusText(history.status)}
+                                    </span>
+                                    <span>-</span>
+                                    <span>
+                                      {new Date(history.date).toLocaleDateString('ar-SA')}
+                                    </span>
+                                    {history.note && (
+                                      <>
+                                        <span>-</span>
+                                        <span>{history.note}</span>
+                                      </>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>

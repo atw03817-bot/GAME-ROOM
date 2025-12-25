@@ -34,6 +34,15 @@ import SearchResults from './pages/SearchResults';
 import CustomerAnalytics from './pages/CustomerAnalytics';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
+import MaintenanceRequest from './pages/MaintenanceRequest';
+import MaintenanceRequestDetails from './pages/MaintenanceRequestDetails';
+import MaintenanceApproval from './pages/MaintenanceApproval';
+import MaintenanceManagement from './pages/admin/MaintenanceManagement';
+import MaintenanceDetails from './pages/admin/MaintenanceDetails';
+import CreateMaintenanceRequest from './pages/admin/CreateMaintenanceRequest';
+import MaintenanceDiagnosis from './pages/admin/MaintenanceDiagnosis';
+import EditMaintenanceRequest from './pages/admin/EditMaintenanceRequest';
+import UserManagement from './pages/admin/UserManagement';
 
 import OrderDetails from './pages/OrderDetails';
 import Invoice from './components/invoice/Invoice';
@@ -45,6 +54,7 @@ import AdminProducts from './pages/admin/Products';
 import AdminOrders from './pages/admin/Orders';
 import AdminCustomers from './pages/admin/Customers';
 import AdminSettings from './pages/admin/Settings';
+import SettingsHub from './pages/admin/SettingsHub';
 import AdminAddProduct from './pages/admin/AddProduct';
 import AdminEditProduct from './pages/admin/EditProduct';
 import AdminHomepageBuilder from './pages/admin/HomepageBuilder';
@@ -128,6 +138,11 @@ function App() {
           <Route path="blog" element={<Blog />} />
           <Route path="blog/:slug" element={<BlogPost />} />
           
+          {/* Maintenance */}
+          <Route path="maintenance" element={<MaintenanceRequest />} />
+          <Route path="maintenance/:requestNumber" element={<MaintenanceRequestDetails />} />
+          <Route path="maintenance/approval/:requestNumber" element={<MaintenanceApproval />} />
+          
           {/* Info Pages */}
           <Route path="about" element={<About />} />
           <Route path="contact" element={<Contact />} />
@@ -151,7 +166,8 @@ function App() {
           <Route path="blog" element={<BlogManager />} />
           <Route path="homepage-builder" element={<AdminHomepageBuilder />} />
           <Route path="distribution" element={<div className="p-8 text-center"><h1 className="text-2xl font-bold">التوزيع - قريباً</h1></div>} />
-          <Route path="settings" element={<AdminSettings />} />
+          <Route path="settings" element={<SettingsHub />} />
+          <Route path="settings/old" element={<AdminSettings />} />
           <Route path="theme-settings" element={<ThemeSettings />} />
           <Route path="footer-settings" element={<FooterSettings />} />
           <Route path="legal-pages" element={<LegalPages />} />
@@ -162,6 +178,12 @@ function App() {
           <Route path="tamara-settings" element={<TamaraSettings />} />
           <Route path="shipping-rates" element={<ShippingRates />} />
           <Route path="analytics" element={<Analytics />} />
+          <Route path="maintenance" element={<MaintenanceManagement />} />
+          <Route path="maintenance/create" element={<CreateMaintenanceRequest />} />
+          <Route path="maintenance/:id" element={<MaintenanceDetails />} />
+          <Route path="maintenance/:id/diagnosis" element={<MaintenanceDiagnosis />} />
+          <Route path="maintenance/:id/edit" element={<EditMaintenanceRequest />} />
+          <Route path="users" element={<UserManagement />} />
         </Route>
       </Routes>
     </>

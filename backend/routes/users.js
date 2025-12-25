@@ -1,87 +1,32 @@
 import express from 'express';
-import User from '../models/User.js';
+import * as userController from '../controllers/userController.js';
 import { auth, adminAuth } from '../middleware/auth.js';
+import { checkPermission, checkRole } from '../middleware/permissions.js';
 
 const router = express.Router();
 
-// Get all users (Admin only)
-router.get('/', auth, adminAuth, async (req, res) => {
-  try {
-    const { page = 1, limit = 20, search } = req.query;
-    const query = {};
+// جلب الأدوار والصلاحيات المتاحة (للإدارة)
+router.get('/roles-permissions', auth, checkRole(['admin', 'manager']), userController.getRolesAndPermissions);
 
-    if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
-        { phone: { $regex: search, $options: 'i' } }
-      ];
-    }
+// إحصائيات المستخدمين
+router.get('/stats', auth, checkPermission('users_view'), userController.getUserStats);
 
-    const users = await User.find(query)
-      .select('-password')
-      .sort('-createdAt')
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
+// جلب جميع المستخدمين
+router.get('/', auth, checkPermission('users_view'), userController.getAllUsers);
 
-    const count = await User.countDocuments(query);
+// إنشاء مستخدم جديد
+router.post('/', auth, checkPermission('users_manage'), userController.createUser);
 
-    res.json({
-      success: true,
-      users,
-      totalPages: Math.ceil(count / limit),
-      currentPage: page,
-      total: count
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+// جلب مستخدم واحد
+router.get('/:id', auth, checkPermission('users_view'), userController.getUser);
 
-// Get user by ID (Admin only)
-router.get('/:id', auth, adminAuth, async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id).select('-password');
-    if (!user) {
-      return res.status(404).json({ message: 'المستخدم غير موجود' });
-    }
-    res.json({ success: true, user });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+// تحديث مستخدم
+router.put('/:id', auth, checkPermission('users_manage'), userController.updateUser);
 
-// Update user (Admin only)
-router.put('/:id', auth, adminAuth, async (req, res) => {
-  try {
-    const { password, ...updateData } = req.body;
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true, runValidators: true }
-    ).select('-password');
+// تغيير كلمة المرور
+router.patch('/:id/password', auth, checkPermission('users_manage'), userController.changePassword);
 
-    if (!user) {
-      return res.status(404).json({ message: 'المستخدم غير موجود' });
-    }
-
-    res.json({ success: true, user });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// Delete user (Admin only)
-router.delete('/:id', auth, adminAuth, async (req, res) => {
-  try {
-    const user = await User.findByIdAndDelete(req.params.id);
-    if (!user) {
-      return res.status(404).json({ message: 'المستخدم غير موجود' });
-    }
-    res.json({ success: true, message: 'تم حذف المستخدم بنجاح' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+// حذف مستخدم
+router.delete('/:id', auth, checkPermission('users_manage'), userController.deleteUser);
 
 export default router;

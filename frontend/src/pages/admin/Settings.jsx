@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   FiSave,
   FiSettings,
@@ -11,9 +11,10 @@ import api from '../../utils/api'
 
 function Settings() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [activeTab, setActiveTab] = useState('general')
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'general')
   const [settings, setSettings] = useState({
     storeName: '',
     storeNameAr: '',
@@ -36,6 +37,13 @@ function Settings() {
     fetchSettings()
     fetchShippingProviders()
   }, [])
+
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    if (tab && ['general', 'payment', 'shipping', 'providers'].includes(tab)) {
+      setActiveTab(tab)
+    }
+  }, [searchParams])
 
   const fetchSettings = async () => {
     try {
@@ -159,6 +167,19 @@ function Settings() {
 
   return (
     <div>
+      {/* Back Button */}
+      <div className="mb-6">
+        <button
+          onClick={() => navigate('/admin/settings')}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          العودة إلى مركز الإعدادات
+        </button>
+      </div>
+
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
@@ -367,72 +388,168 @@ function Settings() {
 
       {/* Payment Settings */}
       {activeTab === 'payment' && (
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-800 mb-6">إعدادات الدفع</h2>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+          <div className="p-6 border-b border-gray-200">
+            <h2 className="text-xl font-bold text-gray-800 mb-2">إعدادات الدفع</h2>
+            <p className="text-gray-600">إدارة جميع طرق الدفع المتاحة في المتجر</p>
+          </div>
           
-          <div className="space-y-6">
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-              <div>
-                <h3 className="font-bold text-gray-800">الدفع عند الاستلام (COD)</h3>
-                <p className="text-sm text-gray-600">السماح للعملاء بالدفع عند استلام الطلب</p>
+          <div className="p-6 space-y-6">
+            {/* COD Settings - Inline */}
+            <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <FiDollarSign className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-800">الدفع عند الاستلام (COD)</h3>
+                    <p className="text-sm text-gray-600">السماح للعملاء بالدفع عند استلام الطلب</p>
+                  </div>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={settings.codEnabled}
+                    onChange={(e) => handleChange('codEnabled', e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                </label>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={settings.codEnabled}
-                  onChange={(e) => handleChange('codEnabled', e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-              </label>
+              <div className="text-xs text-gray-500 bg-blue-50 p-3 rounded-lg">
+                💡 متاح لجميع المناطق داخل المملكة العربية السعودية
+              </div>
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-primary-50 to-indigo-50 rounded-lg border border-primary-200">
-              <div className="flex-1">
-                <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                  <svg className="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                  </svg>
-                  Tap Payment
-                </h3>
-                <p className="text-sm text-gray-600">الدفع الإلكتروني عبر البطاقات الائتمانية</p>
-              </div>
-              <div className="flex items-center gap-3">
+            {/* Payment Methods Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Tap Payment */}
+              <div className="bg-gradient-to-br from-primary-50 to-indigo-50 rounded-xl p-6 border border-primary-200 hover:shadow-lg transition-shadow">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                    <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-gray-800">Tap Payment</h3>
+                    <p className="text-sm text-gray-600">البطاقات الائتمانية والمحافظ الإلكترونية</p>
+                  </div>
+                </div>
+                <div className="space-y-2 text-xs text-gray-600 mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-primary-400 rounded-full"></span>
+                    <span>فيزا وماستركارد</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-primary-400 rounded-full"></span>
+                    <span>Apple Pay و Google Pay</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-primary-400 rounded-full"></span>
+                    <span>إعدادات API والربط</span>
+                  </div>
+                </div>
                 <button
-                  onClick={() => window.location.href = '/admin/tap-payment-settings'}
-                  className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
+                  onClick={() => navigate('/admin/tap-payment-settings')}
+                  className="w-full py-2.5 px-4 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition-colors"
                 >
-                  إدارة الإعدادات
+                  إدارة إعدادات Tap
+                </button>
+              </div>
+
+              {/* Tamara Payment API */}
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200 hover:shadow-lg transition-shadow">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-gray-800">تمارا - الربط</h3>
+                    <p className="text-sm text-gray-600">اشتري الآن وادفع لاحقاً</p>
+                  </div>
+                </div>
+                <div className="space-y-2 text-xs text-gray-600 mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-green-400 rounded-full"></span>
+                    <span>تقسيط بدون فوائد</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-green-400 rounded-full"></span>
+                    <span>إعدادات API والربط</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-green-400 rounded-full"></span>
+                    <span>تفعيل وتعطيل الخدمة</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => navigate('/admin/tamara-payment-settings')}
+                  className="w-full py-2.5 px-4 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  إعدادات الربط
                 </button>
               </div>
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
-              <div className="flex-1">
-                <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                  </svg>
-                  Tamara Payment
-                </h3>
-                <p className="text-sm text-gray-600">اشتري الآن وادفع لاحقاً - تقسيط بدون فوائد</p>
-              </div>
-              <div className="flex items-center gap-3">
+            {/* Tamara Commission - Separate Section */}
+            <div className="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-xl p-6 border border-orange-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-gray-800">تمارا - العمولات</h3>
+                    <p className="text-sm text-gray-600">إدارة عمولة الأقساط الإضافية عند استخدام تمارا</p>
+                    <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                      <span className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 bg-orange-400 rounded-full"></span>
+                        حساب العمولة التلقائي
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 bg-orange-400 rounded-full"></span>
+                        تخصيص نسبة العمولة
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 bg-orange-400 rounded-full"></span>
+                        معاينة الحسابات
+                      </span>
+                    </div>
+                  </div>
+                </div>
                 <button
-                  onClick={() => window.location.href = '/admin/tamara-payment-settings'}
-                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
+                  onClick={() => navigate('/admin/tamara-settings')}
+                  className="px-6 py-2.5 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
                 >
-                  إدارة الإعدادات
+                  إعدادات العمولة
                 </button>
               </div>
             </div>
 
-
-
-            <div className="p-4 bg-primary-50 rounded-lg border border-primary-200">
-              <p className="text-sm text-primary-800">
-                💡 <strong>ملاحظة:</strong> تم نقل إعدادات الدفع إلى صفحات مخصصة. اضغط على "إدارة الإعدادات" للوصول إليها.
-              </p>
+            {/* Info Section */}
+            <div className="bg-blue-50 rounded-xl p-6 border border-blue-200">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-blue-900 mb-2">معلومات مهمة</h4>
+                  <ul className="text-sm text-blue-800 space-y-1">
+                    <li>• جميع طرق الدفع تعمل مع نظام الضرائب السعودي (15%)</li>
+                    <li>• يمكن تفعيل أكثر من طريقة دفع في نفس الوقت</li>
+                    <li>• إعدادات كل طريقة دفع منفصلة ومستقلة</li>
+                    <li>• تأكد من اختبار طرق الدفع قبل التفعيل النهائي</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -188,7 +188,8 @@ export const login = async (req, res) => {
 
 export const getProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).select('-password');
+    // req.user هو الـ user object كامل من الـ auth middleware
+    const user = req.user;
 
     if (!user) {
       return res.status(404).json({ 
@@ -205,6 +206,8 @@ export const getProfile = async (req, res) => {
         name: user.getDisplayName(),
         email: user.email,
         role: user.role,
+        permissions: user.permissions,
+        department: user.department,
         phoneVerified: user.phoneVerified,
         lastLogin: user.lastLogin,
         createdAt: user.createdAt,
@@ -227,7 +230,7 @@ export const updateProfile = async (req, res) => {
     if (email) {
       const existingEmailUser = await User.findOne({ 
         email, 
-        _id: { $ne: req.user.userId } 
+        _id: { $ne: req.user._id } 
       });
       
       if (existingEmailUser) {
@@ -239,7 +242,7 @@ export const updateProfile = async (req, res) => {
     }
     
     const user = await User.findByIdAndUpdate(
-      req.user.userId,
+      req.user._id,
       { 
         email: email || undefined,
         updatedAt: new Date() 
@@ -262,6 +265,8 @@ export const updateProfile = async (req, res) => {
         name: user.getDisplayName(),
         email: user.email,
         role: user.role,
+        permissions: user.permissions,
+        department: user.department,
       },
       message: 'تم تحديث الملف الشخصي بنجاح'
     });

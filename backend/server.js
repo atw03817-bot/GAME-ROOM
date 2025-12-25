@@ -27,6 +27,7 @@ import searchRoutes from './routes/search.js';
 import realAnalyticsRoutes from './routes/realAnalytics.js';
 import blogRoutes from './routes/blog.js';
 import tamaraSettingsRoutes from './routes/tamaraSettings.js';
+import maintenanceRoutes from './routes/maintenance.js';
 
 dotenv.config();
 
@@ -109,6 +110,7 @@ app.use('/api/search', searchRoutes);
 app.use('/api/real-analytics', realAnalyticsRoutes);
 app.use('/api/blog', blogRoutes);
 app.use('/api/tamara-settings', tamaraSettingsRoutes);
+app.use('/api/maintenance', maintenanceRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

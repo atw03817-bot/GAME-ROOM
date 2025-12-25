@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Outlet, Navigate } from 'react-router-dom'
+import { Outlet, Navigate, useLocation } from 'react-router-dom'
 import { FiMenu } from 'react-icons/fi'
 import AdminSidebar from './AdminSidebar'
 import useAuthStore from '../../store/useAuthStore'
@@ -7,14 +7,22 @@ import useAuthStore from '../../store/useAuthStore'
 function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { user, isAuthenticated } = useAuthStore()
+  const location = useLocation()
 
   // التحقق من تسجيل الدخول والصلاحيات
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />
   }
 
-  if (user?.role !== 'ADMIN') {
+  // دعم كل من admin و ADMIN و technician و manager
+  const userRole = user?.role?.toLowerCase();
+  if (!['admin', 'technician', 'manager'].includes(userRole)) {
     return <Navigate to="/" replace />
+  }
+
+  // إعادة توجيه الفنيين إلى صفحة الصيانة إذا كانوا في الصفحة الرئيسية للإدارة
+  if (userRole === 'technician' && (location.pathname === '/admin' || location.pathname === '/admin/')) {
+    return <Navigate to="/admin/maintenance" replace />
   }
 
   return (

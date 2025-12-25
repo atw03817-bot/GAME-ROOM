@@ -72,6 +72,29 @@ const iconUpload = multer({
   },
 });
 
+// رفع صور الصيانة
+router.post('/maintenance', upload.single('image'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'لم يتم رفع أي صورة' });
+    }
+
+    // إنشاء رابط الصورة الكامل
+    const baseUrl = process.env.API_URL || `${req.protocol}://${req.get('host')}`;
+    const imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
+
+    res.json({
+      success: true,
+      url: imageUrl,
+      filename: req.file.filename,
+      size: req.file.size,
+    });
+  } catch (error) {
+    console.error('Error uploading maintenance image:', error);
+    res.status(500).json({ message: 'حدث خطأ أثناء رفع صورة الصيانة' });
+  }
+});
+
 // رفع صورة واحدة
 router.post('/image', upload.single('image'), (req, res) => {
   try {

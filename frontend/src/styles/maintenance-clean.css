@@ -1,0 +1,37 @@
+/* تصميم نظيف لنظام الصيانة */
+
+/* إزالة النقاط بشكل نظيف */
+.maintenance-clean * {
+  list-style: none !important;
+  list-style-type: none !important;
+  list-style-image: none !important;
+}
+
+.maintenance-clean *::before {
+  content: none !important;
+}
+
+/* تحسين القوائم المنسدلة للجوال */
+@media (max-width: 768px) {
+  .maintenance-clean select {
+    font-size: 16px !important;
+    padding: 12px !important;
+    border-radius: 8px !important;
+    border: 1px solid #d1d5db !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    background-color: white !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+  }
+  
+  .maintenance-clean .grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  
+  .maintenance-clean .md\\:col-span-2 {
+    grid-column: span 1 !important;
+  }
+}

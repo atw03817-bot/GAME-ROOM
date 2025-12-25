@@ -63,8 +63,11 @@ function Login() {
       toast.success(data.message || 'تم تسجيل الدخول بنجاح', { duration: 4000 });
       
       // Navigate based on role
-      if (data.user.role === 'ADMIN') {
+      const userRole = data.user.role?.toLowerCase();
+      if (userRole === 'admin') {
         navigate('/admin/dashboard');
+      } else if (userRole === 'technician' || userRole === 'manager') {
+        navigate('/admin/maintenance');
       } else {
         navigate('/');
       }

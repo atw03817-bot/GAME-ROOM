@@ -192,10 +192,10 @@ const TamaraPaymentSettings = () => {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-gray-800">إعدادات تمارا للدفع</h1>
           <button
-            onClick={() => navigate('/admin/payments')}
+            onClick={() => navigate('/admin/settings/old?tab=payment')}
             className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
           >
-            العودة
+            العودة لإعدادات الدفع
           </button>
         </div>
 

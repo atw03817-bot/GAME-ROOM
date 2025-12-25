@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار ترجمة حالات الصيانة</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status-test {
+            margin: 10px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 5px;
+        }
+        .bg-blue-100 { background-color: #dbeafe; color: #1e40af; }
+        .bg-yellow-100 { background-color: #fef3c7; color: #d97706; }
+        .bg-orange-100 { background-color: #fed7aa; color: #ea580c; }
+        .bg-green-100 { background-color: #dcfce7; color: #16a34a; }
+        .bg-purple-100 { background-color: #e9d5ff; color: #9333ea; }
+        .bg-indigo-100 { background-color: #e0e7ff; color: #4f46e5; }
+        .bg-green-200 { background-color: #bbf7d0; color: #15803d; }
+        .bg-gray-100 { background-color: #f3f4f6; color: #374151; }
+        .bg-red-100 { background-color: #fee2e2; color: #dc2626; }
+        .success { color: #16a34a; font-weight: bold; }
+        .error { color: #dc2626; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 اختبار ترجمة حالات الصيانة</h1>
+        <p>هذا الاختبار يتحقق من أن جميع حالات الصيانة تظهر باللغة العربية بدلاً من الإنجليزية.</p>
+        
+        <h2>✅ الحالات المترجمة بشكل صحيح:</h2>
+        
+        <div class="status-test">
+            <h3>حالات الطلب الأساسية:</h3>
+            <span class="status-badge bg-blue-100">تم الاستلام</span> (received)
+            <span class="status-badge bg-yellow-100">تم الفحص</span> (diagnosed)
+            <span class="status-badge bg-orange-100">في انتظار الموافقة</span> (waiting_approval)
+            <span class="status-badge bg-green-100">تمت الموافقة</span> (approved)
+            <span class="status-badge bg-purple-100">قيد الإصلاح</span> (in_progress)
+            <span class="status-badge bg-indigo-100">قيد الاختبار</span> (testing)
+            <span class="status-badge bg-green-200">جاهز للاستلام</span> (ready)
+            <span class="status-badge bg-gray-100">مكتمل</span> (completed)
+            <span class="status-badge bg-red-100">ملغي</span> (cancelled)
+        </div>
+
+        <div class="status-test">
+            <h3>حالات الأولوية:</h3>
+            <span class="status-badge bg-gray-100">عادي</span> (normal)
+            <span class="status-badge bg-orange-100">عاجل</span> (urgent)
+            <span class="status-badge bg-red-100">طارئ</span> (emergency)
+        </div>
+
+        <div class="status-test">
+            <h3>حالات الدفع:</h3>
+            <span class="status-badge bg-red-100">غير مدفوع</span> (unpaid)
+            <span class="status-badge bg-yellow-100">مدفوع جزئياً</span> (partial)
+            <span class="status-badge bg-green-100">مدفوع</span> (paid)
+        </div>
+
+        <h2>🎯 نقاط الاختبار:</h2>
+        <ul>
+            <li class="success">✅ صفحة تفاصيل الصيانة للإدارة - يجب أن تظهر الحالات بالعربية</li>
+            <li class="success">✅ صفحة تفاصيل الصيانة للعميل - يجب أن تظهر الحالات بالعربية</li>
+            <li class="success">✅ صفحة الحساب (قسم طلبات الصيانة) - يجب أن تظهر الحالات بالعربية</li>
+            <li class="success">✅ تاريخ الحالات - يجب أن يظهر بالعربية في جميع الصفحات</li>
+            <li class="success">✅ إدارة حالة الدفع - ميزة جديدة للإدارة</li>
+        </ul>
+
+        <h2>🚀 الميزات الجديدة:</h2>
+        <div class="status-test">
+            <h3>إدارة حالة الدفع للإدارة:</h3>
+            <p>تم إضافة قسم جديد في صفحة تفاصيل الصيانة للإدارة يسمح بـ:</p>
+            <ul>
+                <li>عرض حالة الدفع الحالية</li>
+                <li>تغيير حالة الدفع (غير مدفوع / مدفوع جزئياً / مدفوع)</li>
+                <li>تسجيل تحديثات الدفع في تاريخ الطلب</li>
+            </ul>
+        </div>
+
+        <h2>🔗 روابط الاختبار:</h2>
+        <p><a href="http://localhost:3000/admin/maintenance" target="_blank">صفحة إدارة الصيانة</a></p>
+        <p><a href="http://localhost:3000/account" target="_blank">صفحة الحساب (للعملاء)</a></p>
+        <p><a href="http://localhost:3000/maintenance" target="_blank">طلب صيانة جديد</a></p>
+
+        <div class="status-test">
+            <h3>📋 خطوات الاختبار:</h3>
+            <ol>
+                <li>افتح صفحة إدارة الصيانة</li>
+                <li>اختر أي طلب صيانة موجود</li>
+                <li>تأكد من أن جميع الحالات تظهر بالعربية</li>
+                <li>جرب تحديث حالة الطلب</li>
+                <li>جرب تحديث حالة الدفع (الميزة الجديدة)</li>
+                <li>تأكد من أن التاريخ يسجل التحديثات بالعربية</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

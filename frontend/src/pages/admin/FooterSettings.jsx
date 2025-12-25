@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { FiSave, FiPlus, FiTrash2, FiSettings } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
+import { FiSave, FiPlus, FiTrash2, FiSettings, FiArrowLeft } from 'react-icons/fi';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
 
 function FooterSettings() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [footerData, setFooterData] = useState({
@@ -299,6 +301,17 @@ function FooterSettings() {
 
   return (
     <div>
+      {/* Back Button */}
+      <div className="mb-6">
+        <button
+          onClick={() => navigate('/admin/settings')}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <FiArrowLeft className="w-4 h-4" />
+          العودة إلى مركز الإعدادات
+        </button>
+      </div>
+
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { 
   Search, 
@@ -17,11 +18,13 @@ import {
   AlertCircle,
   XCircle,
   Lightbulb,
+  ArrowLeft,
   Zap
 } from 'lucide-react';
 import api from '../../utils/api';
 
 const SEOManager = () => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const [seoPages, setSeoPages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -294,6 +297,17 @@ const SEOManager = () => {
 
   return (
     <div className="p-6">
+      {/* Back Button */}
+      <div className="mb-6">
+        <button
+          onClick={() => navigate('/admin/settings')}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          العودة إلى مركز الإعدادات
+        </button>
+      </div>
+
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
