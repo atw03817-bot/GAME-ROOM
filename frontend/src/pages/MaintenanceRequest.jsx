@@ -502,7 +502,7 @@ function MaintenanceRequest() {
                     type="text"
                     value={formData.serialNumber}
                     onChange={(e) => handleInputChange('serialNumber', e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono"
                     placeholder="مثال: HW2024XXXXX"
                     required
                   />
@@ -514,7 +514,7 @@ function MaintenanceRequest() {
                     type="date"
                     value={formData.purchaseDate}
                     onChange={(e) => handleInputChange('purchaseDate', e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -611,7 +611,7 @@ function MaintenanceRequest() {
                             type="password"
                             value={formData.passwordValue}
                             onChange={(e) => handleInputChange('passwordValue', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                             placeholder="أدخل كلمة السر أو رقم PIN"
                             required
                           />
