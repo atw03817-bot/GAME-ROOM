@@ -285,19 +285,31 @@ function MaintenanceRequest() {
       setLoading(true)
       
       const imageUrls = []
-      for (const image of images) {
-        const uploadFormData = new FormData()
-        uploadFormData.append('image', image.file)
-        
-        try {
-          const uploadResponse = await api.post('/upload/maintenance', uploadFormData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-          })
-          imageUrls.push(uploadResponse.data.url)
-        } catch (uploadError) {
-          console.error('Error uploading image:', uploadError)
+      
+      // محاولة رفع الصور مع معالجة أفضل للأخطاء
+      if (images && images.length > 0) {
+        for (const image of images) {
+          const uploadFormData = new FormData()
+          uploadFormData.append('image', image.file)
+          
+          try {
+            const uploadResponse = await api.post('/upload/maintenance', uploadFormData, {
+              headers: { 'Content-Type': 'multipart/form-data' },
+              timeout: 30000 // 30 ثانية timeout
+            })
+            
+            if (uploadResponse.data && uploadResponse.data.url) {
+              imageUrls.push(uploadResponse.data.url)
+            }
+          } catch (uploadError) {
+            console.error('Error uploading image:', uploadError)
+            // عدم إيقاف العملية إذا فشل رفع صورة واحدة
+            toast.error(`فشل رفع إحدى الصور: ${uploadError.message}`)
+          }
         }
       }
+      
+      console.log('📸 Uploaded images:', imageUrls.length, 'out of', images.length)
 
       const requestData = {
         customerInfo: {

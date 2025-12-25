@@ -4,7 +4,9 @@ import mongoose from 'mongoose';
 // إنشاء طلب صيانة جديد
 export const createMaintenanceRequest = async (req, res) => {
   try {
+    console.log('📱 Request from:', req.get('User-Agent'));
     console.log('📥 Received maintenance request data:', JSON.stringify(req.body, null, 2));
+    console.log('📋 Request headers:', req.headers);
     
     const { customerInfo, device, issue, shipping } = req.body;
     

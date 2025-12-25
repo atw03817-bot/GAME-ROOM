@@ -54,7 +54,7 @@ const maintenanceRequestSchema = new mongoose.Schema({
     category: { 
       type: String, 
       required: true,
-      enum: ['screen', 'battery', 'software', 'hardware', 'water_damage', 'charging', 'audio', 'camera', 'other']
+      enum: ['screen', 'battery', 'software', 'hardware', 'water', 'physical', 'other']
     },
     subCategory: { type: String },
     description: { type: String, required: true },

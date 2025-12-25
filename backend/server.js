@@ -36,16 +36,28 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:5173',
-    'https://www.ab-tw.com',
-    'https://ab-tw.com',
-    'https://api.ab-tw.com'
-  ],
+  origin: function (origin, callback) {
+    // السماح للطلبات بدون origin (مثل التطبيقات المحمولة)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'https://www.ab-tw.com',
+      'https://ab-tw.com',
+      'https://api.ab-tw.com'
+    ];
+    
+    // السماح للـ origins المسموحة أو أي origin محلي
+    if (allowedOrigins.includes(origin) || origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      return callback(null, true);
+    }
+    
+    return callback(null, true); // السماح لكل الـ origins مؤقتاً للاختبار
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
   optionsSuccessStatus: 200 // للمتصفحات القديمة
 }));
 

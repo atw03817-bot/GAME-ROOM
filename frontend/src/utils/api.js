@@ -22,10 +22,12 @@ const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
   },
-  timeout: 300000, // 5 دقائق للطلبات الكبيرة
+  timeout: 60000, // دقيقة واحدة للموبايل
   maxContentLength: 100 * 1024 * 1024, // 100MB
   maxBodyLength: 100 * 1024 * 1024, // 100MB
+  withCredentials: false, // تعطيل credentials للموبايل
 });
 
 // Request interceptor to add token
