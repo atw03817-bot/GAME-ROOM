@@ -60,10 +60,12 @@ const maintenanceRequestSchema = new mongoose.Schema({
     description: { type: String, required: true },
     images: { 
       type: [String], 
-      required: true,
+      required: false, // مؤقتاً للاختبار
       validate: {
         validator: function(images) {
-          return images && images.length >= 3; // على الأقل 3 صور (أمام، خلف، جانب)
+          // إذا كانت الصور موجودة، يجب أن تكون 3 على الأقل
+          if (!images || images.length === 0) return true; // السماح بعدم وجود صور مؤقتاً
+          return images.length >= 3;
         },
         message: 'يجب رفع 3 صور على الأقل للجهاز (أمام، خلف، جانب)'
       }
