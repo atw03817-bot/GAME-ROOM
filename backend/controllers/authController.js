@@ -74,7 +74,7 @@ export const register = async (req, res) => {
     const user = new User({
       phone: formattedPhone,
       password: password, // بدون hash لأن الـ model يقوم بالـ hash
-      role: isFirstUser ? 'ADMIN' : 'USER',
+      role: isFirstUser ? 'admin' : 'customer',
     });
 
     await user.save();
@@ -82,7 +82,7 @@ export const register = async (req, res) => {
     console.log('✅ User registered successfully:', formattedPhone);
 
     const token = jwt.sign(
-      { userId: user._id.toString(), role: user.role },
+      { _id: user._id.toString(), role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );
@@ -160,7 +160,7 @@ export const login = async (req, res) => {
     console.log('✅ Login successful for:', formattedPhone);
 
     const token = jwt.sign(
-      { userId: user._id.toString(), role: user.role },
+      { _id: user._id.toString(), role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );

@@ -6,7 +6,9 @@ import { rolePermissions, getUserPermissions } from '../middleware/permissions.j
 // إنشاء مستخدم جديد (للإدارة)
 export const createUser = async (req, res) => {
   try {
-    const { phone, password, name, email, role, department, permissions } = req.body;
+    const { phone, password, name, role, department, permissions } = req.body;
+
+    console.log('Creating user with data:', { phone, name, role, department, permissions });
 
     // التحقق من البيانات المطلوبة
     if (!phone || !password || !name || !role) {
@@ -26,16 +28,20 @@ export const createUser = async (req, res) => {
     }
 
     // إنشاء المستخدم الجديد
-    const user = new User({
+    const userData = {
       phone,
       password,
       name,
-      email,
       role,
-      department,
       permissions: permissions || []
-    });
+    };
 
+    // إضافة القسم إذا كان موجود
+    if (department && department.trim()) {
+      userData.department = department.trim();
+    }
+
+    const user = new User(userData);
     await user.save();
 
     // إزالة كلمة المرور من الاستجابة
@@ -52,7 +58,8 @@ export const createUser = async (req, res) => {
     console.error('Error creating user:', error);
     res.status(500).json({
       success: false,
-      message: 'خطأ في إنشاء المستخدم'
+      message: 'خطأ في إنشاء المستخدم',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
@@ -135,7 +142,7 @@ export const getUser = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, role, department, permissions, isActive } = req.body;
+    const { name, role, department, permissions, isActive } = req.body;
 
     const user = await User.findById(id);
     if (!user) {
@@ -147,7 +154,6 @@ export const updateUser = async (req, res) => {
 
     // تحديث البيانات
     if (name) user.name = name;
-    if (email !== undefined) user.email = email;
     if (role) user.role = role;
     if (department !== undefined) user.department = department;
     if (permissions) user.permissions = permissions;

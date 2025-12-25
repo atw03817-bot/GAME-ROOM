@@ -33,7 +33,16 @@ const userSchema = new mongoose.Schema({
     sparse: true, // هذا يسمح بـ null values متعددة
     lowercase: true,
     trim: true,
-    default: undefined // بدلاً من null
+    default: null,
+    validate: {
+      validator: function(v) {
+        // إذا كان الإيميل فارغ أو null، فهو صحيح
+        if (!v || v === '') return true;
+        // إذا كان موجود، يجب أن يكون إيميل صحيح
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+      },
+      message: 'البريد الإلكتروني غير صحيح'
+    }
   },
   role: {
     type: String,

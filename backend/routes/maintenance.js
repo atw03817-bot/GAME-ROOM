@@ -8,7 +8,9 @@ const router = express.Router();
 // Routes للعملاء (بدون حماية للطلب الجديد)
 router.post('/request', maintenanceController.createMaintenanceRequest);
 router.get('/search/:query', maintenanceController.searchByDevice);
-router.get('/customer/requests', maintenanceController.getCustomerMaintenanceRequests);
+
+// Routes للعملاء المسجلين (محتاجة تسجيل دخول)
+router.get('/customer/requests', auth, maintenanceController.getCustomerMaintenanceRequests);
 
 // Routes للإدارة والفنيين (محمية بالصلاحيات)
 // إنشاء طلب من الإدارة
