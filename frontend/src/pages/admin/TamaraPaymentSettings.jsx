@@ -59,6 +59,7 @@ const TamaraPaymentSettings = () => {
       if (error.response?.status === 404) {
         console.log('No Tamara settings found, initializing defaults...');
         try {
+          const token = localStorage.getItem('token');
           await axios.post(`${API_URL}/payments/tamara/init`, {}, {
             headers: { Authorization: `Bearer ${token}` }
           });
@@ -66,7 +67,15 @@ const TamaraPaymentSettings = () => {
           setTimeout(fetchSettings, 1000);
         } catch (initError) {
           console.error('Error initializing Tamara settings:', initError);
-          alert('خطأ في إنشاء إعدادات Tamara الافتراضية');
+          // Don't show alert, just continue with empty settings
+          setSettings({
+            tamaraEnabled: false,
+            merchantToken: '',
+            apiUrl: 'https://api-sandbox.tamara.co',
+            notificationToken: '',
+            publicKey: '',
+            merchantId: ''
+          });
         }
       } else {
         console.error('Error fetching settings:', error);

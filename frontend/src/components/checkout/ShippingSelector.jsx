@@ -40,7 +40,7 @@ function ShippingSelector({ city, onSelectShipping, selectedShippingId }) {
 
   if (!city) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="text-center py-8 text-gray-400">
         <FaTruck className="mx-auto text-4xl mb-2" />
         <p>الرجاء اختيار العنوان أولاً</p>
       </div>
@@ -48,12 +48,12 @@ function ShippingSelector({ city, onSelectShipping, selectedShippingId }) {
   }
 
   if (loading) {
-    return <div className="text-center py-8">جاري التحميل...</div>;
+    return <div className="text-center py-8 text-gray-300">جاري التحميل...</div>;
   }
 
   if (rates.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="text-center py-8 text-gray-400">
         <FaTruck className="mx-auto text-4xl mb-2" />
         <p>عذراً، لا يوجد شحن متاح لمدينة {city}</p>
       </div>
@@ -62,7 +62,7 @@ function ShippingSelector({ city, onSelectShipping, selectedShippingId }) {
 
   return (
     <div>
-      <h3 className="text-lg font-semibold mb-4">اختر شركة الشحن</h3>
+      <h3 className="text-lg font-semibold mb-4 text-white">اختر شركة الشحن</h3>
 
       <div className="space-y-3">
         {rates.map((rate) => (
@@ -76,16 +76,16 @@ function ShippingSelector({ city, onSelectShipping, selectedShippingId }) {
             })}
             className={`border-2 rounded-lg p-4 cursor-pointer transition ${
               selectedShippingId === rate.providerId._id
-                ? 'border-primary-600 bg-primary-50'
-                : 'border-gray-200 hover:border-gray-300'
+                ? 'border-[#E08713] bg-[#E08713]/10'
+                : 'border-[#C72C15]/30 hover:border-[#C72C15]'
             }`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
                   selectedShippingId === rate.providerId._id
-                    ? 'border-primary-600 bg-primary-600'
-                    : 'border-gray-300'
+                    ? 'border-[#E08713] bg-[#E08713]'
+                    : 'border-gray-400'
                 }`}>
                   {selectedShippingId === rate.providerId._id && (
                     <FaCheck className="text-white text-xs" />
@@ -93,15 +93,15 @@ function ShippingSelector({ city, onSelectShipping, selectedShippingId }) {
                 </div>
 
                 <div>
-                  <h4 className="font-semibold">{rate.providerId.displayName}</h4>
-                  <p className="text-sm text-gray-600">
+                  <h4 className="font-semibold text-white">{rate.providerId.displayName}</h4>
+                  <p className="text-sm text-gray-300">
                     التوصيل خلال {rate.estimatedDays} {rate.estimatedDays === 1 ? 'يوم' : 'أيام'}
                   </p>
                 </div>
               </div>
 
               <div className="text-left">
-                <p className="text-xl font-bold text-primary-600">{rate.price} ر.س</p>
+                <p className="text-xl font-bold text-[#E08713]">{rate.price} ر.س</p>
               </div>
             </div>
           </div>

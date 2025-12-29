@@ -186,6 +186,7 @@ function SectionEditor({ section, onSave, onCancel, saving }) {
   // محرر المنتجات
   const renderProductsEditor = () => {
     const productIds = formData.content.productIds || []
+    const displayType = formData.content.displayType || 'slider'
 
     return (
       <div className="space-y-4">
@@ -193,6 +194,43 @@ function SectionEditor({ section, onSave, onCancel, saving }) {
           <p className="text-sm text-primary-800">
             ✨ <strong>اختر المنتجات:</strong> اختر المنتجات التي تريد عرضها في هذا القسم من القائمة أدناه
           </p>
+        </div>
+
+        {/* نوع العرض */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            نوع العرض
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <label className="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition">
+              <input
+                type="radio"
+                name="displayType"
+                value="slider"
+                checked={displayType === 'slider'}
+                onChange={(e) => updateContent('displayType', e.target.value)}
+                className="mr-3"
+              />
+              <div>
+                <div className="font-medium text-gray-900">سلايدر</div>
+                <div className="text-xs text-gray-500">عرض أفقي قابل للتمرير</div>
+              </div>
+            </label>
+            <label className="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition">
+              <input
+                type="radio"
+                name="displayType"
+                value="grid"
+                checked={displayType === 'grid'}
+                onChange={(e) => updateContent('displayType', e.target.value)}
+                className="mr-3"
+              />
+              <div>
+                <div className="font-medium text-gray-900">شبكة</div>
+                <div className="text-xs text-gray-500">عرض في صفوف وأعمدة</div>
+              </div>
+            </label>
+          </div>
         </div>
 
         <ProductSelector

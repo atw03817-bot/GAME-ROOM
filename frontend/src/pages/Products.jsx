@@ -30,9 +30,9 @@ function Products() {
   console.log('📄 Products page state:', { selectedCategory, searchParams: searchParams.toString() });
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-[#111111] min-h-screen">
       <div className="container mx-auto px-4 py-6">
-        <h1 className="hidden md:block text-3xl font-bold mb-6">جميع المنتجات</h1>
+        <h1 className="hidden md:block text-3xl font-bold mb-6 text-white">جميع المنتجات</h1>
         
         <div className="flex flex-col lg:flex-row gap-6">
           <aside className="hidden lg:block lg:w-64 flex-shrink-0">

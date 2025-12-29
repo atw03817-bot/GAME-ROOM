@@ -16,17 +16,29 @@ html[dir="ltr"] {
 }
 
 :root {
-  /* Primary Colors - البنفسجي */
-  --color-primary-50: #faf5ff;
-  --color-primary-100: #f3e8ff;
-  --color-primary-200: #e9d5ff;
-  --color-primary-300: #d8b4fe;
-  --color-primary-400: #c084fc;
-  --color-primary-500: #a855f7;
-  --color-primary-600: #9333ea;
-  --color-primary-700: #7e22ce;
-  --color-primary-800: #6b21a8;
-  --color-primary-900: #581c87;
+  /* Primary Colors - البرتقالي والأحمر */
+  --color-primary-50: #fff7ed;
+  --color-primary-100: #ffedd5;
+  --color-primary-200: #fed7aa;
+  --color-primary-300: #fdba74;
+  --color-primary-400: #fb923c;
+  --color-primary-500: #E08713;
+  --color-primary-600: #C72C15;
+  --color-primary-700: #991b1b;
+  --color-primary-800: #7f1d1d;
+  --color-primary-900: #450a0a;
+
+  /* Secondary Colors - للخلفيات الثانوية */
+  --color-secondary-50: #1a1a1a;
+  --color-secondary-100: #2a2a2a;
+  --color-secondary-200: #3a3a3a;
+  --color-secondary-300: #4a4a4a;
+  --color-secondary-400: #5a5a5a;
+  --color-secondary-500: #6a6a6a;
+  --color-secondary-600: #7a7a7a;
+  --color-secondary-700: #8a8a8a;
+  --color-secondary-800: #9a9a9a;
+  --color-secondary-900: #aaaaaa;
 
   /* Gray Colors */
   --color-gray-50: #fafafa;
@@ -230,17 +242,17 @@ html {
   @apply bg-gray-100 font-bold;
 }
 
-/* Product Card Styles - Mobile Optimized */
+/* Product Card Styles - Mobile Optimized - Dark Theme */
 .product-card {
-  @apply bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden;
+  @apply bg-[#111111] rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-[#C72C15] hover:border-[#991b1b];
 }
 
 .product-card-image {
-  @apply relative w-full h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden bg-white;
+  @apply relative w-full h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden bg-[#111111];
 }
 
 .product-card-image img {
-  @apply w-full h-full object-contain;
+  @apply w-full h-full object-cover;
 }
 
 .product-card-content {
@@ -248,11 +260,11 @@ html {
 }
 
 .product-card-brand {
-  @apply text-[10px] sm:text-xs text-gray-500 mb-1;
+  @apply text-[10px] sm:text-xs text-gray-300 mb-1;
 }
 
 .product-card-title {
-  @apply text-xs sm:text-sm font-semibold text-gray-900 mb-2 line-clamp-2 min-h-[32px] sm:min-h-[40px];
+  @apply text-[10px] sm:text-xs font-semibold text-white mb-2 line-clamp-2 min-h-[28px] sm:min-h-[32px];
 }
 
 .product-card-price-wrapper {
@@ -260,7 +272,7 @@ html {
 }
 
 .product-card-price {
-  @apply text-sm sm:text-lg font-bold text-primary-600;
+  @apply text-xs sm:text-sm font-bold text-[#991b1b];
 }
 
 .product-card-old-price {
@@ -272,7 +284,26 @@ html {
 }
 
 .product-card-add-btn {
-  @apply w-7 h-7 sm:w-8 sm:h-8 bg-primary-500 text-white rounded-full flex items-center justify-center hover:bg-primary-600 transition-colors;
+  @apply w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-r from-[#E08713] to-[#C72C15] text-white rounded-full flex items-center justify-center hover:opacity-90 transition-all;
+}
+
+/* Dark Theme Global Styles */
+body {
+  @apply bg-[#111111];
+}
+
+/* Loading Spinner Dark Theme */
+.loading-spinner {
+  @apply border-[#C72C15];
+}
+
+/* Button Styles Dark Theme */
+.btn-primary {
+  @apply bg-gradient-to-r from-[#E08713] to-[#C72C15] text-white hover:opacity-90;
+}
+
+.btn-secondary {
+  @apply bg-[#111111] border border-[#C72C15] text-white hover:bg-gradient-to-r hover:from-[#E08713] hover:to-[#C72C15];
 }
 
 /* Grid Layouts */
@@ -298,11 +329,11 @@ html {
 }
 
 .btn-primary {
-  @apply bg-primary-500 text-white hover:bg-primary-600;
+  @apply bg-gradient-to-r from-[#E08713] to-[#C72C15] text-white hover:opacity-90;
 }
 
 .btn-secondary {
-  @apply bg-gray-200 text-gray-800 hover:bg-gray-300;
+  @apply bg-[#1a1a1a] border border-[#C72C15] text-white hover:bg-gradient-to-r hover:from-[#E08713] hover:to-[#C72C15];
 }
 
 /* Line Clamp */
@@ -334,16 +365,16 @@ html {
 
 /* Background Gradients */
 .bg-gradient-primary {
-  @apply bg-gradient-to-r from-primary-500 to-primary-700;
+  @apply bg-gradient-to-r from-[#E08713] to-[#C72C15];
 }
 
 .bg-gradient-secondary {
-  @apply bg-gradient-to-r from-purple-500 to-pink-600;
+  @apply bg-gradient-to-r from-orange-500 to-red-600;
 }
 
 /* Text Gradients */
 .text-gradient-primary {
-  @apply bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent;
+  @apply bg-gradient-to-r from-[#E08713] to-[#C72C15] bg-clip-text text-transparent;
 }
 
 /* Animations */
@@ -375,7 +406,7 @@ html {
 
 /* Input Styles */
 .input {
-  @apply px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition;
+  @apply px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#E08713] focus:border-transparent transition;
 }
 
 .input-sm {
@@ -388,7 +419,7 @@ html {
 }
 
 .badge-primary {
-  @apply bg-primary-100 text-primary-700;
+  @apply bg-orange-100 text-[#C72C15];
 }
 
 /* Print Styles for Order Details */

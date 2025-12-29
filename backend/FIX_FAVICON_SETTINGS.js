@@ -21,16 +21,16 @@ const fixFaviconSettings = async () => {
       console.log('⚠️ No store settings found, creating default...');
       settings = await StoreSettings.create({
         singleton: true,
-        storeName: 'أبعاد التواصل',
-        storeNameAr: 'أبعاد التواصل',
-        storeNameEn: 'Abad Tawasul',
+        storeName: 'جيم روم',
+        storeNameAr: 'جيم روم',
+        storeNameEn: 'Game Room',
         storeDescription: 'متجر إلكتروني للجوالات والإلكترونيات',
         siteMetadata: {
-          title: 'أبعاد التواصل',
-          titleEn: 'Abad Tawasul',
+          title: 'جيم روم',
+          titleEn: 'Game Room',
           description: 'أفضل متجر هواتف ذكية في السعودية',
           descriptionEn: 'Best smartphone store in Saudi Arabia',
-          keywords: 'جوالات, هواتف ذكية, إكسسوارات, أبعاد التواصل',
+          keywords: 'جوالات, هواتف ذكية, إكسسوارات, جيم روم',
           keywordsEn: 'mobile, smartphones, accessories, electronics',
           favicon: '/favicon.ico',
           appleTouchIcon: '/apple-touch-icon.png',

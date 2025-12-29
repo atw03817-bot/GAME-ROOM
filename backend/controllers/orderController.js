@@ -161,7 +161,7 @@ export const createOrder = async (req, res) => {
       });
 
       // تحديث المخزون للدفع عند الاستلام فقط
-      // Tamara يتم تحديث المخزون عند الموافقة على الدفع
+      // Tamara و Tabby يتم تحديث المخزون عند الموافقة على الدفع
       if (paymentMethod === 'cod') {
         product.stock = Math.max(0, product.stock - item.quantity);
         product.sales = (product.sales || 0) + item.quantity;
@@ -178,21 +178,37 @@ export const createOrder = async (req, res) => {
       displayName: 'عمولة الأقساط - تمارا'
     };
     
-    if (paymentMethod === 'tamara') {
+    // حساب عمولة تابي إذا كانت طريقة الدفع تابي (نفس منطق تمارا)
+    let tabbyCommission = {
+      amount: 0,
+      rate: 0,
+      displayName: 'عمولة التقسيط - تابي'
+    };
+    
+    if (paymentMethod === 'tamara' || paymentMethod === 'tabby') {
       try {
-        // استيراد نموذج إعدادات تمارا
+        // استيراد نموذج إعدادات تمارا (نستخدم نفس الإعدادات لتابي)
         const { default: TamaraSettings } = await import('../models/TamaraSettings.js');
         const commission = await TamaraSettings.calculateCommission(subtotal);
-        tamaraCommission = commission;
-        console.log('💰 عمولة تمارا محسوبة:', commission);
+        
+        if (paymentMethod === 'tamara') {
+          tamaraCommission = commission;
+          console.log('💰 عمولة تمارا محسوبة:', commission);
+        } else if (paymentMethod === 'tabby') {
+          tabbyCommission = {
+            ...commission,
+            displayName: 'عمولة التقسيط - تابي'
+          };
+          console.log('💰 عمولة تابي محسوبة:', tabbyCommission);
+        }
       } catch (error) {
-        console.error('❌ خطأ في حساب عمولة تمارا:', error);
+        console.error(`❌ خطأ في حساب عمولة ${paymentMethod}:`, error);
         // في حالة الخطأ، نستخدم القيم الافتراضية (بدون عمولة)
       }
     }
     
-    const tax = (subtotal + tamaraCommission.amount) * 0.15; // ضريبة القيمة المضافة 15%
-    const total = subtotal + tamaraCommission.amount + finalShippingCost + tax;
+    const tax = (subtotal + tamaraCommission.amount + tabbyCommission.amount) * 0.15; // ضريبة القيمة المضافة 15%
+    const total = subtotal + tamaraCommission.amount + tabbyCommission.amount + finalShippingCost + tax;
 
     // إنشاء رقم الطلب
     const orderCount = await Order.countDocuments();
@@ -274,6 +290,7 @@ export const createOrder = async (req, res) => {
       shippingCost: finalShippingCost,
       tax,
       tamaraCommission,
+      tabbyCommission, // إضافة عمولة تابي
       total,
       shippingCompany: shippingProvider || 'redbox',
       status: initialStatus,
@@ -288,7 +305,7 @@ export const createOrder = async (req, res) => {
     console.log(`✅ تم حفظ الطلب بحالة ${initialStatus}:`, orderNumber);
 
     // إنشاء شحنة مع RedBox (للدفع عند الاستلام فقط)
-    // Tamara: الشحنة تُنشأ بعد موافقة العميل على الدفع
+    // Tamara و Tabby: الشحنة تُنشأ بعد موافقة العميل على الدفع
     if (paymentMethod === 'cod' && shippingProvider === 'redbox') {
       try {
         console.log('📦 إنشاء شحنة مع RedBox...');
@@ -701,12 +718,9 @@ export const getAllOrders = async (req, res) => {
       ];
     }
 
-    // استبعاد الطلبات المعلقة الدفع إلا إذا طُلبت صراحة
+    // استبعاد الطلبات المسودة فقط (draft orders)
     if (!status) {
-      query.$or = [
-        { paymentStatus: { $ne: 'pending' } },
-        { paymentMethod: 'cod' }
-      ];
+      query.status = { $ne: 'draft' };
     }
 
     const orders = await Order.find(query)
@@ -847,10 +861,18 @@ export const confirmOrder = async (req, res) => {
       });
     }
 
-    // التحقق من أن الطلب في حالة مسودة
-    if (order.status !== 'draft') {
-      return res.status(400).json({
-        success: false,
+    // التحقق من أن الطلب لم يتم تأكيده مسبقاً
+    if (order.status === 'confirmed' || order.paymentStatus === 'paid') {
+      console.log('ℹ️ الطلب مؤكد مسبقاً:', {
+        status: order.status,
+        paymentStatus: order.paymentStatus,
+        stockUpdated: order.stockUpdated
+      });
+      
+      // إذا كان الطلب مؤكد مسبقاً، أرجع نجاح بدلاً من خطأ
+      return res.json({
+        success: true,
+        order,
         message: 'الطلب مؤكد مسبقاً'
       });
     }
@@ -870,14 +892,15 @@ export const confirmOrder = async (req, res) => {
     }
 
     // تحديث حالة الطلب
-    order.status = 'pending';
+    order.status = 'confirmed'; // تغيير من pending إلى confirmed
+    order.orderStatus = 'confirmed'; // تحديث orderStatus أيضاً
     order.paymentStatus = 'paid';
     order.paidAt = new Date();
 
     // إضافة سجل في تاريخ الحالة
     order.statusHistory.push({
-      status: 'pending',
-      note: 'تم تأكيد الطلب بعد نجاح الدفع',
+      status: 'confirmed',
+      note: `تم تأكيد الطلب بعد نجاح الدفع - ${paymentData?.provider || 'غير محدد'}`,
       date: new Date()
     });
 

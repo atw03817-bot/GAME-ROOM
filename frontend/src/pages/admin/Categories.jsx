@@ -51,11 +51,6 @@ function Categories() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!formData.name.ar || !formData.name.en) {
-      toast.error('الرجاء إدخال اسم الفئة بالعربي والإنجليزي')
-      return
-    }
-
     if (!formData.slug) {
       toast.error('الرجاء إدخال الرابط (Slug)')
       return
@@ -130,8 +125,8 @@ function Categories() {
 
   const filteredCategories = categories.filter(
     (cat) =>
-      cat.name.ar.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      cat.name.en.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (cat.name?.ar && cat.name.ar.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (cat.name?.en && cat.name.en.toLowerCase().includes(searchTerm.toLowerCase())) ||
       cat.slug.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
@@ -229,8 +224,12 @@ function Categories() {
                     </td>
                     <td className="px-6 py-4">
                       <div>
-                        <p className="font-semibold text-gray-900">{category.name.ar}</p>
-                        <p className="text-sm text-gray-500">{category.name.en}</p>
+                        <p className="font-semibold text-gray-900">
+                          {category.name?.ar || 'بدون اسم عربي'}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {category.name?.en || 'No English name'}
+                        </p>
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -305,7 +304,7 @@ function Categories() {
                 {/* Arabic Name */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    الاسم بالعربي *
+                    الاسم بالعربي
                   </label>
                   <input
                     type="text"
@@ -324,14 +323,13 @@ function Categories() {
                     }}
                     className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                     placeholder="مثال: هواتف ذكية"
-                    required
                   />
                 </div>
 
                 {/* English Name */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    الاسم بالإنجليزي *
+                    الاسم بالإنجليزي
                   </label>
                   <input
                     type="text"
@@ -344,7 +342,6 @@ function Categories() {
                     }
                     className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                     placeholder="Example: Smartphones"
-                    required
                   />
                 </div>
 

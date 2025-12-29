@@ -27,7 +27,7 @@ const generateSEOSitemap = async () => {
 
     // إضافة الصفحة الرئيسية
     sitemap += `  <url>
-    <loc>https://ab-tw.com/</loc>
+    <loc>https://gameroom-store.com/</loc>
     <lastmod>${new Date().toISOString()}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
@@ -41,7 +41,7 @@ const generateSEOSitemap = async () => {
         const changefreq = page.pageType === 'product' ? 'weekly' : 'monthly';
         
         sitemap += `  <url>
-    <loc>https://ab-tw.com/${page.slug}</loc>
+    <loc>https://gameroom-store.com/${page.slug}</loc>
     <lastmod>${page.updatedAt ? page.updatedAt.toISOString() : new Date().toISOString()}</lastmod>
     <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
@@ -61,10 +61,10 @@ const generateSEOSitemap = async () => {
 Allow: /
 
 # Sitemap
-Sitemap: https://ab-tw.com/sitemap.xml
+Sitemap: https://gameroom-store.com/sitemap.xml
 
-# متجر أبعاد التواصل - أفضل متجر هواتف في السعودية
-# Abad Tawasul Store - Best Mobile Store in Saudi Arabia
+# متجر جيم روم - أفضل متجر هواتف في السعودية
+# Game Room Store - Best Mobile Store in Saudi Arabia
 
 # Allow important pages
 Allow: /products/
@@ -92,14 +92,14 @@ Crawl-delay: 1
     const structuredData = {
       "@context": "https://schema.org",
       "@type": "Store",
-      "name": "متجر أبعاد التواصل",
-      "alternateName": "أبعاد التواصل",
+      "name": "متجر جيم روم",
+      "alternateName": "جيم روم",
       "description": "أفضل متجر هواتف ذكية وإلكترونيات في السعودية. آيفون، سامسونج، هواوي بأفضل الأسعار مع ضمان أصلي وتوصيل مجاني.",
-      "url": "https://ab-tw.com",
-      "logo": "https://ab-tw.com/logo.png",
-      "image": "https://ab-tw.com/og-home.jpg",
+      "url": "https://gameroom-store.com",
+      "logo": "https://gameroom-store.com/logo.png",
+      "image": "https://gameroom-store.com/og-home.jpg",
       "telephone": "+966500000000",
-      "email": "info@ab-tw.com",
+      "email": "info@gameroom-store.com",
       "address": {
         "@type": "PostalAddress",
         "addressCountry": "SA",
@@ -123,7 +123,7 @@ Crawl-delay: 1
       "paymentAccepted": "نقداً، فيزا، ماستركارد، مدى، تحويل بنكي",
       "hasOfferCatalog": {
         "@type": "OfferCatalog",
-        "name": "منتجات متجر أبعاد التواصل",
+        "name": "منتجات متجر جيم روم",
         "itemListElement": [
           {
             "@type": "Offer",
@@ -144,11 +144,11 @@ Crawl-delay: 1
         ]
       },
       "sameAs": [
-        "https://twitter.com/abadtawasul",
-        "https://instagram.com/abadtawasul",
-        "https://facebook.com/abadtawasul"
+        "https://twitter.com/gameroomstore",
+        "https://instagram.com/gameroomstore",
+        "https://facebook.com/gameroomstore"
       ],
-      "keywords": "متجر أبعاد التواصل، أبعاد التواصل، هواتف ذكية، آيفون، سامسونج، جوالات السعودية، متجر إلكتروني، إكسسوارات"
+      "keywords": "متجر جيم روم، جيم روم، هواتف ذكية، آيفون، سامسونج، جوالات السعودية، متجر إلكتروني، إكسسوارات"
     };
 
     fs.writeFileSync('structured-data.json', JSON.stringify(structuredData, null, 2));
@@ -163,7 +163,7 @@ Crawl-delay: 1
     console.log('   1. Upload these files to your website root');
     console.log('   2. Submit sitemap to Google Search Console');
     console.log('   3. Test structured data with Google Rich Results Test');
-    console.log('   4. Monitor rankings for "متجر أبعاد التواصل"');
+    console.log('   4. Monitor rankings for "متجر جيم روم"');
 
   } catch (error) {
     console.error('❌ Sitemap generation failed:', error);

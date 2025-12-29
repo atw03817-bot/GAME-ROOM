@@ -11,12 +11,53 @@ function Footer() {
 
   useEffect(() => {
     fetchFooterData();
+    
+    // الاستماع لتغييرات إعدادات الثيم
+    const handleThemeSettingsChange = (event) => {
+      console.log('Footer: Theme settings changed:', event.detail);
+      if (event.detail.logo) {
+        setFooterData(prev => ({
+          ...prev,
+          company: {
+            ...prev?.company,
+            logo: event.detail.logo
+          }
+        }));
+      }
+    };
+
+    window.addEventListener('headerSettingsChanged', handleThemeSettingsChange);
+    
+    return () => {
+      window.removeEventListener('headerSettingsChanged', handleThemeSettingsChange);
+    };
   }, []);
 
   const fetchFooterData = async () => {
     try {
-      const response = await api.get('/footer');
-      setFooterData(response.data.data);
+      // جلب بيانات الـ footer
+      const footerResponse = await api.get('/footer');
+      console.log('Footer: Loaded footer data from API:', footerResponse.data.data);
+      
+      // جلب بيانات الثيم للحصول على اللوجو
+      const themeResponse = await api.get('/theme');
+      console.log('Footer: Loaded theme data from API:', themeResponse.data.data);
+      
+      let footerData = footerResponse.data.data;
+      
+      // إذا كان هناك لوجو في إعدادات الثيم، استخدمه
+      if (themeResponse.data.success && themeResponse.data.data.header?.logo) {
+        footerData = {
+          ...footerData,
+          company: {
+            ...footerData.company,
+            logo: themeResponse.data.data.header.logo
+          }
+        };
+        console.log('Footer: Using logo from theme settings:', themeResponse.data.data.header.logo);
+      }
+      
+      setFooterData(footerData);
     } catch (error) {
       console.error('Error fetching footer data:', error);
       // Use default data if API fails
@@ -31,7 +72,7 @@ function Footer() {
           name: '',
           tagline: '',
           description: '',
-          logo: '/logo.png'
+          logo: '' // إزالة الشعار الافتراضي
         },
         contact: {
           phone: '+966 50 000 0000',
@@ -53,7 +94,7 @@ function Footer() {
           { icon: '💳', title: 'دفع آمن', subtitle: 'حماية كاملة' }
         ],
         copyright: {
-          text: 'أبعاد التواصل. جميع الحقوق محفوظة.',
+          text: 'جيم روم. جميع الحقوق محفوظة.',
           showYear: true
         },
         quickLinks: {
@@ -84,7 +125,7 @@ function Footer() {
 
   if (loading) {
     return (
-      <footer className="bg-gradient-to-b from-slate-900 to-black text-white mt-16">
+      <footer className="text-white mt-16" style={{backgroundImage: 'linear-gradient(90deg, rgba(224, 135, 19, 0.99) 0%, rgba(199, 44, 21, 1) 100%)'}}>
         <div className="container mx-auto px-4 py-12 text-center">
           <div className="animate-pulse">جاري التحميل...</div>
         </div>
@@ -95,20 +136,20 @@ function Footer() {
   if (!footerData) return null;
 
   return (
-    <footer className="bg-gradient-to-b from-slate-900 to-black text-white mt-16">
+    <footer className="text-white mt-16" style={{backgroundImage: 'linear-gradient(90deg, rgba(224, 135, 19, 0.99) 0%, rgba(199, 44, 21, 1) 100%)'}}>
       {/* Newsletter */}
       {footerData.newsletter?.enabled && (
-        <div className="bg-gradient-to-r from-primary-600 to-primary-700 py-10">
+        <div className="bg-black/10 py-10">
           <div className="container mx-auto px-4 max-w-lg text-center">
             <h3 className="text-xl font-bold mb-2">{footerData.newsletter.title}</h3>
-            <p className="text-sm text-primary-100 mb-5">{footerData.newsletter.subtitle}</p>
+            <p className="text-sm text-white/90 mb-5">{footerData.newsletter.subtitle}</p>
             <div className="flex gap-2">
               <input
                 type="email"
                 placeholder="بريدك الإلكتروني"
-                className="flex-1 px-4 py-3 rounded-lg bg-white/10 backdrop-blur border border-white/20 focus:outline-none focus:border-white text-white placeholder:text-white/60 text-sm"
+                className="flex-1 px-4 py-3 rounded-lg bg-white/20 backdrop-blur border border-white/30 focus:outline-none focus:border-white text-white placeholder:text-white/70 text-sm"
               />
-              <button className="bg-white text-primary-600 px-6 py-3 rounded-lg font-bold hover:bg-primary-50 transition whitespace-nowrap">
+              <button className="bg-white text-black px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition whitespace-nowrap">
                 {footerData.newsletter.buttonText}
               </button>
             </div>
@@ -121,24 +162,20 @@ function Footer() {
         {/* Brand - Mobile Only */}
         <div className="md:hidden text-right mb-10">
           <div className="flex items-center gap-3 mb-4">
-            <img 
-              src={footerData.company?.logo || '/logo.png'} 
-              alt={footerData.company?.name || 'أبعاد التواصل'} 
-              className="w-12 h-12 object-contain"
-              onError={(e) => {
-                e.target.style.display = 'none';
-                e.target.nextSibling.style.display = 'flex';
-              }}
-            />
-            <div className="w-12 h-12 bg-primary-600 rounded-lg items-center justify-center text-white font-bold text-xl hidden">
-              {footerData.company?.name?.charAt(0) || 'أ'}
-            </div>
+            {footerData.company?.logo && (
+              <img 
+                src={footerData.company.logo} 
+                alt={footerData.company?.name || 'جيم روم'} 
+                className="w-16 h-16 object-contain"
+                onError={(e) => e.target.style.display = 'none'}
+              />
+            )}
             <div>
-              <div className="text-lg font-bold">{footerData.company?.name || ''}</div>
-              <div className="text-xs text-gray-400">{footerData.company?.tagline || ''}</div>
+              <div className="text-lg font-bold text-white">{footerData.company?.name || ''}</div>
+              <div className="text-xs text-white/70">{footerData.company?.tagline || ''}</div>
             </div>
           </div>
-          <p className="text-sm text-gray-400 leading-relaxed mb-5">
+          <p className="text-sm text-white/80 leading-relaxed mb-5">
             {footerData.company?.description || ''}
           </p>
           
@@ -194,24 +231,20 @@ function Footer() {
           {/* Brand - Desktop */}
           <div className="hidden md:block">
             <div className="flex items-center gap-3 mb-4">
-              <img 
-                src={footerData.company?.logo || '/logo.png'} 
-                alt={footerData.company?.name || 'أبعاد التواصل'} 
-                className="w-12 h-12 object-contain"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                  e.target.nextSibling.style.display = 'flex';
-                }}
-              />
-              <div className="w-12 h-12 bg-primary-600 rounded-lg items-center justify-center text-white font-bold text-xl hidden">
-                {footerData.company?.name?.charAt(0) || 'أ'}
-              </div>
+              {footerData.company?.logo && (
+                <img 
+                  src={footerData.company.logo} 
+                  alt={footerData.company?.name || 'جيم روم'} 
+                  className="w-16 h-16 object-contain"
+                  onError={(e) => e.target.style.display = 'none'}
+                />
+              )}
               <div>
-                <div className="text-lg font-bold">{footerData.company?.name || ''}</div>
-                <div className="text-xs text-gray-400">{footerData.company?.tagline || ''}</div>
+                <div className="text-lg font-bold text-white">{footerData.company?.name || ''}</div>
+                <div className="text-xs text-white/70">{footerData.company?.tagline || ''}</div>
               </div>
             </div>
-            <p className="text-sm text-gray-400 leading-relaxed mb-5">
+            <p className="text-sm text-white/80 leading-relaxed mb-5">
               {footerData.company?.description || ''}
             </p>
             
@@ -265,8 +298,8 @@ function Footer() {
           {/* Quick Links */}
           {footerData.quickLinks?.enabled && (
             <div>
-              <h4 className="font-bold mb-4 text-primary-400">{footerData.quickLinks.title}</h4>
-              <ul className="space-y-2.5 text-sm text-gray-400">
+              <h4 className="font-bold mb-4 text-white">{footerData.quickLinks.title}</h4>
+              <ul className="space-y-2.5 text-sm text-white/80">
                 {(footerData.quickLinks.links || [
                   { title: 'الرئيسية', url: '/', external: false },
                   { title: 'جميع المنتجات', url: '/products', external: false },
@@ -279,12 +312,12 @@ function Footer() {
                         href={link.url} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="hover:text-primary-400 transition"
+                        className="hover:text-white/80 transition"
                       >
                         {link.title}
                       </a>
                     ) : (
-                      <Link to={link.url} className="hover:text-primary-400 transition">
+                      <Link to={link.url} className="hover:text-white/80 transition">
                         {link.title}
                       </Link>
                     )}
@@ -297,8 +330,8 @@ function Footer() {
           {/* Support Links */}
           {footerData.supportLinks?.enabled && (
             <div>
-              <h4 className="font-bold mb-4 text-primary-400">{footerData.supportLinks.title}</h4>
-              <ul className="space-y-2.5 text-sm text-gray-400">
+              <h4 className="font-bold mb-4 text-white">{footerData.supportLinks.title}</h4>
+              <ul className="space-y-2.5 text-sm text-white/80">
                 {(footerData.supportLinks.links || [
                   { title: 'حسابي', url: '/account', external: false },
                   { title: 'طلباتي', url: '/orders', external: false },
@@ -311,12 +344,12 @@ function Footer() {
                         href={link.url} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="hover:text-primary-400 transition"
+                        className="hover:text-white/80 transition"
                       >
                         {link.title}
                       </a>
                     ) : (
-                      <Link to={link.url} className="hover:text-primary-400 transition">
+                      <Link to={link.url} className="hover:text-white/80 transition">
                         {link.title}
                       </Link>
                     )}
@@ -328,26 +361,26 @@ function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="font-bold mb-4 text-primary-400">تواصل معنا</h4>
-            <ul className="space-y-3 text-sm text-gray-400">
+            <h4 className="font-bold mb-4 text-white">تواصل معنا</h4>
+            <ul className="space-y-3 text-sm text-white/80">
               {footerData.contact?.phone && (
                 <li className="flex items-center gap-2">
-                  <FiPhone className="text-primary-400" />
-                  <a href={`tel:${footerData.contact.phone}`} className="hover:text-primary-400 transition" dir="ltr">
+                  <FiPhone className="text-white" />
+                  <a href={`tel:${footerData.contact.phone}`} className="hover:text-white/80 transition" dir="ltr">
                     {footerData.contact.phone}
                   </a>
                 </li>
               )}
               {footerData.contact?.email && (
                 <li className="flex items-center gap-2">
-                  <FiMail className="text-primary-400" />
-                  <a href={`mailto:${footerData.contact.email}`} className="hover:text-primary-400 transition">
+                  <FiMail className="text-white" />
+                  <a href={`mailto:${footerData.contact.email}`} className="hover:text-white/80 transition">
                     {footerData.contact.email}
                   </a>
                 </li>
               )}
               {footerData.contact?.address && (
-                <li className="text-xs text-gray-500 mt-2">
+                <li className="text-xs text-white/60 mt-2">
                   {footerData.contact.address}
                 </li>
               )}
@@ -419,10 +452,10 @@ function Footer() {
         )}
 
         {/* Copyright */}
-        <div className="text-center pt-8 border-t border-white/10">
-          <p className="text-sm text-gray-400">
+        <div className="text-center pt-8 border-t border-white/20">
+          <p className="text-sm text-white/80">
             {footerData.copyright?.showYear && `© ${currentYear} `}
-            {footerData.copyright?.text || 'أبعاد التواصل. جميع الحقوق محفوظة.'}
+            {footerData.copyright?.text || 'جيم روم. جميع الحقوق محفوظة.'}
           </p>
         </div>
       </div>

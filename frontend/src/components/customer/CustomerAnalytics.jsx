@@ -158,10 +158,10 @@ const CustomerAnalytics = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-64">
+      <div className="flex items-center justify-center min-h-64 bg-[#111111]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">جاري تحميل إحصائياتك...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#E08713] mx-auto mb-4"></div>
+          <p className="text-gray-300">جاري تحميل إحصائياتك...</p>
         </div>
       </div>
     );
@@ -169,14 +169,14 @@ const CustomerAnalytics = () => {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-64">
+      <div className="flex items-center justify-center min-h-64 bg-[#111111]">
         <div className="text-center">
-          <div className="text-red-500 text-6xl mb-4">⚠️</div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">خطأ في تحميل البيانات</h3>
-          <p className="text-gray-600 mb-4">{error}</p>
+          <div className="text-red-400 text-6xl mb-4">⚠️</div>
+          <h3 className="text-xl font-bold text-white mb-2">خطأ في تحميل البيانات</h3>
+          <p className="text-gray-300 mb-4">{error}</p>
           <button
             onClick={fetchCustomerAnalytics}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 mx-auto"
+            className="bg-gradient-to-r from-[#E08713] to-[#C72C15] text-white px-6 py-2 rounded-lg hover:opacity-90 transition-all flex items-center gap-2 mx-auto"
           >
             <FiRefreshCw />
             إعادة المحاولة
@@ -187,17 +187,17 @@ const CustomerAnalytics = () => {
   }
 
   const StatCard = ({ title, value, icon: Icon, color = 'blue', subtitle }) => (
-    <div className="bg-white rounded-lg shadow-md p-6 border-r-4 border-blue-500">
+    <div className="bg-[#111111] border border-[#C72C15] rounded-lg shadow-md p-6">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-2xl font-bold text-gray-900">{value}</p>
+          <p className="text-sm font-medium text-gray-300">{title}</p>
+          <p className="text-2xl font-bold text-white">{value}</p>
           {subtitle && (
-            <p className="text-xs text-gray-500 mt-1">{subtitle}</p>
+            <p className="text-xs text-gray-400 mt-1">{subtitle}</p>
           )}
         </div>
-        <div className={`p-3 rounded-full bg-${color}-100`}>
-          <Icon className={`h-6 w-6 text-${color}-600`} />
+        <div className="p-3 rounded-full bg-gradient-to-r from-[#E08713] to-[#C72C15]">
+          <Icon className="h-6 w-6 text-white" />
         </div>
       </div>
     </div>
@@ -218,16 +218,16 @@ const CustomerAnalytics = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="max-w-6xl mx-auto p-6 bg-[#111111] min-h-screen">
       {/* Header */}
       <div className="mb-8 flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">إحصائياتي الشخصية</h1>
-          <p className="text-gray-600">تتبع مشترياتك وأنشطتك في المتجر - بيانات حقيقية 100%</p>
+          <h1 className="text-3xl font-bold text-white mb-2">إحصائياتي الشخصية</h1>
+          <p className="text-gray-300">تتبع مشترياتك وأنشطتك في المتجر - بيانات حقيقية 100%</p>
         </div>
         <button
           onClick={fetchCustomerAnalytics}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+          className="bg-gradient-to-r from-[#E08713] to-[#C72C15] text-white px-4 py-2 rounded-lg hover:opacity-90 transition-all flex items-center gap-2"
         >
           <FiRefreshCw />
           تحديث
@@ -268,13 +268,13 @@ const CustomerAnalytics = () => {
 
       {/* Content based on data availability */}
       {data.totalOrders === 0 ? (
-        <div className="bg-white rounded-lg shadow-md p-12 text-center">
+        <div className="bg-[#111111] border border-[#C72C15] rounded-lg shadow-md p-12 text-center mb-8">
           <div className="text-6xl mb-4">🛍️</div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">لم تقم بأي طلبات بعد</h3>
-          <p className="text-gray-600 mb-6">ابدأ التسوق الآن واستمتع بتجربة رائعة</p>
+          <h3 className="text-xl font-bold text-white mb-2">لم تقم بأي طلبات بعد</h3>
+          <p className="text-gray-300 mb-6">ابدأ التسوق الآن واستمتع بتجربة رائعة</p>
           <button
             onClick={() => window.location.href = '/products'}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+            className="bg-gradient-to-r from-[#E08713] to-[#C72C15] text-white px-6 py-3 rounded-lg hover:opacity-90 transition-all"
           >
             تصفح المنتجات
           </button>
@@ -282,19 +282,19 @@ const CustomerAnalytics = () => {
       ) : (
         <>
           {/* Recent Activity */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mb-8">
             {/* Recent Orders */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">الطلبات الأخيرة</h3>
+            <div className="bg-[#111111] border border-[#C72C15] rounded-lg shadow-md p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">الطلبات الأخيرة</h3>
               <div className="space-y-4">
                 {data.recentOrders.length > 0 ? data.recentOrders.map((order, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div key={index} className="flex items-center justify-between p-3 bg-[#1a1a1a] border border-[#C72C15] rounded-lg">
                     <div>
-                      <p className="font-medium text-gray-900">{order.id}</p>
-                      <p className="text-sm text-gray-500">{order.date}</p>
+                      <p className="font-medium text-white">{order.id}</p>
+                      <p className="text-sm text-gray-300">{order.date}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium text-gray-900">{order.total.toLocaleString()} ر.س</p>
+                      <p className="font-medium text-[#991b1b]">{order.total.toLocaleString()} ر.س</p>
                       <span className={`text-xs px-2 py-1 rounded-full ${
                         order.status === 'تم التسليم' ? 'bg-green-100 text-green-800' :
                         order.status === 'قيد الشحن' ? 'bg-blue-100 text-blue-800' :
@@ -306,37 +306,37 @@ const CustomerAnalytics = () => {
                     </div>
                   </div>
                 )) : (
-                  <p className="text-gray-500 text-center py-4">لا توجد طلبات حديثة</p>
+                  <p className="text-gray-400 text-center py-4">لا توجد طلبات حديثة</p>
                 )}
               </div>
             </div>
 
             {/* Additional Stats */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">إحصائيات إضافية</h3>
+            <div className="bg-[#111111] border border-[#C72C15] rounded-lg shadow-md p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">إحصائيات إضافية</h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <FiPackage className="h-5 w-5 text-gray-500 ml-3" />
-                    <span className="text-sm text-gray-600">الفئة المفضلة</span>
+                    <FiPackage className="h-5 w-5 text-gray-400 ml-3" />
+                    <span className="text-sm text-gray-300">الفئة المفضلة</span>
                   </div>
-                  <span className="text-sm font-medium text-gray-900">{data.favoriteCategory}</span>
+                  <span className="text-sm font-medium text-white">{data.favoriteCategory}</span>
                 </div>
                 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <FiClock className="h-5 w-5 text-gray-500 ml-3" />
-                    <span className="text-sm text-gray-600">آخر طلب</span>
+                    <FiClock className="h-5 w-5 text-gray-400 ml-3" />
+                    <span className="text-sm text-gray-300">آخر طلب</span>
                   </div>
-                  <span className="text-sm font-medium text-gray-900">{data.lastOrderDate}</span>
+                  <span className="text-sm font-medium text-white">{data.lastOrderDate}</span>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <FiShoppingBag className="h-5 w-5 text-gray-500 ml-3" />
-                    <span className="text-sm text-gray-600">طلبات معلقة</span>
+                    <FiShoppingBag className="h-5 w-5 text-gray-400 ml-3" />
+                    <span className="text-sm text-gray-300">طلبات معلقة</span>
                   </div>
-                  <span className="text-sm font-medium text-gray-900">{data.pendingOrdersCount || 0}</span>
+                  <span className="text-sm font-medium text-white">{data.pendingOrdersCount || 0}</span>
                 </div>
               </div>
             </div>
@@ -344,16 +344,16 @@ const CustomerAnalytics = () => {
 
           {/* Monthly Spending Chart */}
           {data.monthlySpending.length > 0 && (
-            <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">الإنفاق الشهري</h3>
+            <div className="bg-[#111111] border border-[#C72C15] rounded-lg shadow-md p-6 mb-8">
+              <h3 className="text-lg font-semibold text-white mb-4">الإنفاق الشهري</h3>
               <div className="space-y-4">
                 {data.monthlySpending.map((month, index) => (
                   <div key={index} className="flex items-center">
-                    <div className="w-20 text-sm text-gray-600">{month.month}</div>
+                    <div className="w-20 text-sm text-gray-300">{month.month}</div>
                     <div className="flex-1 mx-4">
-                      <div className="bg-gray-200 rounded-full h-3">
+                      <div className="bg-[#1a1a1a] border border-[#C72C15] rounded-full h-3">
                         <div 
-                          className="bg-blue-500 h-3 rounded-full transition-all duration-300"
+                          className="bg-gradient-to-r from-[#E08713] to-[#C72C15] h-3 rounded-full transition-all duration-300"
                           style={{ 
                             width: `${data.monthlySpending.length > 0 ? 
                               (month.amount / Math.max(...data.monthlySpending.map(m => m.amount))) * 100 : 0}%` 
@@ -361,7 +361,7 @@ const CustomerAnalytics = () => {
                         ></div>
                       </div>
                     </div>
-                    <div className="w-24 text-right text-sm font-medium text-gray-900">
+                    <div className="w-24 text-right text-sm font-medium text-[#991b1b]">
                       {month.amount.toLocaleString()} ر.س
                     </div>
                   </div>
@@ -373,23 +373,23 @@ const CustomerAnalytics = () => {
       )}
 
       {/* Tips Section */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">💡 نصائح لتوفير المال</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+      <div className="bg-gradient-to-r from-[#E08713] to-[#C72C15] rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-white mb-3">💡 نصائح لتوفير المال</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-white">
           <div className="flex items-start">
-            <span className="text-blue-500 ml-2">•</span>
+            <span className="text-white ml-2">•</span>
             <span>تابع العروض الأسبوعية لتوفير حتى 30%</span>
           </div>
           <div className="flex items-start">
-            <span className="text-blue-500 ml-2">•</span>
+            <span className="text-white ml-2">•</span>
             <span>استخدم نقاط الولاء للحصول على خصومات</span>
           </div>
           <div className="flex items-start">
-            <span className="text-blue-500 ml-2">•</span>
+            <span className="text-white ml-2">•</span>
             <span>اشترك في النشرة البريدية للعروض الحصرية</span>
           </div>
           <div className="flex items-start">
-            <span className="text-blue-500 ml-2">•</span>
+            <span className="text-white ml-2">•</span>
             <span>قارن الأسعار قبل الشراء</span>
           </div>
         </div>

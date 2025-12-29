@@ -24,11 +24,11 @@ const initSettings = async () => {
       console.log('🆕 Creating default settings...');
       settings = await StoreSettings.create({
         singleton: true,
-        storeName: 'أبعاد التواصل',
-        storeNameAr: 'أبعاد التواصل',
+        storeName: 'جيم روم',
+        storeNameAr: 'جيم روم',
         storeDescription: 'متجر إلكتروني للجوالات والإلكترونيات',
         storeDescriptionAr: 'متجر إلكتروني للجوالات والإلكترونيات',
-        contactEmail: 'info@abadtawasul.com',
+        contactEmail: 'info@gameroomstore.com',
         contactPhone: '+966500000000',
         currency: 'SAR',
         taxRate: 15,

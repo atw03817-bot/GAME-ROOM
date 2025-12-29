@@ -1,14 +1,14 @@
 {
   "@context": "https://schema.org",
   "@type": "Store",
-  "name": "متجر أبعاد التواصل",
-  "alternateName": "أبعاد التواصل",
-  "description": "أفضل متجر هواتف ذكية وإلكترونيات في السعودية. آيفون، سامسونج، هواوي بأفضل الأسعار مع ضمان أصلي وتوصيل مجاني.",
-  "url": "https://ab-tw.com",
-  "logo": "https://ab-tw.com/logo.png",
-  "image": "https://ab-tw.com/og-home.jpg",
+  "name": "متجر جيم روم",
+  "alternateName": "جيم روم",
+  "description": "أفضل متجر ألعاب وتقنية في السعودية. آيفون، سامسونج، هواوي بأفضل الأسعار مع ضمان أصلي وتوصيل مجاني.",
+  "url": "https://gameroom-store.com",
+  "logo": "https://gameroom-store.com/logo.png",
+  "image": "https://gameroom-store.com/og-home.jpg",
   "telephone": "+966500000000",
-  "email": "info@ab-tw.com",
+  "email": "info@gameroom-store.com",
   "address": {
     "@type": "PostalAddress",
     "addressCountry": "SA",
@@ -32,7 +32,7 @@
   "paymentAccepted": "نقداً، فيزا، ماستركارد، مدى، تحويل بنكي",
   "hasOfferCatalog": {
     "@type": "OfferCatalog",
-    "name": "منتجات متجر أبعاد التواصل",
+    "name": "منتجات متجر جيم روم",
     "itemListElement": [
       {
         "@type": "Offer",
@@ -53,9 +53,9 @@
     ]
   },
   "sameAs": [
-    "https://twitter.com/abadtawasul",
-    "https://instagram.com/abadtawasul",
-    "https://facebook.com/abadtawasul"
+    "https://twitter.com/gameroomstore",
+    "https://instagram.com/gameroomstore",
+    "https://facebook.com/gameroomstore"
   ],
-  "keywords": "متجر أبعاد التواصل، أبعاد التواصل، هواتف ذكية، آيفون، سامسونج، جوالات السعودية، متجر إلكتروني، إكسسوارات"
+  "keywords": "متجر جيم روم، جيم روم، هواتف ذكية، آيفون، سامسونج، جوالات السعودية، متجر إلكتروني، إكسسوارات"
 }

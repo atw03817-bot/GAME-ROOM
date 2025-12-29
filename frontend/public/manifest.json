@@ -1,7 +1,7 @@
 {
-  "name": "متجر أبعاد التواصل",
-  "short_name": "أبعاد التواصل",
-  "description": "أفضل متجر هواتف ذكية في السعودية",
+  "name": "متجر جيم روم",
+  "short_name": "جيم روم",
+  "description": "أفضل متجر ألعاب وتقنية في السعودية",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

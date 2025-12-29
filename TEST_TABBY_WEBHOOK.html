@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار Tabby Webhook</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔔 اختبار Tabby Webhook</h1>
+        
+        <div class="form-group">
+            <label for="apiUrl">رابط API:</label>
+            <input type="text" id="apiUrl" value="http://localhost:5000/api" />
+        </div>
+        
+        <div class="form-group">
+            <label for="orderId">معرف الطلب:</label>
+            <input type="text" id="orderId" placeholder="Order ID..." />
+        </div>
+        
+        <div class="form-group">
+            <label for="paymentId">معرف الدفع (Tabby Payment ID):</label>
+            <input type="text" id="paymentId" placeholder="Payment ID..." />
+        </div>
+        
+        <div class="form-group">
+            <label for="eventType">نوع الحدث:</label>
+            <select id="eventType">
+                <option value="payment_authorized">payment_authorized</option>
+                <option value="payment_captured">payment_captured</option>
+                <option value="payment_closed">payment_closed</option>
+                <option value="payment_failed">payment_failed</option>
+                <option value="payment_cancelled">payment_cancelled</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="amount">المبلغ:</label>
+            <input type="number" id="amount" value="100.00" step="0.01" />
+        </div>
+        
+        <div style="margin: 20px 0;">
+            <button onclick="sendWebhook()">إرسال Webhook</button>
+            <button onclick="checkOrderStatus()">فحص حالة الطلب</button>
+            <button onclick="clearResults()">مسح النتائج</button>
+        </div>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function addResult(title, content, isError = false) {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${isError ? 'error' : 'success'}`;
+            div.innerHTML = `<strong>${title}</strong>\n${content}`;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function addInfo(title, content) {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = 'result info';
+            div.innerHTML = `<strong>${title}</strong>\n${content}`;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function sendWebhook() {
+            const apiUrl = document.getElementById('apiUrl').value;
+            const orderId = document.getElementById('orderId').value;
+            const paymentId = document.getElementById('paymentId').value;
+            const eventType = document.getElementById('eventType').value;
+            const amount = document.getElementById('amount').value;
+
+            if (!orderId || !paymentId) {
+                addResult('❌ خطأ', 'معرف الطلب ومعرف الدفع مطلوبان', true);
+                return;
+            }
+
+            try {
+                addInfo('🔄 إرسال Webhook...', `Event: ${eventType}\nOrder: ${orderId}\nPayment: ${paymentId}`);
+                
+                // محاكاة webhook من Tabby
+                const webhookData = {
+                    event_type: eventType,
+                    payment: {
+                        id: paymentId,
+                        status: eventType === 'payment_captured' ? 'CAPTURED' : 
+                               eventType === 'payment_authorized' ? 'AUTHORIZED' :
+                               eventType === 'payment_closed' ? 'CLOSED' :
+                               eventType === 'payment_failed' ? 'FAILED' : 'CANCELLED',
+                        amount: amount,
+                        currency: 'SAR',
+                        order: {
+                            reference_id: orderId
+                        }
+                    }
+                };
+
+                const response = await fetch(`${apiUrl}/payments/tabby/webhook`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(webhookData)
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    addResult('✅ نجح إرسال Webhook', 
+                        `Status: ${response.status}\nResponse: ${JSON.stringify(result, null, 2)}`);
+                } else {
+                    addResult('❌ فشل Webhook', 
+                        `Status: ${response.status}\nResponse: ${JSON.stringify(result, null, 2)}`, true);
+                }
+                
+            } catch (error) {
+                addResult('❌ خطأ في الشبكة', error.message, true);
+            }
+        }
+
+        async function checkOrderStatus() {
+            const apiUrl = document.getElementById('apiUrl').value;
+            const orderId = document.getElementById('orderId').value;
+
+            if (!orderId) {
+                addResult('❌ خطأ', 'معرف الطلب مطلوب', true);
+                return;
+            }
+
+            try {
+                addInfo('🔍 فحص حالة الطلب...', `Order ID: ${orderId}`);
+                
+                const response = await fetch(`${apiUrl}/orders/${orderId}`);
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    const order = result.order;
+                    addResult('✅ تم جلب حالة الطلب', 
+                        `Order Number: ${order.orderNumber}\n` +
+                        `Status: ${order.status}\n` +
+                        `Payment Status: ${order.paymentStatus}\n` +
+                        `Stock Updated: ${order.stockUpdated}\n` +
+                        `Payment Details: ${JSON.stringify(order.paymentDetails, null, 2)}\n` +
+                        `Status History: ${JSON.stringify(order.statusHistory, null, 2)}`);
+                } else {
+                    addResult('❌ فشل جلب حالة الطلب', 
+                        `Status: ${response.status}\nResponse: ${JSON.stringify(result, null, 2)}`, true);
+                }
+                
+            } catch (error) {
+                addResult('❌ خطأ في الشبكة', error.message, true);
+            }
+        }
+    </script>
+</body>
+</html>

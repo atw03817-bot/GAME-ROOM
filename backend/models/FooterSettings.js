@@ -12,8 +12,8 @@ const footerSettingsSchema = new mongoose.Schema({
 
   // Company Info
   company: {
-    name: { type: String, default: 'أبعاد التواصل' },
-    description: { type: String, default: 'متجرك الموثوق للإلكترونيات والأجهزة الذكية' },
+    name: { type: String, default: 'جيم روم' },
+    description: { type: String, default: 'متجرك الموثوق للألعاب والتقنية' },
     logo: { type: String, default: '/logo.png' }
   },
 
@@ -66,7 +66,7 @@ const footerSettingsSchema = new mongoose.Schema({
 
   // Copyright
   copyright: {
-    text: { type: String, default: '© 2024 أبعاد التواصل. جميع الحقوق محفوظة.' },
+    text: { type: String, default: '© 2024 جيم روم. جميع الحقوق محفوظة.' },
     showYear: { type: Boolean, default: true }
   },
 

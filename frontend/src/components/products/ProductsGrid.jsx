@@ -72,8 +72,8 @@ export default function ProductsGrid({ selectedCategory, priceRange, selectedCon
   if (loading) {
     return (
       <div className="text-center py-12">
-        <div className="inline-block w-12 h-12 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="text-gray-600">جاري تحميل المنتجات...</p>
+        <div className="inline-block w-12 h-12 border-4 border-[#E08713] border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p className="text-gray-300">جاري تحميل المنتجات...</p>
       </div>
     );
   }
@@ -81,10 +81,10 @@ export default function ProductsGrid({ selectedCategory, priceRange, selectedCon
   if (error) {
     return (
       <div className="text-center py-12">
-        <p className="text-red-600 mb-4">{error}</p>
+        <p className="text-red-400 mb-4">{error}</p>
         <button
           onClick={() => window.location.reload()}
-          className="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition"
+          className="px-6 py-2 bg-gradient-to-r from-[#E08713] to-[#C72C15] text-white rounded-lg hover:opacity-90 transition"
         >
           إعادة المحاولة
         </button>
@@ -96,11 +96,11 @@ export default function ProductsGrid({ selectedCategory, priceRange, selectedCon
     <div>
       {/* Sort Bar */}
       <div className="flex justify-between items-center mb-6">
-        <p className="text-sm text-gray-600">عرض {sortedProducts.length} منتج</p>
+        <p className="text-sm text-gray-300">عرض {sortedProducts.length} منتج</p>
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          className="px-4 py-2 border border-[#C72C15] bg-[#111111] text-white rounded-lg focus:ring-2 focus:ring-[#E08713] focus:border-transparent"
         >
           <option value="newest">الأحدث</option>
           <option value="price-low">السعر: الأقل</option>
@@ -113,7 +113,7 @@ export default function ProductsGrid({ selectedCategory, priceRange, selectedCon
       <div className="grid-products">
         {sortedProducts.length === 0 ? (
           <div className="col-span-2 lg:col-span-4 text-center py-12">
-            <p className="text-gray-500 text-lg">لا توجد منتجات تطابق الفلاتر المحددة</p>
+            <p className="text-gray-400 text-lg">لا توجد منتجات تطابق الفلاتر المحددة</p>
           </div>
         ) : (
           sortedProducts.map((product) => (

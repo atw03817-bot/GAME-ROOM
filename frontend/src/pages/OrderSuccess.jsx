@@ -30,10 +30,112 @@ function OrderSuccess() {
       localStorage.removeItem('pendingOrderId');
       localStorage.removeItem('pendingCart');
       fetchOrder(orderIdFromQuery);
+    } else if (provider === 'tabby' && orderIdFromQuery) {
+      // For Tabby, confirm the order immediately since webhook might not work in localhost
+      confirmTabbyOrder(orderIdFromQuery);
     } else if (orderId) {
       fetchOrder();
     }
   }, [orderId, searchParams]);
+
+  const confirmTabbyOrder = async (orderIdFromQuery) => {
+    try {
+      setVerifyingPayment(true);
+      setLoading(true);
+      
+      console.log('🔍 Confirming Tabby order:', orderIdFromQuery);
+      
+      // Confirm order with backend (this will update stock and status)
+      const response = await api.post(`/orders/${orderIdFromQuery}/confirm`, {
+        paymentData: {
+          provider: 'tabby',
+          status: 'paid',
+          confirmedAt: new Date().toISOString()
+        }
+      });
+      
+      console.log('✅ Tabby order confirmation response:', response.data);
+      
+      if (response.data.success) {
+        setPaymentStatus('success');
+        
+        // Clear cart now that payment is successful
+        clearCart();
+        localStorage.removeItem('pendingOrderId');
+        localStorage.removeItem('pendingCart');
+        localStorage.removeItem('tabbySessionId');
+        
+        // Fetch order details
+        await fetchOrder(orderIdFromQuery);
+      } else {
+        // Order confirmation failed
+        console.log('❌ Order confirmation failed:', response.data);
+        console.log('❌ Response details:', {
+          status: response.status,
+          data: response.data,
+          message: response.data?.message
+        });
+        setPaymentStatus('failed');
+        setVerifyingPayment(false);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error('❌ Error confirming Tabby order:', error);
+      console.error('❌ Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      
+      // إذا كان الخطأ 400 والرسالة تقول "مؤكد مسبقاً"، اعتبره نجاح
+      if (error.response?.status === 400 && 
+          error.response?.data?.message?.includes('مؤكد مسبقاً')) {
+        console.log('ℹ️ Order already confirmed, treating as success');
+        setPaymentStatus('success');
+        clearCart();
+        localStorage.removeItem('pendingOrderId');
+        localStorage.removeItem('pendingCart');
+        localStorage.removeItem('tabbySessionId');
+        await fetchOrder(orderIdFromQuery);
+        return;
+      }
+      
+      // محاولة جلب الطلب مباشرة للتحقق من حالته
+      try {
+        console.log('🔍 Attempting to fetch order directly:', orderIdFromQuery);
+        const orderResponse = await api.get(`/orders/${orderIdFromQuery}`);
+        
+        if (orderResponse.data.success && orderResponse.data.order) {
+          const order = orderResponse.data.order;
+          console.log('📋 Order found:', {
+            status: order.status,
+            paymentStatus: order.paymentStatus,
+            paymentMethod: order.paymentMethod
+          });
+          
+          // إذا كان الطلب موجود وطريقة الدفع Tabby، اعتبره نجاح
+          if (order.paymentMethod === 'tabby') {
+            console.log('✅ Tabby order found, treating as success');
+            setPaymentStatus('success');
+            clearCart();
+            localStorage.removeItem('pendingOrderId');
+            localStorage.removeItem('pendingCart');
+            localStorage.removeItem('tabbySessionId');
+            setOrder(order);
+            setLoading(false);
+            setVerifyingPayment(false);
+            return;
+          }
+        }
+      } catch (fetchError) {
+        console.error('❌ Failed to fetch order:', fetchError);
+      }
+      
+      setPaymentStatus('error');
+      setVerifyingPayment(false);
+      setLoading(false);
+    }
+  };
 
   const verifyTapPayment = async (tapId, orderIdFromQuery) => {
     try {
@@ -90,11 +192,11 @@ function OrderSuccess() {
 
   if (verifyingPayment && !paymentStatus) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-[#111111]">
         <div className="text-center">
-          <FaSpinner className="animate-spin text-5xl text-primary-600 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">جاري التحقق من الدفع...</h2>
-          <p className="text-gray-600">الرجاء الانتظار</p>
+          <FaSpinner className="animate-spin text-5xl text-[#E08713] mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-white mb-2">جاري التحقق من الدفع...</h2>
+          <p className="text-gray-300">الرجاء الانتظار</p>
         </div>
       </div>
     );
@@ -121,19 +223,19 @@ function OrderSuccess() {
     };
 
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12">
+      <div className="min-h-screen flex items-center justify-center bg-[#111111] py-12">
         <div className="text-center max-w-md mx-auto px-4">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-red-100 rounded-full mb-4">
-            <svg className="w-12 h-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-red-900/20 rounded-full mb-4">
+            <svg className="w-12 h-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">فشلت عملية الدفع</h2>
-          <p className="text-gray-600 mb-2">لم تتم عملية الدفع بنجاح.</p>
-          <p className="text-sm text-gray-500 mb-6">لا تقلق، لم يتم خصم أي مبلغ من حسابك.</p>
+          <h2 className="text-2xl font-bold text-white mb-2">فشلت عملية الدفع</h2>
+          <p className="text-gray-300 mb-2">لم تتم عملية الدفع بنجاح.</p>
+          <p className="text-sm text-gray-400 mb-6">لا تقلق، لم يتم خصم أي مبلغ من حسابك.</p>
           
-          <div className="bg-primary-50 border border-primary-200 rounded-lg p-4 mb-6 text-right">
-            <p className="text-sm text-primary-800">
+          <div className="bg-[#E08713]/20 border border-[#E08713]/30 rounded-lg p-4 mb-6 text-right">
+            <p className="text-sm text-[#E08713]">
               💡 <strong>ملاحظة:</strong> تم الاحتفاظ بمنتجاتك في السلة. يمكنك المحاولة مرة أخرى.
             </p>
           </div>
@@ -141,13 +243,13 @@ function OrderSuccess() {
           <div className="flex flex-col gap-3">
             <button
               onClick={restoreCart}
-              className="bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors"
+              className="bg-gradient-to-r from-[#E08713] to-[#C72C15] text-white px-6 py-3 rounded-lg font-semibold hover:from-[#C72C15] hover:to-[#991b1b] transition-colors"
             >
               العودة للسلة والمحاولة مرة أخرى
             </button>
             <button
               onClick={() => navigate('/')}
-              className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
+              className="bg-[#2a2a2a] text-gray-300 px-6 py-3 rounded-lg font-semibold hover:bg-[#3a3a3a] transition-colors"
             >
               العودة للرئيسية
             </button>
@@ -159,10 +261,10 @@ function OrderSuccess() {
 
   if (loading && !paymentStatus) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-[#111111]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">جاري التحميل...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#E08713] mx-auto mb-4"></div>
+          <p className="text-gray-300">جاري التحميل...</p>
         </div>
       </div>
     );
@@ -171,18 +273,18 @@ function OrderSuccess() {
   // If no order and no payment status, something went wrong
   if (!order && !paymentStatus && !loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-[#111111]">
         <div className="text-center max-w-md mx-auto px-4">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-yellow-100 rounded-full mb-4">
-            <svg className="w-12 h-12 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-yellow-900/20 rounded-full mb-4">
+            <svg className="w-12 h-12 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">حدث خطأ</h2>
-          <p className="text-gray-600 mb-6">لم نتمكن من العثور على معلومات الطلب</p>
+          <h2 className="text-2xl font-bold text-white mb-2">حدث خطأ</h2>
+          <p className="text-gray-300 mb-6">لم نتمكن من العثور على معلومات الطلب</p>
           <button
             onClick={() => navigate('/')}
-            className="bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700"
+            className="bg-gradient-to-r from-[#E08713] to-[#C72C15] text-white px-6 py-3 rounded-lg font-semibold hover:from-[#C72C15] hover:to-[#991b1b]"
           >
             العودة للرئيسية
           </button>
@@ -192,42 +294,42 @@ function OrderSuccess() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-[#111111] py-12">
       <div className="container mx-auto px-4 max-w-2xl">
         {/* Success Icon */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4">
-            <FaCheckCircle className="text-5xl text-green-600" />
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-green-900/20 rounded-full mb-4">
+            <FaCheckCircle className="text-5xl text-green-400" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-white mb-2">
             تم إنشاء طلبك بنجاح!
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-300">
             شكراً لك! سنبدأ بتجهيز طلبك فوراً
           </p>
         </div>
 
         {/* Order Details Card */}
         {order && (
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <div className="border-b pb-4 mb-4">
-              <h2 className="text-xl font-semibold mb-2">تفاصيل الطلب</h2>
+          <div className="bg-[#1a1a1a] border border-[#C72C15] rounded-lg shadow-lg p-6 mb-6">
+            <div className="border-b border-[#C72C15]/30 pb-4 mb-4">
+              <h2 className="text-xl font-semibold mb-2 text-white">تفاصيل الطلب</h2>
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">رقم الطلب:</span>
-                <span className="font-mono font-semibold">#{order._id?.slice(-8)}</span>
+                <span className="text-gray-300">رقم الطلب:</span>
+                <span className="font-mono font-semibold text-white">#{order._id?.slice(-8)}</span>
               </div>
             </div>
 
             {/* Order Items */}
             <div className="mb-4">
-              <h3 className="font-semibold mb-3">المنتجات:</h3>
+              <h3 className="font-semibold mb-3 text-white">المنتجات:</h3>
               <div className="space-y-2">
                 {order.items?.map((item, index) => (
                   <div key={index} className="flex justify-between text-sm">
-                    <span className="text-gray-700">
+                    <span className="text-gray-300">
                       {item.product?.nameAr || 'منتج'} × {item.quantity}
                     </span>
-                    <span className="font-semibold">
+                    <span className="font-semibold text-white">
                       {(item.price * item.quantity).toFixed(2)} ر.س
                     </span>
                   </div>
@@ -236,33 +338,34 @@ function OrderSuccess() {
             </div>
 
             {/* Total */}
-            <div className="border-t pt-4">
+            <div className="border-t border-[#C72C15]/30 pt-4">
               <div className="flex justify-between items-center">
-                <span className="text-lg font-semibold">المجموع الكلي:</span>
-                <span className="text-2xl font-bold text-primary-600">
+                <span className="text-lg font-semibold text-white">المجموع الكلي:</span>
+                <span className="text-2xl font-bold text-[#E08713]">
                   {order.total?.toFixed(2)} ر.س
                 </span>
               </div>
             </div>
 
             {/* Payment Method */}
-            <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+            <div className="mt-4 p-3 bg-[#2a2a2a] rounded-lg">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">طريقة الدفع:</span>
-                <span className="font-semibold">
+                <span className="text-gray-300">طريقة الدفع:</span>
+                <span className="font-semibold text-white">
                   {order.paymentMethod === 'cod' && 'الدفع عند الاستلام'}
                   {order.paymentMethod === 'tap' && 'Tap Payments - بطاقة ائتمانية'}
                   {order.paymentMethod === 'tamara' && 'تمارا - اشتري الآن وادفع لاحقاً'}
-                  {!['cod', 'tap', 'tamara'].includes(order.paymentMethod) && order.paymentMethod}
+                  {order.paymentMethod === 'tabby' && 'تابي - ادفع على 4 دفعات'}
+                  {!['cod', 'tap', 'tamara', 'tabby'].includes(order.paymentMethod) && order.paymentMethod}
                 </span>
               </div>
               {order.paymentStatus && (
                 <div className="flex justify-between text-sm mt-2">
-                  <span className="text-gray-600">حالة الدفع:</span>
+                  <span className="text-gray-300">حالة الدفع:</span>
                   <span className={`font-semibold ${
-                    order.paymentStatus === 'PAID' ? 'text-green-600' : 
-                    order.paymentStatus === 'PENDING' ? 'text-yellow-600' : 
-                    'text-gray-600'
+                    order.paymentStatus === 'PAID' ? 'text-green-400' : 
+                    order.paymentStatus === 'PENDING' ? 'text-yellow-400' : 
+                    'text-gray-300'
                   }`}>
                     {order.paymentStatus === 'PAID' && '✅ مدفوع'}
                     {order.paymentStatus === 'PENDING' && '⏳ قيد الانتظار'}
@@ -276,28 +379,28 @@ function OrderSuccess() {
         )}
 
         {/* Next Steps */}
-        <div className="bg-primary-50 rounded-lg p-6 mb-6">
-          <h3 className="font-semibold mb-4 text-primary-900">الخطوات القادمة:</h3>
+        <div className="bg-[#E08713]/20 border border-[#E08713]/30 rounded-lg p-6 mb-6">
+          <h3 className="font-semibold mb-4 text-[#E08713]">الخطوات القادمة:</h3>
           <div className="space-y-3">
             <div className="flex items-start gap-3">
-              <FaBox className="text-primary-600 mt-1 flex-shrink-0" />
+              <FaBox className="text-[#E08713] mt-1 flex-shrink-0" />
               <div>
-                <p className="font-medium text-primary-900">تجهيز الطلب</p>
-                <p className="text-sm text-primary-700">سنبدأ بتجهيز طلبك خلال 24 ساعة</p>
+                <p className="font-medium text-white">تجهيز الطلب</p>
+                <p className="text-sm text-gray-300">سنبدأ بتجهيز طلبك خلال 24 ساعة</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <FaTruck className="text-primary-600 mt-1 flex-shrink-0" />
+              <FaTruck className="text-[#E08713] mt-1 flex-shrink-0" />
               <div>
-                <p className="font-medium text-primary-900">الشحن</p>
-                <p className="text-sm text-primary-700">سيتم شحن طلبك خلال 2-3 أيام عمل</p>
+                <p className="font-medium text-white">الشحن</p>
+                <p className="text-sm text-gray-300">سيتم شحن طلبك خلال 2-3 أيام عمل</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <FaCheckCircle className="text-primary-600 mt-1 flex-shrink-0" />
+              <FaCheckCircle className="text-[#E08713] mt-1 flex-shrink-0" />
               <div>
-                <p className="font-medium text-primary-900">التسليم</p>
-                <p className="text-sm text-primary-700">سيصلك الطلب في الموعد المحدد</p>
+                <p className="font-medium text-white">التسليم</p>
+                <p className="text-sm text-gray-300">سيصلك الطلب في الموعد المحدد</p>
               </div>
             </div>
           </div>
@@ -306,14 +409,14 @@ function OrderSuccess() {
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-3">
           <button
-            onClick={() => navigate('/orders')}
-            className="flex-1 bg-primary-600 text-white py-3 rounded-lg font-semibold hover:bg-primary-700 transition"
+            onClick={() => navigate('/account')}
+            className="flex-1 bg-gradient-to-r from-[#E08713] to-[#C72C15] text-white py-3 rounded-lg font-semibold hover:from-[#C72C15] hover:to-[#991b1b] transition"
           >
             عرض طلباتي
           </button>
           <button
             onClick={() => navigate('/')}
-            className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition flex items-center justify-center gap-2"
+            className="flex-1 bg-[#2a2a2a] text-gray-300 py-3 rounded-lg font-semibold hover:bg-[#3a3a3a] transition flex items-center justify-center gap-2"
           >
             <FaHome />
             العودة للرئيسية
@@ -321,9 +424,9 @@ function OrderSuccess() {
         </div>
 
         {/* Contact Info */}
-        <div className="mt-6 text-center text-sm text-gray-600">
+        <div className="mt-6 text-center text-sm text-gray-400">
           <p>هل لديك أسئلة؟ تواصل معنا على</p>
-          <p className="font-semibold text-primary-600 mt-1">support@example.com</p>
+          <p className="font-semibold text-[#E08713] mt-1">support@example.com</p>
         </div>
       </div>
     </div>

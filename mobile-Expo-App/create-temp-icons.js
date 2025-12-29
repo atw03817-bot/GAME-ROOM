@@ -24,8 +24,8 @@ function createTempIcon(size, filename) {
     <circle cx="80" cy="80" r="8" fill="white" opacity="0.9"/>
   </g>
   
-  <!-- نص أبعاد التواصل -->
-  <text x="50%" y="85%" font-family="Arial, sans-serif" font-size="${size * 0.08}" fill="white" text-anchor="middle" font-weight="bold">أبعاد التواصل</text>
+  <!-- نص جيم روم -->
+  <text x="50%" y="85%" font-family="Arial, sans-serif" font-size="${size * 0.08}" fill="white" text-anchor="middle" font-weight="bold">جيم روم</text>
 </svg>`;
 
   const assetsDir = path.join(__dirname, 'assets');

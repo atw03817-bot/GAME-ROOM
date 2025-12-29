@@ -205,4 +205,28 @@ router.delete('/:id', auth, adminAuth, async (req, res) => {
   }
 });
 
+// Update sales counter
+router.post('/:id/add-to-cart', async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    
+    if (!product) {
+      return res.status(404).json({ message: 'المنتج غير موجود' });
+    }
+    
+    // زيادة عداد المبيعات مرة واحدة فقط لكل عملية إضافة (بغض النظر عن الكمية)
+    product.sales += 1;
+    await product.save();
+    
+    res.json({ 
+      success: true, 
+      message: 'تم تحديث عداد المبيعات',
+      sales: product.sales 
+    });
+  } catch (error) {
+    console.error('Error updating sales counter:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
 export default router;

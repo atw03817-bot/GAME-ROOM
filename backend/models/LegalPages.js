@@ -147,7 +147,7 @@ const legalPagesSchema = new mongoose.Schema({
     email: { type: String, default: 'info@store.com' },
     phone: { type: String, default: '+966 50 000 0000' },
     address: { type: String, default: 'الرياض، المملكة العربية السعودية' },
-    companyName: { type: String, default: 'أبعاد التواصل' },
+    companyName: { type: String, default: 'جيم روم' },
     workingHours: { type: String, default: 'السبت - الخميس: 9 صباحاً - 6 مساءً' },
     supportDescription: { type: String, default: 'متاح على مدار الساعة عبر الواتساب والبريد الإلكتروني' }
   },

@@ -17,7 +17,7 @@ function MaintenanceRequest() {
   
   const [formData, setFormData] = useState({
     // معلومات الجهاز
-    brand: 'HOTWAV',
+    brand: '',
     model: '',
     color: '',
     storage: '',
@@ -384,7 +384,7 @@ function MaintenanceRequest() {
         
         // إعادة تعيين النموذج
         setFormData({
-          brand: 'HOTWAV', model: '', color: '', storage: '', serialNumber: '', purchaseDate: '',
+          brand: '', model: '', color: '', storage: '', serialNumber: '', purchaseDate: '',
           hasPassword: false, passwordType: 'none', passwordValue: '', patternValue: '',
           category: '', subCategory: '', description: '', symptoms: [], priority: 'normal',
           customerName: '', customerPhone: '', customerEmail: '', customerAddress: '',
@@ -410,38 +410,38 @@ function MaintenanceRequest() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 maintenance-clean" dir="rtl">
+    <div className="min-h-screen bg-[#111111] py-8 maintenance-clean" dir="rtl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mb-4">
-            <FiTool className="w-8 h-8 text-primary-600" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-[#E08713] to-[#C72C15] rounded-full mb-4">
+            <FiTool className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">🔧 صيانة أجهزة HOTWAV</h1>
-          <p className="text-gray-600">املأ النموذج أدناه وسنتواصل معك خلال 24 ساعة</p>
+          <h1 className="text-3xl font-bold text-white mb-2">🔧 صيانة الأجهزة الذكية</h1>
+          <p className="text-gray-300">املأ النموذج أدناه وسنتواصل معك خلال 24 ساعة</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* معلومات الجهاز */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-[#111111] border border-[#C72C15] rounded-2xl shadow-sm p-6">
             <div className="flex items-center gap-3 mb-6">
-              <FiSmartphone className="w-6 h-6 text-primary-600" />
-              <h2 className="text-xl font-bold text-gray-900">📱 معلومات جهاز HOTWAV</h2>
+              <FiSmartphone className="w-6 h-6 text-[#E08713]" />
+              <h2 className="text-xl font-bold text-white">📱 معلومات الجهاز</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  نوع الجهاز <span className="text-red-500">*</span>
+                <label className="block text-sm font-medium text-white mb-2">
+                  نوع الجهاز <span className="text-red-400">*</span>
                 </label>
                 {loadingProducts ? (
-                  <div className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm">
+                  <div className="w-full px-3 py-2 border border-[#C72C15] bg-[#1a1a1a] text-gray-300 rounded-lg text-sm">
                     جاري تحميل قائمة الأجهزة...
                   </div>
                 ) : (
                   <select
                     value={formData.model}
                     onChange={(e) => handleInputChange('model', e.target.value)}
-                    className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white text-gray-900"
+                    className="w-full px-3 py-3 border border-[#C72C15] bg-[#111111] text-white rounded-lg focus:ring-2 focus:ring-[#E08713] focus:border-[#E08713]"
                     required
                   >
                     <option value="">اختر نوع الجهاز</option>
@@ -458,11 +458,11 @@ function MaintenanceRequest() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">اللون</label>
+                <label className="block text-sm font-medium text-white mb-2">اللون</label>
                 <select
                   value={formData.color}
                   onChange={(e) => handleInputChange('color', e.target.value)}
-                  className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white text-gray-900"
+                  className="w-full px-3 py-3 border border-[#C72C15] bg-[#111111] text-white rounded-lg focus:ring-2 focus:ring-[#E08713] focus:border-[#E08713]"
                 >
                   <option value="">اختر اللون</option>
                   {colorOptions.map(color => (
@@ -472,11 +472,11 @@ function MaintenanceRequest() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">السعة</label>
+                <label className="block text-sm font-medium text-white mb-2">السعة</label>
                 <select
                   value={formData.storage}
                   onChange={(e) => handleInputChange('storage', e.target.value)}
-                  className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white text-gray-900"
+                  className="w-full px-3 py-3 border border-[#C72C15] bg-[#111111] text-white rounded-lg focus:ring-2 focus:ring-[#E08713] focus:border-[#E08713]"
                 >
                   <option value="">اختر السعة</option>
                   {storageOptions.map(storage => (
@@ -487,34 +487,34 @@ function MaintenanceRequest() {
             </div>
 
             {/* معلومات الجهاز والحماية */}
-            <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="mt-6 p-4 bg-yellow-900/20 border border-yellow-600/30 rounded-lg">
               <div className="flex items-center gap-2 mb-4">
-                <FiAlertCircle className="w-5 h-5 text-yellow-600" />
-                <h3 className="font-semibold text-yellow-800">🔢 معلومات الجهاز (مطلوبة)</h3>
+                <FiAlertCircle className="w-5 h-5 text-yellow-400" />
+                <h3 className="font-semibold text-yellow-300">🔢 معلومات الجهاز (مطلوبة)</h3>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    السيريال نمبر <span className="text-red-500">*</span>
+                  <label className="block text-sm font-medium text-white mb-2">
+                    السيريال نمبر <span className="text-red-400">*</span>
                   </label>
                   <input
                     type="text"
                     value={formData.serialNumber}
                     onChange={(e) => handleInputChange('serialNumber', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono"
-                    placeholder="مثال: HW2024XXXXX"
+                    className="w-full px-4 py-3 border border-[#C72C15] bg-[#111111] text-white rounded-lg focus:ring-2 focus:ring-[#E08713] focus:border-[#E08713] font-mono"
+                    placeholder="مثال: ABC2024XXXXX"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">تاريخ الشراء (اختياري)</label>
+                  <label className="block text-sm font-medium text-white mb-2">تاريخ الشراء (اختياري)</label>
                   <input
                     type="date"
                     value={formData.purchaseDate}
                     onChange={(e) => handleInputChange('purchaseDate', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent appearance-none"
+                    className="w-full px-4 py-3 border border-[#C72C15] bg-[#111111] text-white rounded-lg focus:ring-2 focus:ring-[#E08713] focus:border-[#E08713] appearance-none"
                     style={{ 
                       WebkitAppearance: 'none',
                       MozAppearance: 'textfield',
@@ -526,13 +526,13 @@ function MaintenanceRequest() {
               </div>
 
               {/* كلمة السر */}
-              <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h4 className="font-semibold text-blue-800 mb-3">🔐 كلمة سر الجهاز <span className="text-red-500">*</span></h4>
+              <div className="mt-6 p-4 bg-blue-900/20 border border-blue-600/30 rounded-lg">
+                <h4 className="font-semibold text-blue-300 mb-3">🔐 كلمة سر الجهاز <span className="text-red-400">*</span></h4>
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      حالة الحماية <span className="text-red-500">*</span>
+                    <label className="block text-sm font-medium text-white mb-2">
+                      حالة الحماية <span className="text-red-400">*</span>
                     </label>
                     <div className="space-y-2">
                       <label className="flex items-center gap-2 cursor-pointer">
@@ -547,9 +547,9 @@ function MaintenanceRequest() {
                               handleInputChange('passwordType', 'text')
                             }
                           }}
-                          className="text-primary-600 focus:ring-primary-500"
+                          className="text-[#E08713] focus:ring-[#E08713] bg-[#111111] border-[#C72C15]"
                         />
-                        <span className="text-sm text-gray-700">الجهاز محمي بكلمة سر أو نمط</span>
+                        <span className="text-sm text-gray-300">الجهاز محمي بكلمة سر أو نمط</span>
                       </label>
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input
@@ -563,9 +563,9 @@ function MaintenanceRequest() {
                             handleInputChange('passwordValue', '')
                             handleInputChange('patternValue', '')
                           }}
-                          className="text-primary-600 focus:ring-primary-500"
+                          className="text-[#E08713] focus:ring-[#E08713] bg-[#111111] border-[#C72C15]"
                         />
-                        <span className="text-sm text-gray-700">الجهاز غير محمي</span>
+                        <span className="text-sm text-gray-300">الجهاز غير محمي</span>
                       </label>
                     </div>
                   </div>
@@ -573,8 +573,8 @@ function MaintenanceRequest() {
                   {formData.hasPassword && (
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          نوع الحماية <span className="text-red-500">*</span>
+                        <label className="block text-sm font-medium text-white mb-2">
+                          نوع الحماية <span className="text-red-400">*</span>
                         </label>
                         <div className="space-y-2">
                           <label className="flex items-center gap-2 cursor-pointer">
@@ -587,9 +587,9 @@ function MaintenanceRequest() {
                                 handleInputChange('passwordType', e.target.value)
                                 handleInputChange('patternValue', '')
                               }}
-                              className="text-primary-600 focus:ring-primary-500"
+                              className="text-[#E08713] focus:ring-[#E08713] bg-[#111111] border-[#C72C15]"
                             />
-                            <span className="text-sm text-gray-700">كلمة سر نصية أو رقم PIN</span>
+                            <span className="text-sm text-gray-300">كلمة سر نصية أو رقم PIN</span>
                           </label>
                           <label className="flex items-center gap-2 cursor-pointer">
                             <input
@@ -601,23 +601,23 @@ function MaintenanceRequest() {
                                 handleInputChange('passwordType', e.target.value)
                                 handleInputChange('passwordValue', '')
                               }}
-                              className="text-primary-600 focus:ring-primary-500"
+                              className="text-[#E08713] focus:ring-[#E08713] bg-[#111111] border-[#C72C15]"
                             />
-                            <span className="text-sm text-gray-700">نمط الفتح</span>
+                            <span className="text-sm text-gray-300">نمط الفتح</span>
                           </label>
                         </div>
                       </div>
 
                       {formData.passwordType === 'text' && (
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            كلمة السر أو رقم PIN <span className="text-red-500">*</span>
+                          <label className="block text-sm font-medium text-white mb-2">
+                            كلمة السر أو رقم PIN <span className="text-red-400">*</span>
                           </label>
                           <input
                             type="password"
                             value={formData.passwordValue}
                             onChange={(e) => handleInputChange('passwordValue', e.target.value)}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-[#C72C15] bg-[#111111] text-white rounded-lg focus:ring-2 focus:ring-[#E08713] focus:border-[#E08713]"
                             placeholder="أدخل كلمة السر أو رقم PIN"
                             required
                           />
@@ -643,21 +643,21 @@ function MaintenanceRequest() {
           </div>
 
           {/* وصف المشكلة */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-[#111111] border border-[#C72C15] rounded-2xl shadow-sm p-6">
             <div className="flex items-center gap-3 mb-6">
-              <FiAlertCircle className="w-6 h-6 text-red-600" />
-              <h2 className="text-xl font-bold text-gray-900">⚠️ وصف المشكلة</h2>
+              <FiAlertCircle className="w-6 h-6 text-[#E08713]" />
+              <h2 className="text-xl font-bold text-white">⚠️ وصف المشكلة</h2>
             </div>
 
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  نوع المشكلة <span className="text-red-500">*</span>
+                <label className="block text-sm font-medium text-white mb-2">
+                  نوع المشكلة <span className="text-red-400">*</span>
                 </label>
                 <select
                   value={formData.category}
                   onChange={(e) => handleInputChange('category', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-[#C72C15] bg-[#111111] text-white rounded-lg focus:ring-2 focus:ring-[#E08713] focus:border-[#E08713]"
                   required
                 >
                   <option value="">اختر نوع المشكلة</option>
@@ -669,11 +669,11 @@ function MaintenanceRequest() {
 
               {formData.category && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">المشكلة التفصيلية</label>
+                  <label className="block text-sm font-medium text-white mb-2">المشكلة التفصيلية</label>
                   <select
                     value={formData.subCategory}
                     onChange={(e) => handleInputChange('subCategory', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-[#C72C15] bg-[#111111] text-white rounded-lg focus:ring-2 focus:ring-[#E08713] focus:border-[#E08713]"
                   >
                     <option value="">اختر المشكلة التفصيلية</option>
                     {issueCategories.find(cat => cat.value === formData.category)?.subCategories.map(sub => (
@@ -684,7 +684,7 @@ function MaintenanceRequest() {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">الأعراض (يمكن اختيار أكثر من واحد)</label>
+                <label className="block text-sm font-medium text-white mb-3">الأعراض (يمكن اختيار أكثر من واحد)</label>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {symptoms.map(symptom => (
                     <label key={symptom} className="flex items-center gap-2 cursor-pointer">
@@ -692,23 +692,23 @@ function MaintenanceRequest() {
                         type="checkbox"
                         checked={formData.symptoms.includes(symptom)}
                         onChange={() => handleSymptomToggle(symptom)}
-                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                        className="rounded border-[#C72C15] text-[#E08713] focus:ring-[#E08713] bg-[#111111]"
                       />
-                      <span className="text-sm text-gray-700">{symptom}</span>
+                      <span className="text-sm text-gray-300">{symptom}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  وصف تفصيلي للمشكلة <span className="text-red-500">*</span>
+                <label className="block text-sm font-medium text-white mb-2">
+                  وصف تفصيلي للمشكلة <span className="text-red-400">*</span>
                 </label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-[#C72C15] bg-[#111111] text-white rounded-lg focus:ring-2 focus:ring-[#E08713] focus:border-[#E08713]"
                   placeholder="اشرح المشكلة بالتفصيل... متى بدأت؟ ماذا حدث؟ هل جربت حلول؟"
                   required
                 />
@@ -716,14 +716,14 @@ function MaintenanceRequest() {
 
               {/* رفع الصور */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+                <label className="block text-sm font-medium text-white mb-3">
                   صور الجهاز (اختياري)
-                  <span className="text-xs text-gray-500 block mt-1">
+                  <span className="text-xs text-gray-400 block mt-1">
                     يمكنك رفع حتى 5 صور للجهاز (أمام، خلف، جانب، إلخ)
                   </span>
                 </label>
                 
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <div className="border-2 border-dashed border-[#C72C15] rounded-lg p-6 text-center">
                   <input
                     type="file"
                     multiple
@@ -734,18 +734,18 @@ function MaintenanceRequest() {
                   />
                   <label htmlFor="image-upload" className="cursor-pointer">
                     <FiCamera className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600 mb-2">اضغط لرفع الصور</p>
-                    <p className="text-xs text-gray-500">PNG, JPG حتى 5MB لكل صورة</p>
+                    <p className="text-gray-300 mb-2">اضغط لرفع الصور</p>
+                    <p className="text-xs text-gray-400">PNG, JPG حتى 5MB لكل صورة</p>
                   </label>
                 </div>
 
                 {images.length > 0 && (
                   <div className="mt-4">
                     <div className="flex items-center justify-between mb-3">
-                      <p className="text-sm font-medium text-gray-700">
+                      <p className="text-sm font-medium text-white">
                         الصور المرفوعة ({images.length}/5)
                       </p>
-                      <p className={`text-xs text-gray-600`}>
+                      <p className={`text-xs text-gray-300`}>
                         {images.length > 0 ? `✅ تم رفع ${images.length} صور` : 'لم يتم رفع صور بعد'}
                       </p>
                     </div>
@@ -755,7 +755,7 @@ function MaintenanceRequest() {
                           <img
                             src={image.preview}
                             alt={`صورة ${index + 1}`}
-                            className="w-full h-24 object-cover rounded-lg border border-gray-200"
+                            className="w-full h-24 object-cover rounded-lg border border-[#C72C15]"
                           />
                           <button
                             type="button"
@@ -774,31 +774,31 @@ function MaintenanceRequest() {
           </div>
 
           {/* معلومات التواصل */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-[#111111] border border-[#C72C15] rounded-2xl shadow-sm p-6">
             <div className="flex items-center gap-3 mb-6">
-              <FiUser className="w-6 h-6 text-blue-600" />
-              <h2 className="text-xl font-bold text-gray-900">📞 معلومات التواصل</h2>
+              <FiUser className="w-6 h-6 text-[#E08713]" />
+              <h2 className="text-xl font-bold text-white">📞 معلومات التواصل</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  الاسم الكامل <span className="text-red-500">*</span>
+                <label className="block text-sm font-medium text-white mb-2">
+                  الاسم الكامل <span className="text-red-400">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.customerName}
                   onChange={(e) => handleInputChange('customerName', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-[#C72C15] bg-[#111111] text-white rounded-lg focus:ring-2 focus:ring-[#E08713] focus:border-[#E08713]"
                   placeholder="أدخل اسمك الكامل"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  رقم الجوال <span className="text-red-500">*</span>
-                  <span className="text-xs text-gray-500 block mt-1">
+                <label className="block text-sm font-medium text-white mb-2">
+                  رقم الجوال <span className="text-red-400">*</span>
+                  <span className="text-xs text-gray-400 block mt-1">
                     مأخوذ من حسابك المسجل - لا يمكن تغييره
                   </span>
                 </label>
@@ -806,32 +806,32 @@ function MaintenanceRequest() {
                   type="tel"
                   value={formData.customerPhone}
                   readOnly
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
+                  className="w-full px-4 py-3 border border-[#C72C15] bg-[#1a1a1a] text-gray-300 rounded-lg cursor-not-allowed"
                   placeholder="سيتم ملؤه تلقائياً من حسابك"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">البريد الإلكتروني (اختياري)</label>
+                <label className="block text-sm font-medium text-white mb-2">البريد الإلكتروني (اختياري)</label>
                 <input
                   type="email"
                   value={formData.customerEmail}
                   onChange={(e) => handleInputChange('customerEmail', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-[#C72C15] bg-[#111111] text-white rounded-lg focus:ring-2 focus:ring-[#E08713] focus:border-[#E08713]"
                   placeholder="example@email.com"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  العنوان <span className="text-red-500">*</span>
+                <label className="block text-sm font-medium text-white mb-2">
+                  العنوان <span className="text-red-400">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.customerAddress}
                   onChange={(e) => handleInputChange('customerAddress', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-[#C72C15] bg-[#111111] text-white rounded-lg focus:ring-2 focus:ring-[#E08713] focus:border-[#E08713]"
                   placeholder="المدينة، الحي، الشارع"
                   required
                 />
@@ -840,45 +840,45 @@ function MaintenanceRequest() {
           </div>
 
           {/* معلومات الشحن */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-[#111111] border border-[#C72C15] rounded-2xl shadow-sm p-6">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-6 h-6 text-blue-600">🚚</div>
-              <h2 className="text-xl font-bold text-gray-900">معلومات الشحن</h2>
+              <div className="w-6 h-6 text-[#E08713]">🚚</div>
+              <h2 className="text-xl font-bold text-white">معلومات الشحن</h2>
             </div>
 
             {/* سؤال هل يحتاج شحن */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <label className="block text-sm font-medium text-white mb-3">
                 هل تحتاج خدمة الشحن؟ (للعملاء خارج الرياض)
               </label>
               <div className="space-y-3">
-                <label className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                <label className="flex items-center gap-3 p-4 border border-[#C72C15] rounded-lg cursor-pointer hover:bg-[#1a1a1a]">
                   <input
                     type="radio"
                     name="needsShipping"
                     value="false"
                     checked={!formData.needsShipping}
                     onChange={(e) => handleInputChange('needsShipping', e.target.value === 'true')}
-                    className="text-primary-600 focus:ring-primary-500"
+                    className="text-[#E08713] focus:ring-[#E08713] bg-[#111111] border-[#C72C15]"
                   />
                   <div>
-                    <div className="font-medium text-gray-900">لا، سأحضر للمحل بنفسي</div>
-                    <div className="text-sm text-gray-600">مجاني - يمكنك زيارة المحل لتسليم واستلام الجهاز</div>
+                    <div className="font-medium text-white">لا، سأحضر للمحل بنفسي</div>
+                    <div className="text-sm text-gray-300">مجاني - يمكنك زيارة المحل لتسليم واستلام الجهاز</div>
                   </div>
                 </label>
 
-                <label className="flex items-center gap-3 p-4 border border-blue-200 rounded-lg cursor-pointer hover:bg-blue-50">
+                <label className="flex items-center gap-3 p-4 border border-[#E08713] rounded-lg cursor-pointer hover:bg-[#1a1a1a]">
                   <input
                     type="radio"
                     name="needsShipping"
                     value="true"
                     checked={formData.needsShipping}
                     onChange={(e) => handleInputChange('needsShipping', e.target.value === 'true')}
-                    className="text-blue-600 focus:ring-blue-500"
+                    className="text-[#E08713] focus:ring-[#E08713] bg-[#111111] border-[#C72C15]"
                   />
                   <div>
-                    <div className="font-medium text-gray-900">نعم، أحتاج خدمة الشحن</div>
-                    <div className="text-sm text-gray-600">سنرسل لك بوليصة الشحن وستتواصل الشركة معك</div>
+                    <div className="font-medium text-white">نعم، أحتاج خدمة الشحن</div>
+                    <div className="text-sm text-gray-300">سنرسل لك بوليصة الشحن وستتواصل الشركة معك</div>
                   </div>
                 </label>
               </div>
@@ -888,14 +888,14 @@ function MaintenanceRequest() {
             {formData.needsShipping && (
               <>
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    اختر شركة الشحن <span className="text-red-500">*</span>
+                  <label className="block text-sm font-medium text-white mb-3">
+                    اختر شركة الشحن <span className="text-red-400">*</span>
                   </label>
                   <div className="space-y-3">
                     {loadingShipping ? (
                       <div className="text-center py-4">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600 mx-auto"></div>
-                        <p className="text-sm text-gray-600 mt-2">جاري تحميل شركات الشحن...</p>
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#E08713] mx-auto"></div>
+                        <p className="text-sm text-gray-300 mt-2">جاري تحميل شركات الشحن...</p>
                       </div>
                     ) : shippingProviders.length > 0 ? (
                       shippingProviders.map((provider) => (
@@ -903,8 +903,8 @@ function MaintenanceRequest() {
                           key={provider._id || provider.id}
                           className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition ${
                             formData.shippingProvider === (provider._id || provider.id)
-                              ? 'border-primary-500 bg-primary-50' 
-                              : 'border-gray-200 hover:border-gray-300'
+                              ? 'border-[#E08713] bg-[#1a1a1a]' 
+                              : 'border-[#C72C15] hover:border-[#E08713]'
                           }`}
                         >
                           <div className="flex items-center gap-3">
@@ -914,22 +914,22 @@ function MaintenanceRequest() {
                               value={provider._id || provider.id}
                               checked={formData.shippingProvider === (provider._id || provider.id)}
                               onChange={(e) => handleShippingProviderChange(e.target.value)}
-                              className="text-primary-600 focus:ring-primary-500"
+                              className="text-[#E08713] focus:ring-[#E08713] bg-[#111111] border-[#C72C15]"
                             />
                             <div>
-                              <div className="font-medium text-gray-900">
+                              <div className="font-medium text-white">
                                 {provider.displayName || provider.nameAr || provider.name}
                               </div>
-                              <div className="text-sm text-gray-600">
+                              <div className="text-sm text-gray-300">
                                 {provider.description || 'خدمة شحن موثوقة'}
                               </div>
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="font-bold text-primary-600">
+                            <div className="font-bold text-[#E08713]">
                               {calculatingCost === (provider._id || provider.id) ? (
                                 <div className="flex items-center gap-2">
-                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-600"></div>
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#E08713]"></div>
                                   <span>جاري الحساب...</span>
                                 </div>
                               ) : formData.shippingProvider === (provider._id || provider.id) && formData.shippingCost ? (
@@ -938,12 +938,12 @@ function MaintenanceRequest() {
                                 'اختر للحساب'
                               )}
                             </div>
-                            <div className="text-xs text-gray-500">رسوم الشحن</div>
+                            <div className="text-xs text-gray-400">رسوم الشحن</div>
                           </div>
                         </label>
                       ))
                     ) : (
-                      <div className="text-center py-4 text-gray-500">
+                      <div className="text-center py-4 text-gray-400">
                         <p>لا توجد شركات شحن متاحة حالياً</p>
                         <p className="text-sm">يرجى المحاولة لاحقاً أو التواصل مع الدعم</p>
                       </div>
@@ -953,13 +953,13 @@ function MaintenanceRequest() {
 
                 {/* عنوان الاستلام */}
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    عنوان استلام الجهاز <span className="text-red-500">*</span>
+                  <label className="block text-sm font-medium text-white mb-2">
+                    عنوان استلام الجهاز <span className="text-red-400">*</span>
                   </label>
                   <textarea
                     value={formData.pickupAddress}
                     onChange={(e) => handleInputChange('pickupAddress', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-[#C72C15] bg-[#111111] text-white rounded-lg focus:ring-2 focus:ring-[#E08713] focus:border-[#E08713]"
                     placeholder="العنوان التفصيلي لاستلام الجهاز من منزلك أو مكتبك..."
                     rows="3"
                     required={formData.needsShipping}
@@ -967,12 +967,12 @@ function MaintenanceRequest() {
                 </div>
 
                 {/* تنبيه مهم */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="bg-blue-900/20 border border-blue-600/30 rounded-lg p-4">
                   <div className="flex items-start gap-3">
-                    <FiAlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
+                    <FiAlertCircle className="w-5 h-5 text-blue-400 mt-0.5" />
                     <div>
-                      <h4 className="font-medium text-blue-900 mb-1">معلومات مهمة عن الشحن</h4>
-                      <ul className="text-sm text-blue-800 space-y-1">
+                      <h4 className="font-medium text-blue-300 mb-1">معلومات مهمة عن الشحن</h4>
+                      <ul className="text-sm text-blue-200 space-y-1">
                         <li>• سنرسل لك بوليصة الشحن عبر الواتساب أو الإيميل</li>
                         <li>• ستتواصل شركة الشحن معك لتحديد موعد الاستلام</li>
                         <li>• تأكد من تغليف الجهاز جيداً قبل التسليم</li>
@@ -987,63 +987,63 @@ function MaintenanceRequest() {
           </div>
 
           {/* الأولوية */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">⚡ أولوية الطلب</h3>
+          <div className="bg-[#111111] border border-[#C72C15] rounded-2xl shadow-sm p-6">
+            <h3 className="text-lg font-bold text-white mb-4">⚡ أولوية الطلب</h3>
             
             <div className="space-y-3">
-              <label className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+              <label className="flex items-center gap-3 p-4 border border-[#C72C15] rounded-lg cursor-pointer hover:bg-[#1a1a1a]">
                 <input
                   type="radio"
                   name="priority"
                   value="normal"
                   checked={formData.priority === 'normal'}
                   onChange={(e) => handleInputChange('priority', e.target.value)}
-                  className="text-primary-600 focus:ring-primary-500"
+                  className="text-[#E08713] focus:ring-[#E08713] bg-[#111111] border-[#C72C15]"
                 />
                 <div>
-                  <div className="font-medium text-gray-900">عادي (3-5 أيام عمل)</div>
-                  <div className="text-sm text-gray-600">مجاني - الخيار الافتراضي</div>
+                  <div className="font-medium text-white">عادي (3-5 أيام عمل)</div>
+                  <div className="text-sm text-gray-300">مجاني - الخيار الافتراضي</div>
                 </div>
               </label>
 
-              <label className="flex items-center gap-3 p-4 border border-orange-200 rounded-lg cursor-pointer hover:bg-orange-50">
+              <label className="flex items-center gap-3 p-4 border border-orange-600/30 rounded-lg cursor-pointer hover:bg-orange-900/20">
                 <input
                   type="radio"
                   name="priority"
                   value="urgent"
                   checked={formData.priority === 'urgent'}
                   onChange={(e) => handleInputChange('priority', e.target.value)}
-                  className="text-orange-600 focus:ring-orange-500"
+                  className="text-orange-400 focus:ring-orange-400 bg-[#111111] border-[#C72C15]"
                 />
                 <div>
-                  <div className="font-medium text-gray-900">عاجل (1-2 يوم عمل)</div>
-                  <div className="text-sm text-gray-600">رسوم إضافية: +50 ريال</div>
+                  <div className="font-medium text-white">عاجل (1-2 يوم عمل)</div>
+                  <div className="text-sm text-gray-300">رسوم إضافية: +50 ريال</div>
                 </div>
               </label>
 
-              <label className="flex items-center gap-3 p-4 border border-red-200 rounded-lg cursor-pointer hover:bg-red-50">
+              <label className="flex items-center gap-3 p-4 border border-red-600/30 rounded-lg cursor-pointer hover:bg-red-900/20">
                 <input
                   type="radio"
                   name="priority"
                   value="emergency"
                   checked={formData.priority === 'emergency'}
                   onChange={(e) => handleInputChange('priority', e.target.value)}
-                  className="text-red-600 focus:ring-red-500"
+                  className="text-red-400 focus:ring-red-400 bg-[#111111] border-[#C72C15]"
                 />
                 <div>
-                  <div className="font-medium text-gray-900">طارئ (نفس اليوم)</div>
-                  <div className="text-sm text-gray-600">رسوم إضافية: +100 ريال</div>
+                  <div className="font-medium text-white">طارئ (نفس اليوم)</div>
+                  <div className="text-sm text-gray-300">رسوم إضافية: +100 ريال</div>
                 </div>
               </label>
             </div>
           </div>
 
           {/* زر الإرسال */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-[#111111] border border-[#C72C15] rounded-2xl shadow-sm p-6">
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-[#E08713] to-[#C72C15] hover:from-[#C72C15] hover:to-[#991b1b] text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>
@@ -1053,12 +1053,12 @@ function MaintenanceRequest() {
               ) : (
                 <>
                   <FiSend className="w-5 h-5" />
-                  إرسال طلب صيانة HOTWAV
+                  إرسال طلب الصيانة
                 </>
               )}
             </button>
             
-            <p className="text-center text-sm text-gray-500 mt-4">
+            <p className="text-center text-sm text-gray-400 mt-4">
               سنتواصل معك خلال 24 ساعة لتأكيد استلام الطلب وتحديد موعد التسليم
             </p>
           </div>

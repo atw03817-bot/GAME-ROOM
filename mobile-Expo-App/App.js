@@ -87,7 +87,7 @@ export default function App() {
 
   const injectedJavaScript = `
     (function() {
-      // إعداد التنقل الصحيح لموقع أبعاد التواصل
+      // إعداد التنقل الصحيح لموقع جيم روم
       document.addEventListener('click', function(e) {
         const link = e.target.closest('a');
         if (link && link.href) {
@@ -95,8 +95,8 @@ export default function App() {
           const currentDomain = window.location.hostname;
           const linkDomain = new URL(url).hostname;
           
-          // السماح بالتنقل داخل نطاق ab-tw.com فقط
-          const allowedDomains = ['ab-tw.com', 'www.ab-tw.com'];
+          // السماح بالتنقل داخل نطاق gameroom-store.com فقط
+          const allowedDomains = ['gameroom-store.com', 'www.gameroom-store.com'];
           const isAllowedDomain = allowedDomains.includes(linkDomain);
           
           // إذا كان الرابط خارجي، افتحه في متصفح منفصل
@@ -149,7 +149,7 @@ export default function App() {
         <Animated.View style={[styles.splashContent, { opacity: fadeAnim }]}>
           {/* Logo من الموقع */}
           <Image
-            source={{ uri: 'https://www.ab-tw.com/logo.png' }}
+            source={{ uri: 'https://www.gameroom-store.com/logo.png' }}
             style={styles.logoImage}
             resizeMode="contain"
           />
@@ -220,8 +220,8 @@ export default function App() {
             javaScriptEnabled={true}
             domStorageEnabled={true}
             onShouldStartLoadWithRequest={(request) => {
-              // السماح بالتنقل داخل نطاق ab-tw.com فقط
-              const allowedDomains = ['ab-tw.com', 'www.ab-tw.com'];
+              // السماح بالتنقل داخل نطاق gameroom-store.com فقط
+              const allowedDomains = ['gameroom-store.com', 'www.gameroom-store.com'];
               const requestDomain = new URL(request.url).hostname;
               const isAllowedDomain = allowedDomains.includes(requestDomain);
               

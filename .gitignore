@@ -1,3 +1,6 @@
+# Game Room Store - متجر جيم روم للألعاب والتقنية
+# .gitignore file
+
 # Dependencies
 node_modules/
 */node_modules/
@@ -58,3 +61,13 @@ coverage/
 
 # Misc
 .eslintcache
+
+# Game Room Store specific
+# تجاهل ملفات التحديث المؤقتة
+UPDATE_*.cjs
+FINAL_*.cjs
+CLEANUP_*.cjs
+
+# تجاهل ملفات النسخ الاحتياطية
+*.backup
+*.bak

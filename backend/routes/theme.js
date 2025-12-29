@@ -27,8 +27,8 @@ router.get('/', async (req, res) => {
       },
       header: settings.header || {
         logo: '/logo.png',
-        storeName: 'أبعاد التواصل',
-        tagline: 'أبعاد جديدة للتواصل التقني',
+        storeName: 'جيم روم',
+        tagline: 'عالم الألعاب والتقنية',
         showTagline: true,
         showStoreNameMobile: false,
         showTaglineMobile: false,
@@ -75,12 +75,12 @@ router.get('/', async (req, res) => {
         }
       },
       siteMetadata: settings.siteMetadata || {
-        title: 'أبعاد التواصل',
-        titleEn: 'Mobile Store',
-        description: 'متجرك الموثوق للجوالات والإكسسوارات',
+        title: 'جيم روم',
+        titleEn: 'Game Room Store',
+        description: 'متجرك الموثوق للألعاب والتقنية',
         descriptionEn: 'Your trusted mobile store',
-        keywords: 'جوالات, هواتف ذكية, إكسسوارات, أبعاد التواصل',
-        keywordsEn: 'mobile, smartphones, accessories, electronics',
+        keywords: 'جوالات, هواتف ذكية, إكسسوارات, جيم روم',
+        keywordsEn: 'games, gaming, technology, accessories',
         favicon: '/favicon.ico',
         appleTouchIcon: '/apple-touch-icon.png',
         ogImage: '/og-image.jpg'

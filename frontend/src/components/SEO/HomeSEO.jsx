@@ -61,9 +61,9 @@ const HomeSEO = ({ featuredProducts = [], categories = [] }) => {
         "availableLanguage": ["Arabic", "English"]
       },
       "sameAs": [
-        "https://twitter.com/abadtawasul",
-        "https://instagram.com/abadtawasul",
-        "https://facebook.com/abadtawasul"
+        "https://twitter.com/gameroomstore",
+        "https://instagram.com/gameroomstore",
+        "https://facebook.com/gameroomstore"
       ]
     },
     {
@@ -87,7 +87,7 @@ const HomeSEO = ({ featuredProducts = [], categories = [] }) => {
       "@context": "https://schema.org",
       "@type": "ItemList",
       "name": "المنتجات المميزة",
-      "description": "أفضل المنتجات المختارة من أبعاد التواصل",
+      "description": "أفضل المنتجات المختارة من جيم روم",
       "numberOfItems": featuredProducts.length,
       "itemListElement": featuredProducts.map((product, index) => ({
         "@type": "ListItem",
@@ -100,7 +100,7 @@ const HomeSEO = ({ featuredProducts = [], categories = [] }) => {
           "description": product.description,
           "brand": {
             "@type": "Brand",
-            "name": product.brand || 'أبعاد التواصل'
+            "name": product.brand || 'جيم روم'
           },
           "offers": {
             "@type": "Offer",

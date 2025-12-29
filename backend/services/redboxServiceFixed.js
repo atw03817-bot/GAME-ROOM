@@ -42,9 +42,9 @@ class RedBoxServiceFixed {
         
         // بيانات المرسل
         sender: {
-          name: 'أبعاد التواصل للتجارة الإلكترونية',
+          name: 'جيم روم للألعاب والتقنية',
           phone: '+966920000000',
-          email: 'orders@ab-tw.com',
+          email: 'orders@gameroom-store.com',
           address: {
             city: 'الرياض',
             district: 'العليا',
@@ -70,7 +70,7 @@ class RedBoxServiceFixed {
         // بيانات الشحنة
         package: {
           reference_number: orderData.orderNumber,
-          description: `طلب من أبعاد التواصل - ${orderData.items.length} منتج`,
+          description: `طلب من جيم روم - ${orderData.items.length} منتج`,
           weight: this.calculateWeight(orderData.items),
           dimensions: {
             length: 30,
@@ -190,13 +190,13 @@ class RedBoxServiceFixed {
       history: [
         {
           status: 'created',
-          location: 'أبعاد التواصل - الرياض',
+          location: 'جيم روم - الرياض',
           timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
           description: 'تم إنشاء الشحنة'
         },
         {
           status: 'picked_up',
-          location: 'أبعاد التواصل - الرياض',
+          location: 'جيم روم - الرياض',
           timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000),
           description: 'تم استلام الشحنة من المرسل'
         },

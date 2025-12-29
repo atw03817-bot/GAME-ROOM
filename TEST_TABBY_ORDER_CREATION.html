@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Tabby Order Creation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .success {
+            border-color: #28a745;
+            background-color: #d4edda;
+        }
+        .error {
+            border-color: #dc3545;
+            background-color: #f8d7da;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>اختبار إنشاء طلب Tabby</h1>
+        
+        <div>
+            <label for="apiUrl">رابط API:</label>
+            <input type="text" id="apiUrl" value="http://localhost:5000/api">
+        </div>
+        
+        <div>
+            <label for="authToken">رمز المصادقة (Bearer Token):</label>
+            <input type="text" id="authToken" placeholder="أدخل رمز المصادقة هنا">
+        </div>
+        
+        <div style="margin: 20px 0;">
+            <button onclick="testOrderCreation()">اختبار إنشاء طلب Tabby</button>
+            <button onclick="testTabbyCheckout()">اختبار Tabby Checkout</button>
+            <button onclick="clearResults()">مسح النتائج</button>
+        </div>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function addResult(title, content, isError = false) {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result ${isError ? 'error' : 'success'}`;
+            resultDiv.innerHTML = `<strong>${title}</strong>\n${content}`;
+            resultsDiv.appendChild(resultDiv);
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function testOrderCreation() {
+            const apiUrl = document.getElementById('apiUrl').value;
+            const authToken = document.getElementById('authToken').value;
+            
+            if (!authToken) {
+                addResult('❌ خطأ', 'يرجى إدخال رمز المصادقة أولاً', true);
+                return;
+            }
+            
+            const orderData = {
+                items: [
+                    {
+                        product: "507f1f77bcf86cd799439011", // معرف منتج وهمي
+                        quantity: 1,
+                        selectedOptions: {
+                            color: {
+                                name: "أسود",
+                                nameAr: "أسود",
+                                value: "black",
+                                price: 0
+                            }
+                        }
+                    }
+                ],
+                shippingAddress: {
+                    fullName: "أحمد محمد",
+                    phone: "0501234567",
+                    city: "الرياض",
+                    district: "العليا",
+                    street: "شارع الملك فهد",
+                    building: "مبنى 123"
+                },
+                paymentMethod: "tabby",
+                notes: "اختبار طلب Tabby",
+                shippingCost: 30,
+                shippingProvider: "redbox"
+            };
+            
+            try {
+                addResult('🔄 جاري إنشاء الطلب...', JSON.stringify(orderData, null, 2));
+                
+                const response = await fetch(`${apiUrl}/orders`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(orderData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    addResult('✅ نجح إنشاء الطلب', 
+                        `Order ID: ${data.order._id}\nOrder Number: ${data.order.orderNumber}\nTotal: ${data.order.total} ر.س\nPayment Method: ${data.order.paymentMethod}`);
+                } else {
+                    addResult('❌ فشل إنشاء الطلب', 
+                        `Status: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`, true);
+                }
+            } catch (error) {
+                addResult('❌ خطأ في الاتصال', error.message, true);
+            }
+        }
+
+        async function testTabbyCheckout() {
+            const apiUrl = document.getElementById('apiUrl').value;
+            const authToken = document.getElementById('authToken').value;
+            
+            if (!authToken) {
+                addResult('❌ خطأ', 'يرجى إدخال رمز المصادقة أولاً', true);
+                return;
+            }
+            
+            // أولاً، إنشاء طلب
+            const orderData = {
+                items: [
+                    {
+                        product: "507f1f77bcf86cd799439011",
+                        quantity: 1
+                    }
+                ],
+                shippingAddress: {
+                    fullName: "أحمد محمد",
+                    phone: "0501234567",
+                    city: "الرياض",
+                    district: "العليا",
+                    street: "شارع الملك فهد",
+                    building: "مبنى 123"
+                },
+                paymentMethod: "tabby",
+                shippingCost: 30
+            };
+            
+            try {
+                // إنشاء الطلب
+                const orderResponse = await fetch(`${apiUrl}/orders`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(orderData)
+                });
+                
+                const orderResult = await orderResponse.json();
+                
+                if (!orderResponse.ok || !orderResult.success) {
+                    addResult('❌ فشل إنشاء الطلب للاختبار', JSON.stringify(orderResult, null, 2), true);
+                    return;
+                }
+                
+                const orderId = orderResult.order._id;
+                addResult('✅ تم إنشاء الطلب للاختبار', `Order ID: ${orderId}`);
+                
+                // اختبار Tabby checkout
+                const tabbyData = {
+                    orderId: orderId
+                };
+                
+                addResult('🔄 جاري اختبار Tabby checkout...', JSON.stringify(tabbyData, null, 2));
+                
+                const tabbyResponse = await fetch(`${apiUrl}/payments/tabby/checkout`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(tabbyData)
+                });
+                
+                const tabbyResult = await tabbyResponse.json();
+                
+                if (tabbyResponse.ok && tabbyResult.success) {
+                    addResult('✅ نجح Tabby checkout', 
+                        `Session ID: ${tabbyResult.data.sessionId}\nPayment ID: ${tabbyResult.data.paymentId}\nStatus: ${tabbyResult.data.status}`);
+                } else {
+                    addResult('❌ فشل Tabby checkout', 
+                        `Status: ${tabbyResponse.status}\nResponse: ${JSON.stringify(tabbyResult, null, 2)}`, true);
+                }
+                
+            } catch (error) {
+                addResult('❌ خطأ في الاختبار', error.message, true);
+            }
+        }
+    </script>
+</body>
+</html>

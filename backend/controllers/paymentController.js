@@ -3,6 +3,7 @@ import PaymentIntent from '../models/PaymentIntent.js';
 import Order from '../models/Order.js';
 import TapPaymentService from '../services/tapPaymentService.js';
 import TamaraPaymentService from '../services/tamaraPaymentService.js';
+import TabbyPaymentService from '../services/tabbyPaymentService.js';
 
 import axios from 'axios';
 
@@ -153,7 +154,10 @@ export const getPaymentMethods = async (req, res) => {
     
     // Add other payment methods from PaymentSettings
     for (const setting of paymentSettings) {
+      console.log(`🔍 Checking payment setting: ${setting.provider}, enabled: ${setting.enabled}`);
+      
       if (setting.provider === 'tap' && setting.config?.secretKey) {
+        console.log('✅ Adding Tap to payment methods');
         methods.push({
           provider: 'tap',
           enabled: true,
@@ -162,13 +166,32 @@ export const getPaymentMethods = async (req, res) => {
       }
       
       if (setting.provider === 'tamara' && setting.config?.merchantToken) {
+        console.log('✅ Adding Tamara to payment methods');
         methods.push({
           provider: 'tamara',
           enabled: true,
           name: 'Tamara - اشتري الآن وادفع لاحقاً'
         });
       }
-
+      
+      if (setting.provider === 'tabby' && setting.config?.secretKey && setting.config?.publicKey) {
+        console.log('✅ Adding Tabby to payment methods');
+        console.log('🔍 Tabby config check:', {
+          hasSecretKey: !!setting.config?.secretKey,
+          hasPublicKey: !!setting.config?.publicKey,
+          merchantCode: setting.config?.merchantCode
+        });
+        methods.push({
+          provider: 'tabby',
+          enabled: true,
+          name: 'Tabby - ادفع على 4 دفعات'
+        });
+      } else if (setting.provider === 'tabby') {
+        console.log('❌ Tabby found but missing required config:', {
+          hasSecretKey: !!setting.config?.secretKey,
+          hasPublicKey: !!setting.config?.publicKey
+        });
+      }
     }
     
     console.log('📋 Available payment methods:', methods);
@@ -558,7 +581,7 @@ export const createTapCharge = async (req, res) => {
       customerEmail: customerInfo?.email || order.user?.email || '',
       customerPhone: customerInfo?.phone || order.shippingAddress?.phone || order.user?.phone || '',
       description: `طلب رقم ${order.orderNumber || orderId}`,
-      redirectUrl: `https://ab-tw.com/order-success?orderId=${orderId}`,
+      redirectUrl: `https://gameroom-store.com/order-success?orderId=${orderId}`,
       postUrl: `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/payments/tap/webhook`
     };
 
@@ -1255,9 +1278,9 @@ export const createTamaraCheckout = async (req, res) => {
       isMobile: req.headers['user-agent']?.toLowerCase().includes('mobile') || false,
       
       // URLs - Required for Direct Online Checkout
-      successUrl: `https://ab-tw.com/tamara-callback?orderId=${orderId}&status=success`,
-      failureUrl: `https://ab-tw.com/tamara-callback?orderId=${orderId}&status=failed`,
-      cancelUrl: `https://ab-tw.com/tamara-callback?orderId=${orderId}&status=cancelled`,
+      successUrl: `https://gameroom-store.com/tamara-callback?orderId=${orderId}&status=success`,
+      failureUrl: `https://gameroom-store.com/tamara-callback?orderId=${orderId}&status=failed`,
+      cancelUrl: `https://gameroom-store.com/tamara-callback?orderId=${orderId}&status=cancelled`,
       notificationUrl: `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/payments/tamara/webhook`,
       
       // Customer information - Must be accurate for Tamara
@@ -2233,6 +2256,463 @@ export const testTamaraConnection = async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Error testing Tamara connection:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'خطأ في اختبار الاتصال'
+    });
+  }
+};
+
+// ==================== TABBY PAYMENT CONTROLLERS ====================
+
+// @desc    Create Tabby checkout session
+// @route   POST /api/payments/tabby/checkout
+// @access  Public
+export const createTabbyCheckout = async (req, res) => {
+  try {
+    const { orderId } = req.body;
+    
+    console.log('🛒 Creating Tabby checkout session:', { orderId });
+    
+    if (!orderId) {
+      return res.status(400).json({
+        success: false,
+        message: 'معرف الطلب مطلوب'
+      });
+    }
+
+    // Get order details
+    const order = await Order.findById(orderId).populate('items.product');
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'الطلب غير موجود'
+      });
+    }
+
+    // Get Tabby settings
+    const tabbySettings = await PaymentSettings.findOne({ 
+      provider: 'tabby',
+      enabled: true 
+    });
+
+    if (!tabbySettings) {
+      return res.status(400).json({
+        success: false,
+        message: 'إعدادات Tabby غير متوفرة أو غير مفعلة'
+      });
+    }
+
+    // Initialize Tabby service
+    const tabbyService = new TabbyPaymentService(
+      tabbySettings.config.publicKey,
+      tabbySettings.config.secretKey,
+      tabbySettings.config.apiUrl || 'https://api.tabby.ai',
+      tabbySettings.config.merchantCode
+    );
+
+    // Format order data for Tabby
+    const sessionData = tabbyService.formatSessionData({
+      orderId: order._id.toString(),
+      orderNumber: order.orderNumber,
+      amount: order.total,
+      currency: 'SAR',
+      description: `طلب رقم ${order.orderNumber}`,
+      customer: {
+        firstName: order.shippingAddress.name?.split(' ')[0] || 'Customer',
+        lastName: order.shippingAddress.name?.split(' ').slice(1).join(' ') || '',
+        phone: order.shippingAddress.phone,
+        email: order.user?.email || 'customer@example.com',
+        registeredSince: new Date().toISOString()
+      },
+      items: order.items.map(item => ({
+        id: item.product._id,
+        name: item.name,
+        quantity: item.quantity,
+        unitPrice: item.price,
+        totalAmount: item.price * item.quantity,
+        imageUrl: item.product.images?.[0] || null
+      })),
+      shippingAmount: order.shippingCost || 0,
+      taxAmount: order.tax || 0,
+      discountAmount: order.discount || 0,
+      shippingAddress: order.shippingAddress,
+      successUrl: `${process.env.FRONTEND_URL}/order-success?provider=tabby&orderId=${order._id}`,
+      cancelUrl: `${process.env.FRONTEND_URL}/checkout?cancelled=true`,
+      failureUrl: `${process.env.FRONTEND_URL}/order-failed?orderId=${order._id}`
+    });
+
+    // Create checkout session
+    const result = await tabbyService.createCheckoutSession(sessionData);
+
+    console.log('✅ Tabby service returned:', {
+      success: result.success,
+      sessionId: result.sessionId,
+      paymentId: result.paymentId,
+      checkoutUrl: result.checkoutUrl,
+      hasConfiguration: !!result.configuration,
+      hasAvailableProducts: !!result.availableProducts
+    });
+
+    // Update order with Tabby session info
+    order.paymentDetails = {
+      ...order.paymentDetails,
+      tabbySessionId: result.sessionId,
+      tabbyPaymentId: result.paymentId
+    };
+    await order.save();
+
+    console.log('✅ Tabby checkout session created successfully');
+
+    res.json({
+      success: true,
+      data: result,
+      message: 'تم إنشاء جلسة الدفع بنجاح'
+    });
+  } catch (error) {
+    console.error('❌ Error creating Tabby checkout:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'خطأ في إنشاء جلسة الدفع'
+    });
+  }
+};
+
+// Helper function to update product stock
+async function updateOrderStock(order) {
+  try {
+    console.log('📦 Updating stock for order:', order.orderNumber);
+    
+    const Product = (await import('../models/Product.js')).default;
+    
+    for (const item of order.items) {
+      const product = await Product.findById(item.product);
+      if (product) {
+        // Ensure stock doesn't go below 0
+        const newStock = Math.max(0, product.stock - item.quantity);
+        product.stock = newStock;
+        product.sales = (product.sales || 0) + item.quantity;
+        await product.save();
+        
+        console.log(`✅ Updated stock for ${product.name?.ar || product.nameAr}: ${newStock}`);
+      }
+    }
+    
+    console.log('✅ Stock updated successfully for order:', order.orderNumber);
+  } catch (error) {
+    console.error('❌ Error updating stock:', error);
+    throw error;
+  }
+}
+
+// @desc    Handle Tabby webhook
+// @route   POST /api/payments/tabby/webhook
+// @access  Public
+export const handleTabbyWebhook = async (req, res) => {
+  try {
+    console.log('🔔 Received Tabby webhook:', req.body);
+
+    // Get Tabby settings
+    const tabbySettings = await PaymentSettings.findOne({ 
+      provider: 'tabby',
+      enabled: true 
+    });
+
+    if (!tabbySettings) {
+      console.error('❌ Tabby settings not found');
+      return res.status(400).json({
+        success: false,
+        message: 'إعدادات Tabby غير متوفرة'
+      });
+    }
+
+    // Initialize Tabby service
+    const tabbyService = new TabbyPaymentService(
+      tabbySettings.config.publicKey,
+      tabbySettings.config.secretKey,
+      tabbySettings.config.apiUrl || 'https://api.tabby.ai',
+      tabbySettings.config.merchantCode
+    );
+
+    // Process webhook
+    const webhookData = tabbyService.processWebhook(req.body);
+
+    // Find order by reference ID
+    const order = await Order.findById(webhookData.orderId);
+    if (!order) {
+      console.error('❌ Order not found:', webhookData.orderId);
+      return res.status(404).json({
+        success: false,
+        message: 'الطلب غير موجود'
+      });
+    }
+
+    // Update order based on webhook event
+    switch (webhookData.eventType) {
+      case 'payment_authorized':
+        order.paymentStatus = 'authorized';
+        order.status = 'processing';
+        order.authorizedAt = new Date();
+        
+        // Update stock for authorized payments
+        if (!order.stockUpdated) {
+          await updateOrderStock(order);
+          order.stockUpdated = true;
+        }
+        break;
+        
+      case 'payment_captured':
+        order.paymentStatus = 'paid';
+        order.status = 'confirmed';
+        order.paidAt = new Date();
+        
+        // Update stock for captured payments
+        if (!order.stockUpdated) {
+          await updateOrderStock(order);
+          order.stockUpdated = true;
+        }
+        break;
+        
+      case 'payment_closed':
+        order.paymentStatus = 'completed';
+        break;
+        
+      case 'payment_failed':
+        order.paymentStatus = 'failed';
+        order.status = 'cancelled';
+        break;
+        
+      case 'payment_cancelled':
+        order.paymentStatus = 'cancelled';
+        order.status = 'cancelled';
+        break;
+        
+      default:
+        console.log('ℹ️ Unhandled webhook event:', webhookData.eventType);
+    }
+
+    // Add status history entry
+    order.statusHistory.push({
+      status: order.status,
+      note: `Tabby webhook: ${webhookData.eventType}`,
+      date: new Date()
+    });
+
+    // Update payment details
+    order.paymentDetails = {
+      ...order.paymentDetails,
+      tabbyPaymentId: webhookData.paymentId,
+      tabbyStatus: webhookData.status,
+      lastWebhookEvent: webhookData.eventType,
+      lastWebhookAt: new Date()
+    };
+
+    await order.save();
+
+    console.log('✅ Tabby webhook processed successfully');
+
+    res.json({
+      success: true,
+      message: 'Webhook processed successfully'
+    });
+  } catch (error) {
+    console.error('❌ Error processing Tabby webhook:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'خطأ في معالجة webhook'
+    });
+  }
+};
+
+// @desc    Capture Tabby payment
+// @route   POST /api/payments/tabby/capture/:paymentId
+// @access  Private/Admin
+export const captureTabbyPayment = async (req, res) => {
+  try {
+    const { paymentId } = req.params;
+    const { amount, description } = req.body;
+
+    console.log('💰 Capturing Tabby payment:', { paymentId, amount });
+
+    // Get Tabby settings
+    const tabbySettings = await PaymentSettings.findOne({ 
+      provider: 'tabby',
+      enabled: true 
+    });
+
+    if (!tabbySettings) {
+      return res.status(400).json({
+        success: false,
+        message: 'إعدادات Tabby غير متوفرة'
+      });
+    }
+
+    // Initialize Tabby service
+    const tabbyService = new TabbyPaymentService(
+      tabbySettings.config.publicKey,
+      tabbySettings.config.secretKey,
+      tabbySettings.config.apiUrl || 'https://api.tabby.ai',
+      tabbySettings.config.merchantCode
+    );
+
+    // Capture payment
+    const result = await tabbyService.capturePayment(paymentId, {
+      amount: amount.toString(),
+      description: description || 'Payment capture'
+    });
+
+    console.log('✅ Tabby payment captured successfully');
+
+    res.json({
+      success: true,
+      data: result,
+      message: 'تم التقاط الدفع بنجاح'
+    });
+  } catch (error) {
+    console.error('❌ Error capturing Tabby payment:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'خطأ في التقاط الدفع'
+    });
+  }
+};
+
+// @desc    Refund Tabby payment
+// @route   POST /api/payments/tabby/refund/:paymentId
+// @access  Private/Admin
+export const refundTabbyPayment = async (req, res) => {
+  try {
+    const { paymentId } = req.params;
+    const { amount, reason } = req.body;
+
+    console.log('💸 Refunding Tabby payment:', { paymentId, amount });
+
+    // Get Tabby settings
+    const tabbySettings = await PaymentSettings.findOne({ 
+      provider: 'tabby',
+      enabled: true 
+    });
+
+    if (!tabbySettings) {
+      return res.status(400).json({
+        success: false,
+        message: 'إعدادات Tabby غير متوفرة'
+      });
+    }
+
+    // Initialize Tabby service
+    const tabbyService = new TabbyPaymentService(
+      tabbySettings.config.publicKey,
+      tabbySettings.config.secretKey,
+      tabbySettings.config.apiUrl || 'https://api.tabby.ai',
+      tabbySettings.config.merchantCode
+    );
+
+    // Refund payment
+    const result = await tabbyService.refundPayment(paymentId, {
+      amount: amount.toString(),
+      reason: reason || 'Customer request'
+    });
+
+    console.log('✅ Tabby payment refunded successfully');
+
+    res.json({
+      success: true,
+      data: result,
+      message: 'تم استرداد المبلغ بنجاح'
+    });
+  } catch (error) {
+    console.error('❌ Error refunding Tabby payment:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'خطأ في استرداد المبلغ'
+    });
+  }
+};
+
+// @desc    Get Tabby payment details
+// @route   GET /api/payments/tabby/payment/:paymentId
+// @access  Private/Admin
+export const getTabbyPayment = async (req, res) => {
+  try {
+    const { paymentId } = req.params;
+
+    console.log('📋 Getting Tabby payment details:', paymentId);
+
+    // Get Tabby settings
+    const tabbySettings = await PaymentSettings.findOne({ 
+      provider: 'tabby',
+      enabled: true 
+    });
+
+    if (!tabbySettings) {
+      return res.status(400).json({
+        success: false,
+        message: 'إعدادات Tabby غير متوفرة'
+      });
+    }
+
+    // Initialize Tabby service
+    const tabbyService = new TabbyPaymentService(
+      tabbySettings.config.publicKey,
+      tabbySettings.config.secretKey,
+      tabbySettings.config.apiUrl || 'https://api.tabby.ai',
+      tabbySettings.config.merchantCode
+    );
+
+    // Get payment details
+    const result = await tabbyService.getPayment(paymentId);
+
+    console.log('✅ Tabby payment details retrieved');
+
+    res.json({
+      success: true,
+      data: result,
+      message: 'تم جلب تفاصيل الدفع بنجاح'
+    });
+  } catch (error) {
+    console.error('❌ Error getting Tabby payment:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'خطأ في جلب تفاصيل الدفع'
+    });
+  }
+};
+
+// @desc    Test Tabby connection
+// @route   POST /api/payments/tabby/test
+// @access  Private/Admin
+export const testTabbyConnection = async (req, res) => {
+  try {
+    const { publicKey, secretKey, merchantCode } = req.body;
+    
+    if (!publicKey || !secretKey) {
+      return res.status(400).json({
+        success: false,
+        message: 'المفاتيح العامة والسرية مطلوبة'
+      });
+    }
+
+    console.log('🔍 Testing Tabby connection...');
+
+    // Initialize Tabby service with provided credentials
+    const tabbyService = new TabbyPaymentService(
+      publicKey,
+      secretKey,
+      'https://api.tabby.ai',
+      merchantCode
+    );
+
+    // Test connection
+    const result = await tabbyService.testConnection();
+
+    res.json({
+      success: true,
+      data: result,
+      message: 'الاتصال بـ Tabby ناجح'
+    });
+  } catch (error) {
+    console.error('❌ Error testing Tabby connection:', error);
     res.status(500).json({
       success: false,
       message: error.message || 'خطأ في اختبار الاتصال'

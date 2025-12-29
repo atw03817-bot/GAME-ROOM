@@ -2,10 +2,10 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://ab-tw.com/sitemap.xml
+Sitemap: https://gameroom-store.com/sitemap.xml
 
-# متجر أبعاد التواصل - أفضل متجر هواتف في السعودية
-# Abad Tawasul Store - Best Mobile Store in Saudi Arabia
+# متجر جيم روم - أفضل متجر هواتف في السعودية
+# Game Room Store - Best Mobile Store in Saudi Arabia
 
 # Allow important pages
 Allow: /products/

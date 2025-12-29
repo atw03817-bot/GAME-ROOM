@@ -39,7 +39,7 @@ function MaintenanceRequestDetails() {
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
       case 'received':
-        return 'bg-blue-100 text-blue-700'
+        return 'bg-[#E08713]/20 text-[#E08713]'
       case 'diagnosed':
         return 'bg-yellow-100 text-yellow-700'
       case 'waiting_approval':

@@ -79,7 +79,7 @@ const blogPostSchema = new mongoose.Schema({
   author: {
     name: {
       type: String,
-      default: 'فريق أبعاد التواصل'
+      default: 'فريق جيم روم'
     },
     avatar: String,
     bio: String

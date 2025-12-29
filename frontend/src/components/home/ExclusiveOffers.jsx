@@ -68,14 +68,14 @@ export default function ExclusiveOffers() {
   ];
 
   return (
-    <section className="py-12 bg-gray-50">
+    <section className="py-12 bg-[#111111]">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-bold mb-3 bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
+          <h2 className="text-3xl md:text-4xl font-bold mb-3 bg-gradient-to-r from-[#E08713] to-[#C72C15] bg-clip-text text-transparent">
             🔥 عروض حصرية
           </h2>
-          <p className="text-gray-600 text-lg">
+          <p className="text-gray-300 text-lg">
             عروض لفترة محدودة - لا تفوت الفرصة!
           </p>
         </div>
@@ -88,10 +88,10 @@ export default function ExclusiveOffers() {
               <Link
                 key={offer.id}
                 to={offer.link}
-                className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
+                className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-[#C72C15]"
               >
                 {/* Background Gradient */}
-                <div className={`${offer.bgPattern} ${offer.color} p-6 h-full min-h-[280px] flex flex-col justify-between relative`}>
+                <div className="bg-gradient-to-br from-[#E08713] to-[#C72C15] p-6 h-full min-h-[280px] flex flex-col justify-between relative">
                   {/* Decorative Pattern */}
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
                   <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
@@ -113,7 +113,7 @@ export default function ExclusiveOffers() {
 
                     {/* Discount Badge */}
                     <div className="inline-block bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full mb-4">
-                      <span className="text-2xl font-black bg-gradient-to-r from-orange-500 to-red-600 bg-clip-text text-transparent">
+                      <span className="text-2xl font-black bg-gradient-to-r from-[#E08713] to-[#C72C15] bg-clip-text text-transparent">
                         {offer.discount}
                       </span>
                     </div>
@@ -149,7 +149,7 @@ export default function ExclusiveOffers() {
         <div className="text-center mt-10">
           <Link
             to="/deals"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-primary-600 to-purple-600 text-white font-bold rounded-xl hover:shadow-lg transform hover:scale-105 transition"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#E08713] to-[#C72C15] text-white font-bold rounded-xl hover:shadow-lg transform hover:scale-105 transition"
           >
             <span>عرض جميع العروض</span>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

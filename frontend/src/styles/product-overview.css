@@ -1,4 +1,4 @@
-/* Product Overview Styles */
+/* Product Overview Styles - Enhanced Dark Theme */
 .product-overview {
   font-family: 'Cairo', sans-serif;
   direction: rtl;
@@ -7,44 +7,95 @@
 /* Description Content Styling */
 .product-description-content {
   line-height: 1.8;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .product-description-content p {
-  margin-bottom: 12px;
-  color: #374151;
+  margin-bottom: 16px;
+  color: #e5e5e5;
 }
 
 .product-description-content strong {
-  color: #1f2937;
+  color: #E08713;
   font-weight: 600;
 }
 
 .product-description-content ul,
 .product-description-content ol {
-  margin: 16px 0;
-  padding-right: 20px;
+  margin: 20px 0;
+  padding-right: 24px;
 }
 
 .product-description-content li {
-  margin-bottom: 8px;
-  color: #4b5563;
+  margin-bottom: 12px;
+  color: #d1d5db;
 }
 
 /* Hero Description Box */
 .product-overview .bg-gradient-to-r {
-  background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%);
-  border: 1px solid #c7d2fe;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  border: 1px solid #333333;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.product-overview .bg-gradient-to-r .w-3 {
+  background: linear-gradient(135deg, #E08713 0%, #C72C15 100%);
+  box-shadow: 0 2px 8px rgba(224, 135, 19, 0.3);
+}
+
+.product-overview .bg-gradient-to-r h3 {
+  color: #E08713;
+  font-size: 20px;
+}
+
+.product-overview .bg-gradient-to-r .text-gray-700 {
+  color: #e5e5e5 !important;
 }
 
 /* Feature Cards Hover Effects */
 .product-overview .grid > div {
   transition: all 0.3s ease;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  border: 1px solid #333333;
+  border-radius: 12px;
+  padding: 16px;
 }
 
 .product-overview .grid > div:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(224, 135, 19, 0.15);
+  border-color: #E08713;
+}
+
+.product-overview .grid > div .w-2 {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+}
+
+.product-overview .grid > div .text-gray-700 {
+  color: #e5e5e5 !important;
+}
+
+/* Additional Info Section */
+.product-overview .bg-gray-50 {
+  background: linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%) !important;
+  border: 1px solid #444444 !important;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.product-overview .bg-gray-50 h3 {
+  color: #E08713;
+}
+
+.product-overview .bg-gray-50 .text-gray-700 {
+  color: #e5e5e5 !important;
+}
+
+.product-overview .bg-gray-50 .w-2 {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
 }
 
 
@@ -121,8 +172,8 @@
 
 /* Dot Indicators */
 .product-overview .w-3.h-3 {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+  background: linear-gradient(135deg, #E08713 0%, #C72C15 100%);
+  box-shadow: 0 2px 6px rgba(224, 135, 19, 0.3);
 }
 
 .product-overview .w-2.h-2 {

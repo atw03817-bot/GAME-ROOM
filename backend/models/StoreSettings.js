@@ -13,12 +13,12 @@ const storeSettingsSchema = new mongoose.Schema({
 
   // Site Metadata
   siteMetadata: {
-    title: { type: String, default: 'أبعاد التواصل' },
-    titleEn: { type: String, default: 'Mobile Store' },
-    description: { type: String, default: 'متجرك الموثوق للجوالات والإكسسوارات' },
+    title: { type: String, default: 'جيم روم' },
+    titleEn: { type: String, default: 'Game Room Store' },
+    description: { type: String, default: 'متجرك الموثوق للألعاب والتقنية' },
     descriptionEn: { type: String, default: 'Your trusted mobile store' },
-    keywords: { type: String, default: 'جوالات, هواتف ذكية, إكسسوارات, أبعاد التواصل' },
-    keywordsEn: { type: String, default: 'mobile, smartphones, accessories, electronics' },
+    keywords: { type: String, default: 'جوالات, هواتف ذكية, إكسسوارات, جيم روم' },
+    keywordsEn: { type: String, default: 'games, gaming, technology, accessories' },
     favicon: { type: String, default: '/favicon.ico' },
     appleTouchIcon: { type: String, default: '/apple-touch-icon.png' },
     ogImage: { type: String, default: '/og-image.jpg' }
@@ -46,8 +46,8 @@ const storeSettingsSchema = new mongoose.Schema({
   header: {
     // Logo and Brand
     logo: { type: String, default: '/logo.png' },
-    storeName: { type: String, default: 'أبعاد التواصل' },
-    tagline: { type: String, default: 'أبعاد جديدة للتواصل التقني' },
+    storeName: { type: String, default: 'جيم روم' },
+    tagline: { type: String, default: 'عالم الألعاب والتقنية' },
     showTagline: { type: Boolean, default: true },
     showStoreNameMobile: { type: Boolean, default: false },
     showTaglineMobile: { type: Boolean, default: false },
@@ -65,7 +65,7 @@ const storeSettingsSchema = new mongoose.Schema({
   
   // Theme Settings
   theme: {
-    // Colors - مستوحاة من شعار أبعاد التواصل البنفسجي
+    // Colors - مستوحاة من شعار جيم روم البنفسجي
     colors: {
       primary: { type: String, default: '#a855f7' },
       primaryHover: { type: String, default: '#9333ea' },
@@ -119,9 +119,9 @@ const storeSettingsSchema = new mongoose.Schema({
     
     // Company Info
     company: {
-      name: { type: String, default: 'أبعاد التواصل' },
-      tagline: { type: String, default: 'أبعاد جديدة للتواصل التقني' },
-      description: { type: String, default: 'متجرك الموثوق للجوالات والإكسسوارات. نوفر أحدث الأجهزة بأفضل الأسعار مع ضمان الجودة والتوصيل السريع.' },
+      name: { type: String, default: 'جيم روم' },
+      tagline: { type: String, default: 'عالم الألعاب والتقنية' },
+      description: { type: String, default: 'متجرك الموثوق للألعاب والتقنية. نوفر أحدث الأجهزة بأفضل الأسعار مع ضمان الجودة والتوصيل السريع.' },
       logo: { type: String, default: '/logo.png' }
     },
     
@@ -151,7 +151,7 @@ const storeSettingsSchema = new mongoose.Schema({
     
     // Copyright
     copyright: {
-      text: { type: String, default: 'أبعاد التواصل. جميع الحقوق محفوظة.' },
+      text: { type: String, default: 'جيم روم. جميع الحقوق محفوظة.' },
       showYear: { type: Boolean, default: true }
     },
     

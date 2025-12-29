@@ -17,7 +17,7 @@ const SEOHead = ({
 }) => {
   const baseUrl = import.meta.env.VITE_FRONTEND_URL || 'https://ab-tw.com';
   const fullUrl = url ? `${baseUrl}${url}` : baseUrl;
-  const fullImage = image ? (image.startsWith('http') ? image : `${baseUrl}${image}`) : `${baseUrl}/logo.png`;
+  const fullImage = image ? (image.startsWith('http') ? image : `${baseUrl}${image}`) : null;
 
   // إنشاء robots meta tag
   const robotsContent = [];

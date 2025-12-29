@@ -41,7 +41,7 @@ export const addSEOData = async (req, res, next) => {
 export const generateMetaTags = (seoData) => {
   if (!seoData) return '';
 
-  const baseUrl = process.env.FRONTEND_URL || 'https://ab-tw.com';
+  const baseUrl = process.env.FRONTEND_URL || 'https://gameroom-store.com';
   const fullUrl = seoData.url ? `${baseUrl}${seoData.url}` : baseUrl;
   const fullImage = seoData.image ? 
     (seoData.image.startsWith('http') ? seoData.image : `${baseUrl}${seoData.image}`) : 
@@ -66,7 +66,7 @@ export const generateMetaTags = (seoData) => {
     <meta property="og:description" content="${seoData.description}">
     <meta property="og:image" content="${fullImage}">
     <meta property="og:url" content="${fullUrl}">
-    <meta property="og:site_name" content="أبعاد التواصل">
+    <meta property="og:site_name" content="جيم روم">
     <meta property="og:locale" content="ar_SA">
     
     <!-- Twitter Card -->
@@ -76,7 +76,7 @@ export const generateMetaTags = (seoData) => {
     <meta name="twitter:image" content="${fullImage}">
     
     <!-- Additional -->
-    <meta name="author" content="أبعاد التواصل">
+    <meta name="author" content="جيم روم">
     <link rel="canonical" href="${fullUrl}">
   `;
 

@@ -65,30 +65,30 @@ export default function DealsSection() {
   ));
 
   return (
-    <section className="py-8 md:py-12 bg-gradient-to-br from-red-50 via-pink-50 to-purple-50" dir="rtl">
+    <section className="py-8 md:py-12 bg-[#111111]" dir="rtl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-6 md:mb-8">
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="text-3xl">🔥</span>
-              <h2 className="text-xl md:text-3xl font-bold text-gray-900">
+              <h2 className="text-xl md:text-3xl font-bold text-white">
                 {settings.title}
               </h2>
             </div>
-            <p className="text-gray-600 text-xs md:text-sm">
+            <p className="text-gray-300 text-xs md:text-sm">
               {settings.subtitle.replace('{maxDiscount}', maxDiscount.toString())}
             </p>
           </div>
           <Link to="/deals">
-            <button className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition text-sm md:text-base">
+            <button className="px-4 py-2 bg-gradient-to-r from-[#E08713] to-[#C72C15] text-white rounded-lg hover:opacity-90 transition text-sm md:text-base">
               <span>عرض الكل</span>
             </button>
           </Link>
         </div>
 
         {/* Deals Banner */}
-        <div className="bg-gradient-to-r from-red-500 via-pink-500 to-purple-600 rounded-xl p-4 md:p-6 mb-6 text-white relative overflow-hidden">
+        <div className="bg-gradient-to-r from-[#E08713] to-[#C72C15] rounded-xl p-4 md:p-6 mb-6 text-white relative overflow-hidden">
           <div className="absolute inset-0 bg-black/10"></div>
           <div className="absolute inset-0" style={{
             backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%)'
@@ -122,7 +122,7 @@ export default function DealsSection() {
         {/* CTA */}
         <div className="text-center mt-6 md:mt-8">
           <Link to="/deals">
-            <button className="px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition font-semibold">
+            <button className="px-6 py-3 bg-gradient-to-r from-[#E08713] to-[#C72C15] text-white rounded-lg hover:opacity-90 transition font-semibold">
               <span>🎁</span>
               <span className="mx-2">{settings.ctaText}</span>
               <svg className="inline w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

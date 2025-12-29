@@ -146,9 +146,9 @@ function OrderFailed() {
         </div>
 
         {/* Help Card */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-          <h3 className="font-semibold mb-3 text-blue-900">💡 نصائح لحل المشكلة:</h3>
-          <ul className="space-y-2 text-sm text-blue-800">
+        <div className="bg-[#1a1a1a] border border-[#333333] rounded-lg p-6 mb-6">
+          <h3 className="font-semibold mb-3 text-[#E08713]">💡 نصائح لحل المشكلة:</h3>
+          <ul className="space-y-2 text-sm text-gray-300">
             <li>• تأكد من صحة بيانات البطاقة (رقم البطاقة، تاريخ الانتهاء، CVV)</li>
             <li>• تحقق من وجود رصيد كافي في حسابك</li>
             <li>• تأكد من أن البطاقة مفعلة للمدفوعات الإلكترونية</li>

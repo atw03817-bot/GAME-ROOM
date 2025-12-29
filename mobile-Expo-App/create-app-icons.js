@@ -14,7 +14,7 @@ function downloadLogo() {
     const logoPath = path.join(assetsDir, 'logo.png');
     const file = fs.createWriteStream(logoPath);
     
-    https.get('https://www.ab-tw.com/logo.png', (response) => {
+    https.get('https://www.gameroom-store.com/logo.png', (response) => {
       response.pipe(file);
       file.on('finish', () => {
         file.close();
@@ -43,7 +43,7 @@ function createIconGenerator() {
     </style>
 </head>
 <body>
-    <h1>مولد أيقونات تطبيق أبعاد التواصل</h1>
+    <h1>مولد أيقونات تطبيق جيم روم</h1>
     
     <div>
         <input type="file" id="logoInput" accept="image/*">
@@ -135,7 +135,7 @@ function createIconGenerator() {
             logoImage.onerror = function() {
                 console.log('فشل في تحميل الشعار من الموقع');
             };
-            logoImage.src = 'https://www.ab-tw.com/logo.png';
+            logoImage.src = 'https://www.gameroom-store.com/logo.png';
         };
     </script>
 </body>

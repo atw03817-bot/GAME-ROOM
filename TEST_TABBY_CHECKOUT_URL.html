@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار رابط Tabby Checkout</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 اختبار رابط Tabby Checkout</h1>
+        
+        <div class="form-group">
+            <label for="apiUrl">رابط API:</label>
+            <input type="text" id="apiUrl" value="http://localhost:5000/api" />
+        </div>
+        
+        <div class="form-group">
+            <label for="authToken">رمز المصادقة:</label>
+            <input type="text" id="authToken" placeholder="Bearer token..." />
+        </div>
+        
+        <div class="form-group">
+            <label for="orderId">معرف الطلب (اختياري - سيتم إنشاء طلب تجريبي إذا ترك فارغاً):</label>
+            <input type="text" id="orderId" placeholder="Order ID..." />
+        </div>
+        
+        <div style="margin: 20px 0;">
+            <button onclick="testTabbyCheckout()">اختبار Tabby Checkout</button>
+            <button onclick="clearResults()">مسح النتائج</button>
+        </div>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function addResult(title, content, isError = false) {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${isError ? 'error' : 'success'}`;
+            div.innerHTML = `<strong>${title}</strong>\n${content}`;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function addInfo(title, content) {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = 'result info';
+            div.innerHTML = `<strong>${title}</strong>\n${content}`;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function testTabbyCheckout() {
+            const apiUrl = document.getElementById('apiUrl').value;
+            const authToken = document.getElementById('authToken').value;
+            let orderId = document.getElementById('orderId').value;
+
+            if (!authToken) {
+                addResult('❌ خطأ', 'رمز المصادقة مطلوب', true);
+                return;
+            }
+
+            try {
+                // إنشاء طلب تجريبي إذا لم يتم توفير معرف طلب
+                if (!orderId) {
+                    addInfo('🔄 إنشاء طلب تجريبي...', 'جاري إنشاء طلب للاختبار');
+                    
+                    const orderData = {
+                        items: [{
+                            product: "60d5ecb74b24a1234567890a", // معرف منتج وهمي
+                            quantity: 1,
+                            selectedOptions: {}
+                        }],
+                        shippingAddress: {
+                            name: "عميل تجريبي",
+                            phone: "552979062",
+                            city: "الرياض",
+                            district: "النخيل",
+                            street: "شارع الملك فهد",
+                            building: "123"
+                        },
+                        paymentMethod: "tabby",
+                        shippingCost: 30
+                    };
+
+                    const orderResponse = await fetch(`${apiUrl}/orders`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': authToken
+                        },
+                        body: JSON.stringify(orderData)
+                    });
+
+                    const orderResult = await orderResponse.json();
+                    
+                    if (orderResponse.ok && orderResult.success) {
+                        orderId = orderResult.order._id;
+                        addResult('✅ تم إنشاء الطلب للاختبار', `Order ID: ${orderId}`);
+                    } else {
+                        addResult('❌ فشل إنشاء الطلب', 
+                            `Status: ${orderResponse.status}\nResponse: ${JSON.stringify(orderResult, null, 2)}`, true);
+                        return;
+                    }
+                }
+                
+                // اختبار Tabby checkout
+                addInfo('🔄 جاري اختبار Tabby checkout...', `Order ID: ${orderId}`);
+                
+                const tabbyData = {
+                    orderId: orderId
+                };
+                
+                const tabbyResponse = await fetch(`${apiUrl}/payments/tabby/checkout`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': authToken
+                    },
+                    body: JSON.stringify(tabbyData)
+                });
+                
+                const tabbyResult = await tabbyResponse.json();
+                
+                if (tabbyResponse.ok && tabbyResult.success) {
+                    addResult('✅ نجح Tabby checkout', 
+                        `Session ID: ${tabbyResult.data.sessionId}\n` +
+                        `Payment ID: ${tabbyResult.data.paymentId || 'N/A'}\n` +
+                        `Status: ${tabbyResult.data.status}\n` +
+                        `Checkout URL: ${tabbyResult.data.checkoutUrl || 'غير متوفر'}\n` +
+                        `Full Response: ${JSON.stringify(tabbyResult.data, null, 2)}`);
+                    
+                    // إذا كان هناك رابط checkout، اعرض زر للانتقال إليه
+                    if (tabbyResult.data.checkoutUrl) {
+                        const results = document.getElementById('results');
+                        const linkDiv = document.createElement('div');
+                        linkDiv.className = 'result info';
+                        linkDiv.innerHTML = `
+                            <strong>🔗 رابط الدفع جاهز</strong>
+                            <br><br>
+                            <button onclick="window.open('${tabbyResult.data.checkoutUrl}', '_blank')" 
+                                    style="background-color: #28a745;">
+                                🚀 فتح صفحة الدفع
+                            </button>
+                        `;
+                        results.appendChild(linkDiv);
+                    }
+                } else {
+                    addResult('❌ فشل Tabby checkout', 
+                        `Status: ${tabbyResponse.status}\nResponse: ${JSON.stringify(tabbyResult, null, 2)}`, true);
+                }
+                
+            } catch (error) {
+                addResult('❌ خطأ في الشبكة', error.message, true);
+            }
+        }
+    </script>
+</body>
+</html>

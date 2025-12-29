@@ -116,7 +116,7 @@ const ProductSEO = ({ product }) => {
   // التأكد من وجود وصف صالح
   const validDescription = productDesc && productDesc.trim() !== '' 
     ? productDesc 
-    : `${validProductName} - منتج عالي الجودة من أبعاد التواصل. متوفر الآن بأفضل الأسعار مع ضمان الجودة والتوصيل المجاني.`;
+    : `${validProductName} - منتج عالي الجودة من جيم روم. متوفر الآن بأفضل الأسعار مع ضمان الجودة والتوصيل المجاني.`;
   
   // التأكد من وجود صور صالحة
   const validImages = product.images && product.images.length > 0 && product.images[0] 
@@ -131,7 +131,7 @@ const ProductSEO = ({ product }) => {
     "image": validImages,
     "brand": {
       "@type": "Brand",
-      "name": product.brand && product.brand.trim() !== '' ? product.brand : 'أبعاد التواصل'
+      "name": product.brand && product.brand.trim() !== '' ? product.brand : 'جيم روم'
     },
     "sku": product._id || product.id || 'SKU-DEFAULT',
     "mpn": product._id || product.id || 'MPN-DEFAULT',
@@ -176,9 +176,9 @@ const ProductSEO = ({ product }) => {
       },
       "seller": {
         "@type": "Organization",
-        "name": "أبعاد التواصل",
-        "url": "https://www.ab-tw.com",
-        "logo": "https://www.ab-tw.com/images/logo.png",
+        "name": "جيم روم",
+        "url": "https://www.gameroom-store.com",
+        "logo": "https://www.gameroom-store.com/images/logo.png",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "شارع الملك فهد، حي العليا",
@@ -221,7 +221,7 @@ const ProductSEO = ({ product }) => {
       "@type": "Review",
       "author": {
         "@type": "Person",
-        "name": "عميل أبعاد التواصل"
+        "name": "عميل جيم روم"
       },
       "reviewRating": {
         "@type": "Rating",
@@ -233,7 +233,7 @@ const ProductSEO = ({ product }) => {
     }],
     "manufacturer": {
       "@type": "Organization",
-      "name": product.manufacturer || product.brand || 'أبعاد التواصل'
+      "name": product.manufacturer || product.brand || 'جيم روم'
     }
   };
 

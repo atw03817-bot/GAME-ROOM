@@ -58,7 +58,7 @@ const orderSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ['cod', 'tap', 'stripe', 'tamara'],
+    enum: ['cod', 'tap', 'stripe', 'tamara', 'tabby'],
     required: true
   },
   paymentStatus: {
@@ -101,6 +101,21 @@ const orderSchema = new mongoose.Schema({
     displayName: {
       type: String,
       default: 'عمولة الأقساط - تمارا'
+    }
+  },
+  // عمولة تابي
+  tabbyCommission: {
+    amount: {
+      type: Number,
+      default: 0
+    },
+    rate: {
+      type: Number,
+      default: 0
+    },
+    displayName: {
+      type: String,
+      default: 'عمولة التقسيط - تابي'
     }
   },
   total: {

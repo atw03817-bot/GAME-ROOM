@@ -3,12 +3,12 @@ import api from '../utils/api';
 
 export function useSiteMetadata() {
   const [siteMetadata, setSiteMetadata] = useState({
-    title: 'أبعاد التواصل',
-    titleEn: 'Mobile Store',
-    description: 'متجرك الموثوق للجوالات والإكسسوارات',
-    descriptionEn: 'Your trusted mobile store',
-    keywords: 'جوالات, هواتف ذكية, إكسسوارات, أبعاد التواصل',
-    keywordsEn: 'mobile, smartphones, accessories, electronics',
+    title: 'جيم روم',
+    titleEn: 'Game Room Store',
+    description: 'متجرك الموثوق للألعاب والتقنية',
+    descriptionEn: 'Your trusted gaming store',
+    keywords: 'جوالات, هواتف ذكية, إكسسوارات, جيم روم',
+    keywordsEn: 'games, gaming, technology, accessories',
     favicon: '/favicon.ico',
     appleTouchIcon: '/apple-touch-icon.png',
     ogImage: '/og-image.jpg'

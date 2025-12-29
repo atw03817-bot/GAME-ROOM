@@ -18,11 +18,11 @@ export default function ProductCard({ product, viewMode = 'grid' }) {
   if (viewMode === 'list') {
     return (
       <>
-        <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+        <div className="bg-[#111111] rounded-lg border border-[#C72C15] p-4 hover:shadow-md transition-shadow">
           <div className="flex gap-4">
             {/* Product Image */}
             <Link to={`/products/${product._id}`} className="flex-shrink-0">
-              <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden">
+              <div className="w-24 h-24 bg-[#111111] rounded-lg overflow-hidden border border-[#C72C15]">
                 {product.images && product.images[0] ? (
                   <img
                     src={product.images[0]}
@@ -42,17 +42,17 @@ export default function ProductCard({ product, viewMode = 'grid' }) {
               <Link to={`/products/${product._id}`}>
                 {/* Brand */}
                 {product.brand && (
-                  <div className="text-sm text-gray-600 mb-1">{product.brand}</div>
+                  <div className="text-sm text-gray-300 mb-1">{product.brand}</div>
                 )}
                 
                 {/* Title */}
-                <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+                <h3 className="text-lg font-semibold text-white mb-2 line-clamp-2">
                   {product.nameAr || product.name?.ar}
                 </h3>
                 
                 {/* Price */}
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="text-xl font-bold text-primary-600">
+                  <span className="text-xl font-bold text-[#991b1b]">
                     <Price value={product.price} currency="ريال" />
                   </span>
                   {product.originalPrice && product.originalPrice > product.price && (
@@ -70,13 +70,13 @@ export default function ProductCard({ product, viewMode = 'grid' }) {
 
               {/* Actions */}
               <div className="flex items-center justify-between">
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-gray-400">
                   قسّمها على 4 دفعات بدون فوائد
                 </div>
                 {product.stock > 0 ? (
                   <button
                     onClick={handleQuickAdd}
-                    className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition text-sm"
+                    className="px-4 py-2 bg-gradient-to-r from-[#E08713] to-[#C72C15] text-white rounded-lg hover:opacity-90 transition text-sm"
                   >
                     إضافة للسلة
                   </button>
@@ -101,6 +101,9 @@ export default function ProductCard({ product, viewMode = 'grid' }) {
             images: product.images,
             colors: product.colors,
             storage: product.storage,
+            colorPrices: product.colorPrices,
+            storagePrices: product.storagePrices,
+            customOptions: product.customOptions, // إضافة الخيارات المخصصة
           }}
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
@@ -146,29 +149,41 @@ export default function ProductCard({ product, viewMode = 'grid' }) {
           <Link to={`/products/${product._id}`}>
             {/* العلامة التجارية المطورة */}
             <div className="product-card-brand text-left">
-              {product.brandInfo ? (
-                <div className="flex items-center gap-2 justify-start">
-                  {(product.brandInfo.displayType === 'image' || product.brandInfo.displayType === 'both') && product.brandInfo.image && (
-                    <div className="w-12 h-7 flex items-center justify-center">
-                      <img
-                        src={product.brandInfo.image}
-                        alt={product.brandInfo.text || product.brand}
-                        className="max-w-full max-h-full object-contain"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                        }}
-                      />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {product.brandInfo ? (
+                    <div className="flex items-center gap-2">
+                      {(product.brandInfo.displayType === 'image' || product.brandInfo.displayType === 'both') && product.brandInfo.image && (
+                        <div className="w-12 h-7 flex items-center justify-center">
+                          <img
+                            src={product.brandInfo.image}
+                            alt={product.brandInfo.text || product.brand}
+                            className="max-w-full max-h-full object-contain"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                            }}
+                          />
+                        </div>
+                      )}
+                      {(product.brandInfo.displayType === 'text' || product.brandInfo.displayType === 'both') && (
+                        <span className="text-sm font-medium">
+                          {product.brandInfo.text || product.brand}
+                        </span>
+                      )}
                     </div>
-                  )}
-                  {(product.brandInfo.displayType === 'text' || product.brandInfo.displayType === 'both') && (
-                    <span className="text-sm font-medium">
-                      {product.brandInfo.text || product.brand}
-                    </span>
+                  ) : (
+                    product.brand && <span className="text-sm font-medium">{product.brand}</span>
                   )}
                 </div>
-              ) : (
-                product.brand && <span className="text-sm font-medium">{product.brand}</span>
-              )}
+                
+                {/* عداد المبيعات */}
+                {product.sales > 0 && (
+                  <div className="flex items-center gap-1 bg-red-600/20 px-2 py-1 rounded-full border border-red-500/30">
+                    <span className="text-red-400 text-xs">🔥</span>
+                    <span className="text-xs text-red-400 font-bold">{product.sales}</span>
+                  </div>
+                )}
+              </div>
             </div>
             <h3 className="product-card-title">{product.nameAr || product.name?.ar}</h3>
           </Link>
@@ -250,6 +265,9 @@ export default function ProductCard({ product, viewMode = 'grid' }) {
           images: product.images,
           colors: product.colors,
           storage: product.storage,
+          colorPrices: product.colorPrices,
+          storagePrices: product.storagePrices,
+          customOptions: product.customOptions, // إضافة الخيارات المخصصة
         }}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

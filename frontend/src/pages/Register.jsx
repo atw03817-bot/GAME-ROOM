@@ -90,16 +90,16 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
+    <div className="min-h-screen flex items-center justify-center bg-[#111111] py-12 px-4">
+      <div className="max-w-md w-full bg-[#1a1a1a] border border-[#C72C15] rounded-lg shadow-md p-8">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900">إنشاء حساب جديد</h2>
-          <p className="text-gray-600 mt-2">ابدأ التسوق معنا الآن</p>
+          <h2 className="text-3xl font-bold text-white">إنشاء حساب جديد</h2>
+          <p className="text-gray-300 mt-2">ابدأ التسوق معنا الآن</p>
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               رقم الجوال *
             </label>
             <input
@@ -108,7 +108,7 @@ function Register() {
               value={formData.phone}
               onChange={handlePhoneChange}
               placeholder="0501234567"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+              className="w-full px-4 py-3 bg-[#111111] border border-[#333] text-white rounded-lg focus:ring-2 focus:ring-[#C72C15] focus:border-[#C72C15] transition-colors"
               dir="ltr"
             />
             <p className="text-xs text-gray-500 mt-1">
@@ -117,7 +117,7 @@ function Register() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               كلمة المرور *
             </label>
             <input
@@ -127,12 +127,12 @@ function Register() {
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               placeholder="6 أحرف على الأقل"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+              className="w-full px-4 py-3 bg-[#111111] border border-[#333] text-white rounded-lg focus:ring-2 focus:ring-[#C72C15] focus:border-[#C72C15] transition-colors"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               تأكيد كلمة المرور *
             </label>
             <input
@@ -141,30 +141,30 @@ function Register() {
               value={formData.confirmPassword}
               onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
               placeholder="أعد كتابة كلمة المرور"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+              className="w-full px-4 py-3 bg-[#111111] border border-[#333] text-white rounded-lg focus:ring-2 focus:ring-[#C72C15] focus:border-[#C72C15] transition-colors"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary-600 text-white py-3 rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+            className="w-full bg-gradient-to-r from-[#E08713] to-[#C72C15] text-white py-3 rounded-lg hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
           >
             {loading ? 'جاري إنشاء الحساب...' : 'إنشاء الحساب'}
           </button>
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-gray-600">
+          <p className="text-gray-300">
             لديك حساب بالفعل؟{' '}
-            <Link to="/login" className="text-primary-600 hover:text-primary-700 font-medium">
+            <Link to="/login" className="text-[#C72C15] hover:text-[#E08713] font-medium">
               تسجيل الدخول
             </Link>
           </p>
         </div>
 
         <div className="mt-4 text-center">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-400">
             بإنشاء الحساب، أنت توافق على شروط الاستخدام وسياسة الخصوصية
           </p>
         </div>

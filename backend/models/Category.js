@@ -2,8 +2,8 @@ import mongoose from 'mongoose';
 
 const categorySchema = new mongoose.Schema({
   name: {
-    ar: { type: String, required: true },
-    en: { type: String, required: true }
+    ar: { type: String, required: false },
+    en: { type: String, required: false }
   },
   slug: {
     type: String,

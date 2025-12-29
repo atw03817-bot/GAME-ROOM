@@ -101,7 +101,7 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
         <div className="p-6">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-xl font-bold">أبعاد التواصل</h2>
+              <h2 className="text-xl font-bold">جيم روم</h2>
               <p className="text-xs text-gray-400">لوحة الإدارة</p>
             </div>
             <button

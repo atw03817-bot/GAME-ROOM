@@ -31,7 +31,7 @@ function ThemeSettings() {
     banner: {
       enabled: false,
       text: '',
-      backgroundColor: '#7c3aed',
+      backgroundColor: '#E08713',
       textColor: '#ffffff',
       showCloseButton: false,
       link: ''
@@ -129,6 +129,20 @@ function ThemeSettings() {
     
     // تأكد من وجود إعدادات افتراضية في localStorage
     const ensureDefaultSettings = () => {
+      // مسح الإعدادات القديمة أولاً
+      const oldBannerSettings = localStorage.getItem('bannerSettings');
+      if (oldBannerSettings) {
+        try {
+          const parsed = JSON.parse(oldBannerSettings);
+          if (parsed.backgroundColor === '#7c3aed' || parsed.backgroundColor === '#a855f7') {
+            localStorage.removeItem('bannerSettings');
+            console.log('ThemeSettings: Removed old purple banner settings');
+          }
+        } catch (e) {
+          localStorage.removeItem('bannerSettings');
+        }
+      }
+      
       if (!localStorage.getItem('headerSettings')) {
         const defaultHeader = {
           showStoreNameMobile: false,
@@ -144,7 +158,7 @@ function ThemeSettings() {
         const defaultBanner = {
           enabled: false,
           text: '',
-          backgroundColor: '#7c3aed',
+          backgroundColor: '#E08713',
           textColor: '#ffffff',
           showCloseButton: false,
           link: ''
@@ -234,14 +248,14 @@ function ThemeSettings() {
     formData.append('image', file);
     
     try {
-      const response = await api.post('/upload', formData, {
+      const response = await api.post('/upload/image', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
       
       if (response.data.success) {
-        const logoPath = response.data.filePath;
+        const logoPath = response.data.url;
         handleHeaderChange('logo', logoPath);
         setLogoPreview(logoPath);
         toast.success('تم رفع اللوجو بنجاح');
@@ -280,12 +294,12 @@ function ThemeSettings() {
 
   const colorPresets = [
     {
-      name: 'بنفسجي أبعاد التواصل الأصلي',
+      name: 'برتقالي جيم روم الأصلي',
       colors: {
-        primary: '#a855f7',
-        primaryHover: '#9333ea',
+        primary: '#E08713',
+        primaryHover: '#C72C15',
         secondary: '#6b7280',
-        accent: '#c084fc',
+        accent: '#F59E0B',
         background: '#ffffff',
         surface: '#f8fafc',
         textPrimary: '#1f2937',
@@ -293,21 +307,21 @@ function ThemeSettings() {
       }
     },
     {
-      name: 'بنفسجي داكن احترافي',
+      name: 'أحمر داكن احترافي',
       colors: {
-        primary: '#7c3aed',
-        primaryHover: '#6d28d9',
+        primary: '#C72C15',
+        primaryHover: '#991b1b',
         secondary: '#64748b',
-        accent: '#a78bfa'
+        accent: '#EF4444'
       }
     },
     {
-      name: 'بنفسجي فاتح عصري',
+      name: 'برتقالي فاتح عصري',
       colors: {
-        primary: '#c084fc',
-        primaryHover: '#a855f7',
+        primary: '#F59E0B',
+        primaryHover: '#E08713',
         secondary: '#6b7280',
-        accent: '#ddd6fe'
+        accent: '#FCD34D'
       }
     },
     {
@@ -917,16 +931,16 @@ function ThemeSettings() {
                 <div className="flex items-center gap-3">
                   <input
                     type="color"
-                    value={settings.banner?.backgroundColor || '#7c3aed'}
+                    value={settings.banner?.backgroundColor || '#E08713'}
                     onChange={(e) => handleBannerChange('backgroundColor', e.target.value)}
                     className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
                   />
                   <input
                     type="text"
-                    value={settings.banner?.backgroundColor || '#7c3aed'}
+                    value={settings.banner?.backgroundColor || '#E08713'}
                     onChange={(e) => handleBannerChange('backgroundColor', e.target.value)}
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="#7c3aed"
+                    placeholder="#E08713"
                   />
                 </div>
               </div>
@@ -965,9 +979,9 @@ function ThemeSettings() {
             </div>
 
             {/* ملاحظة */}
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <h3 className="font-semibold text-blue-800 mb-2">ملاحظة مهمة</h3>
-              <p className="text-sm text-blue-700">
+            <div className="p-4 bg-[#E08713]/10 border border-[#E08713]/30 rounded-lg">
+              <h3 className="font-semibold text-[#E08713] mb-2">ملاحظة مهمة</h3>
+              <p className="text-sm text-gray-700">
                 البانر سيظهر بشكل ثابت للعملاء ولن يتمكنوا من إغلاقه. يمكنك التحكم في إظهاره أو إخفاؤه من خلال خيار "تفعيل الإعلان العلوي" أعلاه.
               </p>
             </div>
@@ -978,24 +992,24 @@ function ThemeSettings() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <button
                   onClick={() => {
-                    handleBannerChange('backgroundColor', '#7c3aed');
+                    handleBannerChange('backgroundColor', '#E08713');
                     handleBannerChange('textColor', '#ffffff');
                   }}
                   className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg hover:border-primary-500 transition"
                 >
-                  <div className="w-6 h-6 rounded" style={{ backgroundColor: '#7c3aed' }}></div>
-                  <span className="text-sm">بنفسجي داكن</span>
+                  <div className="w-6 h-6 rounded" style={{ backgroundColor: '#E08713' }}></div>
+                  <span className="text-sm">برتقالي داكن</span>
                 </button>
                 
                 <button
                   onClick={() => {
-                    handleBannerChange('backgroundColor', '#a855f7');
+                    handleBannerChange('backgroundColor', '#C72C15');
                     handleBannerChange('textColor', '#ffffff');
                   }}
                   className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg hover:border-primary-500 transition"
                 >
-                  <div className="w-6 h-6 rounded" style={{ backgroundColor: '#a855f7' }}></div>
-                  <span className="text-sm">بنفسجي فاتح</span>
+                  <div className="w-6 h-6 rounded" style={{ backgroundColor: '#C72C15' }}></div>
+                  <span className="text-sm">أحمر فاتح</span>
                 </button>
                 
                 <button

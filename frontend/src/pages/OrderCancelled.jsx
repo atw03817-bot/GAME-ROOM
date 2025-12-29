@@ -154,9 +154,9 @@ function OrderCancelled() {
         </div>
 
         {/* Information Card */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-          <h3 className="font-semibold mb-3 text-blue-900">ℹ️ معلومات مهمة:</h3>
-          <ul className="space-y-2 text-sm text-blue-800">
+        <div className="bg-[#1a1a1a] border border-[#333333] rounded-lg p-6 mb-6">
+          <h3 className="font-semibold mb-3 text-[#E08713]">ℹ️ معلومات مهمة:</h3>
+          <ul className="space-y-2 text-sm text-gray-300">
             <li>• لم يتم خصم أي مبلغ من حسابك أو بطاقتك</li>
             <li>• تم الاحتفاظ بجميع المنتجات في سلة التسوق</li>
             <li>• يمكنك إكمال عملية الشراء في أي وقت</li>
@@ -179,23 +179,23 @@ function OrderCancelled() {
 
         {/* Alternative Payment Methods */}
         {cancelDetails.provider && (
-          <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
-            <h3 className="font-semibold mb-3 text-purple-900">💳 طرق دفع أخرى متاحة:</h3>
+          <div className="bg-[#1a1a1a] border border-[#333333] rounded-lg p-4 mb-6">
+            <h3 className="font-semibold mb-3 text-[#E08713]">💳 طرق دفع أخرى متاحة:</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
               {cancelDetails.provider !== 'tamara' && (
-                <div className="flex items-center gap-2 text-purple-800">
+                <div className="flex items-center gap-2 text-gray-300">
                   <span>✓</span>
                   <span>تمارا - اشتري الآن وادفع لاحقاً</span>
                 </div>
               )}
               {cancelDetails.provider !== 'tap' && (
-                <div className="flex items-center gap-2 text-purple-800">
+                <div className="flex items-center gap-2 text-gray-300">
                   <span>✓</span>
                   <span>Tap Payments - بطاقة ائتمانية</span>
                 </div>
               )}
               {cancelDetails.provider !== 'cod' && (
-                <div className="flex items-center gap-2 text-purple-800">
+                <div className="flex items-center gap-2 text-gray-300">
                   <span>✓</span>
                   <span>الدفع عند الاستلام</span>
                 </div>

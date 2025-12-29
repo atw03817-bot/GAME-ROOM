@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار حساب العمولة</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .calculation {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧮 اختبار حساب العمولة</h1>
+        
+        <div class="form-group">
+            <label for="apiUrl">رابط API:</label>
+            <input type="text" id="apiUrl" value="http://localhost:5000/api" />
+        </div>
+        
+        <div class="form-group">
+            <label for="subtotal">المجموع الفرعي (ريال):</label>
+            <input type="number" id="subtotal" value="1800" step="0.01" />
+        </div>
+        
+        <div class="form-group">
+            <label for="paymentMethod">طريقة الدفع:</label>
+            <select id="paymentMethod">
+                <option value="cod">الدفع عند الاستلام</option>
+                <option value="tamara">تمارا</option>
+                <option value="tabby">تابي</option>
+                <option value="tap">تاب</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="shippingCost">تكلفة الشحن (ريال):</label>
+            <input type="number" id="shippingCost" value="20" step="0.01" />
+        </div>
+        
+        <div style="margin: 20px 0;">
+            <button onclick="calculateCommission()">حساب العمولة</button>
+            <button onclick="calculateTotal()">حساب المجموع الكلي</button>
+            <button onclick="clearResults()">مسح النتائج</button>
+        </div>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function addResult(title, content, className = 'success') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${className}`;
+            div.innerHTML = `<strong>${title}</strong>\n${content}`;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function calculateCommission() {
+            const apiUrl = document.getElementById('apiUrl').value;
+            const subtotal = parseFloat(document.getElementById('subtotal').value);
+            const paymentMethod = document.getElementById('paymentMethod').value;
+
+            try {
+                addResult('🔍 اختبار حساب العمولة...', 
+                    `المجموع الفرعي: ${subtotal} ريال\nطريقة الدفع: ${paymentMethod}`, 'info');
+                
+                if (paymentMethod === 'tamara' || paymentMethod === 'tabby') {
+                    const response = await fetch(`${apiUrl}/tamara-settings/calculate-commission`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ subtotal })
+                    });
+
+                    const result = await response.json();
+                    
+                    if (response.ok && result.success) {
+                        const commission = result.data.commission;
+                        addResult('✅ تم حساب العمولة', 
+                            `المبلغ: ${commission.amount} ريال\n` +
+                            `النسبة: ${commission.rate}%\n` +
+                            `الاسم: ${commission.displayName}\n` +
+                            `المجموع مع العمولة: ${subtotal + commission.amount} ريال`);
+                    } else {
+                        addResult('❌ فشل حساب العمولة', 
+                            `Status: ${response.status}\nResponse: ${JSON.stringify(result, null, 2)}`, 'error');
+                    }
+                } else {
+                    addResult('ℹ️ لا توجد عمولة', 
+                        `طريقة الدفع ${paymentMethod} لا تتطلب عمولة إضافية`, 'info');
+                }
+                
+            } catch (error) {
+                addResult('❌ خطأ في الشبكة', error.message, 'error');
+            }
+        }
+
+        async function calculateTotal() {
+            const subtotal = parseFloat(document.getElementById('subtotal').value);
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const shippingCost = parseFloat(document.getElementById('shippingCost').value);
+            const taxRate = 0.15; // 15% VAT
+
+            let commission = 0;
+            let commissionName = '';
+
+            // حساب العمولة إذا كانت مطلوبة
+            if (paymentMethod === 'tamara' || paymentMethod === 'tabby') {
+                try {
+                    const apiUrl = document.getElementById('apiUrl').value;
+                    const response = await fetch(`${apiUrl}/tamara-settings/calculate-commission`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ subtotal })
+                    });
+
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                        commission = result.data.commission.amount;
+                        commissionName = paymentMethod === 'tamara' ? 'عمولة تمارا' : 'عمولة تابي';
+                    }
+                } catch (error) {
+                    console.error('Error calculating commission:', error);
+                }
+            }
+
+            // حساب الضريبة
+            const subtotalWithCommission = subtotal + commission;
+            const tax = (subtotalWithCommission + shippingCost) * taxRate;
+            const total = subtotalWithCommission + shippingCost + tax;
+
+            // عرض التفاصيل
+            const calculationDiv = document.createElement('div');
+            calculationDiv.className = 'calculation';
+            calculationDiv.innerHTML = `
+                <h3>🧮 تفاصيل الحساب</h3>
+                <div style="margin: 10px 0;">
+                    <strong>المجموع الفرعي:</strong> ${subtotal.toFixed(2)} ريال
+                </div>
+                ${commission > 0 ? `
+                <div style="margin: 10px 0;">
+                    <strong>${commissionName}:</strong> ${commission.toFixed(2)} ريال
+                </div>
+                ` : ''}
+                <div style="margin: 10px 0;">
+                    <strong>الشحن:</strong> ${shippingCost.toFixed(2)} ريال
+                </div>
+                <div style="margin: 10px 0;">
+                    <strong>الضريبة (15%):</strong> ${tax.toFixed(2)} ريال
+                </div>
+                <hr style="margin: 15px 0;">
+                <div style="margin: 10px 0; font-size: 18px;">
+                    <strong>المجموع الكلي:</strong> ${total.toFixed(2)} ريال
+                </div>
+            `;
+
+            document.getElementById('results').appendChild(calculationDiv);
+        }
+    </script>
+</body>
+</html>

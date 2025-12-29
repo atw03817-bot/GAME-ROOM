@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "أبعاد التواصل",
-    "slug": "ab-tw-store",
+    "name": "جيم روم",
+    "slug": "gameroom-store",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,13 +14,13 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.abtw.store",
+      "bundleIdentifier": "com.gameroom.store",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
-      "package": "com.abtw.store",
+      "package": "com.gameroom.store",
       "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

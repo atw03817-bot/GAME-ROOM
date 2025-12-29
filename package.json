@@ -1,7 +1,7 @@
 {
-  "name": "mobile-store-vite",
+  "name": "gameroom-store",
   "version": "1.0.0",
-  "description": "متجر جوالات بتقنية Vite + React - سهل وسريع",
+  "description": "متجر جيم روم للألعاب والتقنية - بتقنية Vite + React",
   "type": "module",
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
@@ -13,13 +13,15 @@
     "start": "cd backend && npm start"
   },
   "keywords": [
-    "mobile",
+    "gameroom",
+    "gaming",
     "store",
     "ecommerce",
     "vite",
-    "react"
+    "react",
+    "technology"
   ],
-  "author": "",
+  "author": "Game Room Team",
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^8.2.2"

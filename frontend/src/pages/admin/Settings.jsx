@@ -423,7 +423,7 @@ function Settings() {
             </div>
 
             {/* Payment Methods Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Tap Payment */}
               <div className="bg-gradient-to-br from-primary-50 to-indigo-50 rounded-xl p-6 border border-primary-200 hover:shadow-lg transition-shadow">
                 <div className="flex items-center gap-4 mb-4">
@@ -489,6 +489,41 @@ function Settings() {
                 <button
                   onClick={() => navigate('/admin/tamara-payment-settings')}
                   className="w-full py-2.5 px-4 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  إعدادات الربط
+                </button>
+              </div>
+
+              {/* Tabby Payment API */}
+              <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-6 border border-purple-200 hover:shadow-lg transition-shadow">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-gray-800">تابي - الربط</h3>
+                    <p className="text-sm text-gray-600">ادفع على 4 دفعات</p>
+                  </div>
+                </div>
+                <div className="space-y-2 text-xs text-gray-600 mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-purple-400 rounded-full"></span>
+                    <span>تقسيط على 4 دفعات</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-purple-400 rounded-full"></span>
+                    <span>إعدادات API والربط</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-purple-400 rounded-full"></span>
+                    <span>تفعيل وتعطيل الخدمة</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => navigate('/admin/tabby-payment-settings')}
+                  className="w-full py-2.5 px-4 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-colors"
                 >
                   إعدادات الربط
                 </button>

@@ -54,7 +54,7 @@ const BlogManager = () => {
       canonicalUrl: ''
     },
     author: {
-      name: 'فريق أبعاد التواصل',
+      name: 'فريق جيم روم',
       avatar: '',
       bio: ''
     },
@@ -211,7 +211,7 @@ const BlogManager = () => {
       tags: post.tags || [],
       featuredImage: post.featuredImage || { url: '', alt: '', caption: '' },
       seo: post.seo || { metaTitle: '', metaDescription: '', keywords: [], canonicalUrl: '' },
-      author: post.author || { name: 'فريق أبعاد التواصل', avatar: '', bio: '' },
+      author: post.author || { name: 'فريق جيم روم', avatar: '', bio: '' },
       status: post.status || 'draft',
       featured: post.featured || false,
       commentsEnabled: post.commentsEnabled !== undefined ? post.commentsEnabled : true,
@@ -243,7 +243,7 @@ const BlogManager = () => {
       tags: [],
       featuredImage: { url: '', alt: '', caption: '' },
       seo: { metaTitle: '', metaDescription: '', keywords: [], canonicalUrl: '' },
-      author: { name: 'فريق أبعاد التواصل', avatar: '', bio: '' },
+      author: { name: 'فريق جيم روم', avatar: '', bio: '' },
       status: 'draft',
       featured: false,
       commentsEnabled: true,

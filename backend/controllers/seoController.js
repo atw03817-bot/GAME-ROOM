@@ -148,11 +148,11 @@ export const generateSitemap = async (req, res) => {
     console.log('🌐 FRONTEND_URL:', process.env.FRONTEND_URL);
     
     // تحديد الدومين الصحيح
-    let baseUrl = process.env.FRONTEND_URL || 'https://www.ab-tw.com';
+    let baseUrl = process.env.FRONTEND_URL || 'https://www.gameroom-store.com';
     
     // إذا كان الدومين قديم، استخدم الدومين الجديد
     if (baseUrl.includes('vercel.app') || baseUrl.includes('yourdomain.com')) {
-      baseUrl = 'https://www.ab-tw.com';
+      baseUrl = 'https://www.gameroom-store.com';
     }
     
     console.log('🌐 Using base URL:', baseUrl);
@@ -259,11 +259,11 @@ export const generateRobots = async (req, res) => {
     console.log('🌐 FRONTEND_URL:', process.env.FRONTEND_URL);
     
     // تحديد الدومين الصحيح
-    let baseUrl = process.env.FRONTEND_URL || 'https://www.ab-tw.com';
+    let baseUrl = process.env.FRONTEND_URL || 'https://www.gameroom-store.com';
     
     // إذا كان الدومين قديم، استخدم الدومين الجديد
     if (baseUrl.includes('vercel.app') || baseUrl.includes('yourdomain.com')) {
-      baseUrl = 'https://www.ab-tw.com';
+      baseUrl = 'https://www.gameroom-store.com';
     }
     
     console.log('🌐 Using base URL:', baseUrl);
@@ -571,23 +571,23 @@ export const autoGenerateProductSEO = async (req, res) => {
       const validProductName = productName && productName.trim() !== '' ? productName : `منتج ${product._id}`;
       const validDescription = productDesc && productDesc.trim() !== '' 
         ? productDesc 
-        : `${validProductName} - منتج عالي الجودة من أبعاد التواصل. متوفر الآن بأفضل الأسعار مع ضمان الجودة والتوصيل المجاني في جميع أنحاء المملكة العربية السعودية.`;
+        : `${validProductName} - منتج عالي الجودة من جيم روم. متوفر الآن بأفضل الأسعار مع ضمان الجودة والتوصيل المجاني في جميع أنحاء المملكة العربية السعودية.`;
       
       // التأكد من وجود صور صالحة
       const validImages = product.images && product.images.length > 0 && product.images[0] 
         ? product.images.filter(img => img && img.trim() !== '') 
-        : [`https://www.ab-tw.com/images/default-product.jpg`];
+        : [`https://www.gameroom-store.com/images/default-product.jpg`];
 
       const seoData = {
         pageId: product._id.toString(),
         pageType: 'product',
-        title: `${validProductName} - أبعاد التواصل | متجر إلكتروني موثوق`,
+        title: `${validProductName} - جيم روم | متجر إلكتروني موثوق`,
         description: validDescription.length > 160 
           ? validDescription.substring(0, 157) + '...' 
           : validDescription,
         keywords: [
           validProductName,
-          product.brand || 'أبعاد التواصل',
+          product.brand || 'جيم روم',
           product.categoryName || 'إلكترونيات',
           'السعودية',
           'متجر إلكتروني',
@@ -606,13 +606,13 @@ export const autoGenerateProductSEO = async (req, res) => {
           width: 800,
           height: 600
         } : {
-          url: 'https://www.ab-tw.com/images/default-product.jpg',
+          url: 'https://www.gameroom-store.com/images/default-product.jpg',
           alt: `${validProductName} - صورة افتراضية`,
           width: 800,
           height: 600
         },
         openGraph: {
-          title: `${validProductName} - أبعاد التواصل`,
+          title: `${validProductName} - جيم روم`,
           description: validDescription.length > 160 
             ? validDescription.substring(0, 157) + '...' 
             : validDescription,
@@ -622,7 +622,7 @@ export const autoGenerateProductSEO = async (req, res) => {
             width: 1200,
             height: 630
           } : {
-            url: 'https://www.ab-tw.com/images/default-product.jpg',
+            url: 'https://www.gameroom-store.com/images/default-product.jpg',
             alt: `${validProductName} - صورة افتراضية`,
             width: 1200,
             height: 630
@@ -639,7 +639,7 @@ export const autoGenerateProductSEO = async (req, res) => {
             image: validImages,
             brand: {
               "@type": "Brand",
-              name: product.brand && product.brand.trim() !== '' ? product.brand : 'أبعاد التواصل'
+              name: product.brand && product.brand.trim() !== '' ? product.brand : 'جيم روم'
             },
             sku: product._id.toString(),
             mpn: product._id.toString(),
@@ -647,7 +647,7 @@ export const autoGenerateProductSEO = async (req, res) => {
             category: product.categoryName || product.category || 'إلكترونيات',
             offers: {
               "@type": "Offer",
-              url: `https://www.ab-tw.com/products/${productSlug}`,
+              url: `https://www.gameroom-store.com/products/${productSlug}`,
               price: productPrice.toString(),
               priceCurrency: "SAR",
               availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
@@ -682,9 +682,9 @@ export const autoGenerateProductSEO = async (req, res) => {
               },
               seller: {
                 "@type": "Organization",
-                name: "أبعاد التواصل",
-                url: "https://www.ab-tw.com",
-                logo: "https://www.ab-tw.com/images/logo.png",
+                name: "جيم روم",
+                url: "https://www.gameroom-store.com",
+                logo: "https://www.gameroom-store.com/images/logo.png",
                 address: {
                   "@type": "PostalAddress",
                   streetAddress: "شارع الملك فهد، حي العليا",
@@ -694,7 +694,7 @@ export const autoGenerateProductSEO = async (req, res) => {
                   addressCountry: "SA"
                 },
                 telephone: "+966-11-123-4567",
-                email: "info@ab-tw.com",
+                email: "info@gameroom-store.com",
                 contactPoint: {
                   "@type": "ContactPoint",
                   telephone: "+966-11-123-4567",
@@ -727,7 +727,7 @@ export const autoGenerateProductSEO = async (req, res) => {
               "@type": "Review",
               author: {
                 "@type": "Person",
-                name: "عميل أبعاد التواصل"
+                name: "عميل جيم روم"
               },
               reviewRating: {
                 "@type": "Rating",
@@ -739,7 +739,7 @@ export const autoGenerateProductSEO = async (req, res) => {
             }],
             manufacturer: {
               "@type": "Organization",
-              name: product.manufacturer || product.brand || 'أبعاد التواصل'
+              name: product.manufacturer || product.brand || 'جيم روم'
             }
           }
         },

@@ -66,16 +66,16 @@ const Blog = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#111111]">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
+      <div className="bg-gradient-to-r from-[#E08713] to-[#C72C15] text-white py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              مدونة أبعاد التواصل
+              مدونة متجر الألعاب
             </h1>
-            <p className="text-xl text-blue-100 mb-8">
-              آخر الأخبار والمراجعات والنصائح حول جوالات HOTWAV والهواتف الذكية
+            <p className="text-xl text-orange-100 mb-8">
+              آخر الأخبار والمراجعات والنصائح حول ألعاب البلايستيشن والأجهزة الذكية
             </p>
             
             {/* Search Bar */}
@@ -86,11 +86,11 @@ const Blog = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="ابحث في المقالات..."
-                  className="w-full px-6 py-4 pr-12 rounded-full text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  className="w-full px-6 py-4 pr-12 rounded-full bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#C72C15]"
                 />
                 <button
                   type="submit"
-                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#C72C15] text-white p-2 rounded-full hover:bg-[#991b1b]"
                 >
                   <Search className="w-5 h-5" />
                 </button>
@@ -104,8 +104,8 @@ const Blog = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm p-6 sticky top-4">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">التصنيفات</h3>
+            <div className="bg-[#1a1a1a] border border-[#C72C15] rounded-lg shadow-sm p-6 sticky top-4">
+              <h3 className="text-lg font-bold text-white mb-4">التصنيفات</h3>
               <div className="space-y-2">
                 <button
                   onClick={() => {
@@ -114,8 +114,8 @@ const Blog = () => {
                   }}
                   className={`w-full text-right px-4 py-2 rounded-lg transition-colors ${
                     selectedCategory === 'all'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-[#E08713] to-[#C72C15] text-white'
+                      : 'bg-[#111111] border border-[#333] text-gray-300 hover:bg-[#2a2a2a]'
                   }`}
                 >
                   جميع المقالات
@@ -129,8 +129,8 @@ const Blog = () => {
                     }}
                     className={`w-full text-right px-4 py-2 rounded-lg transition-colors flex items-center justify-between ${
                       selectedCategory === cat.key
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? 'bg-gradient-to-r from-[#E08713] to-[#C72C15] text-white'
+                        : 'bg-[#111111] border border-[#333] text-gray-300 hover:bg-[#2a2a2a]'
                     }`}
                   >
                     <span>{cat.name}</span>
@@ -142,8 +142,8 @@ const Blog = () => {
               {/* Featured Posts Sidebar */}
               {featuredPosts.length > 0 && (
                 <div className="mt-8">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5 text-yellow-500" />
+                  <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-[#C72C15]" />
                     مقالات مميزة
                   </h3>
                   <div className="space-y-4">
@@ -160,10 +160,10 @@ const Blog = () => {
                             className="w-full h-24 object-cover rounded-lg mb-2"
                           />
                         )}
-                        <h4 className="text-sm font-medium text-gray-900 group-hover:text-blue-600 line-clamp-2">
+                        <h4 className="text-sm font-medium text-white group-hover:text-[#C72C15] line-clamp-2">
                           {post.title}
                         </h4>
-                        <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
+                        <div className="flex items-center gap-2 mt-1 text-xs text-gray-400">
                           <Clock className="w-3 h-3" />
                           <span>{post.stats?.readingTime || 5} دقائق</span>
                         </div>
@@ -179,11 +179,11 @@ const Blog = () => {
           <div className="lg:col-span-3">
             {loading ? (
               <div className="flex justify-center items-center py-20">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C72C15]"></div>
               </div>
             ) : posts.length === 0 ? (
-              <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-                <p className="text-gray-500 text-lg">لا توجد مقالات</p>
+              <div className="bg-[#1a1a1a] border border-[#C72C15] rounded-lg shadow-sm p-12 text-center">
+                <p className="text-gray-300 text-lg">لا توجد مقالات</p>
               </div>
             ) : (
               <>
@@ -192,18 +192,18 @@ const Blog = () => {
                     <Link
                       key={post._id}
                       to={`/blog/${post.slug}`}
-                      className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow group"
+                      className="bg-[#1a1a1a] border border-[#C72C15] rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow group"
                     >
                       {post.featuredImage?.url && (
-                        <div className="relative w-full h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden bg-white">
+                        <div className="relative w-full h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden bg-[#111111]">
                           <img
                             src={post.featuredImage.url}
                             alt={post.featuredImage.alt}
                             className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                           />
                           <div className="absolute top-3 right-3">
-                            <span className="px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded-full">
-                              {post.category === 'اخبار-hotwav' && 'أخبار HOTWAV'}
+                            <span className="px-3 py-1 bg-gradient-to-r from-[#E08713] to-[#C72C15] text-white text-xs font-medium rounded-full">
+                              {post.category === 'اخبار-hotwav' && 'أخبار الألعاب'}
                               {post.category === 'مراجعات-جوالات' && 'مراجعات'}
                               {post.category === 'مقارنات' && 'مقارنات'}
                               {post.category === 'دليل-الشراء' && 'دليل الشراء'}
@@ -216,15 +216,15 @@ const Blog = () => {
                       )}
                       
                       <div className="p-5">
-                        <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 line-clamp-2">
+                        <h3 className="text-lg font-bold text-white mb-2 group-hover:text-[#C72C15] line-clamp-2">
                           {post.title}
                         </h3>
                         
-                        <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                        <p className="text-gray-300 text-sm mb-4 line-clamp-3">
                           {post.excerpt}
                         </p>
                         
-                        <div className="flex items-center justify-between text-xs text-gray-500">
+                        <div className="flex items-center justify-between text-xs text-gray-400">
                           <div className="flex items-center gap-3">
                             <div className="flex items-center gap-1">
                               <Calendar className="w-3 h-3" />
@@ -258,7 +258,7 @@ const Blog = () => {
                       <button
                         onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                         disabled={currentPage === 1}
-                        className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 hover:bg-gray-50"
+                        className="px-4 py-2 bg-[#1a1a1a] border border-[#333] text-white rounded-lg disabled:opacity-50 hover:bg-[#2a2a2a]"
                       >
                         السابق
                       </button>
@@ -270,8 +270,8 @@ const Blog = () => {
                             onClick={() => setCurrentPage(i + 1)}
                             className={`px-4 py-2 rounded-lg ${
                               currentPage === i + 1
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-white border border-gray-300 hover:bg-gray-50'
+                                ? 'bg-gradient-to-r from-[#E08713] to-[#C72C15] text-white'
+                                : 'bg-[#1a1a1a] border border-[#333] text-white hover:bg-[#2a2a2a]'
                             }`}
                           >
                             {i + 1}
@@ -282,7 +282,7 @@ const Blog = () => {
                       <button
                         onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                         disabled={currentPage === totalPages}
-                        className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 hover:bg-gray-50"
+                        className="px-4 py-2 bg-[#1a1a1a] border border-[#333] text-white rounded-lg disabled:opacity-50 hover:bg-[#2a2a2a]"
                       >
                         التالي
                       </button>

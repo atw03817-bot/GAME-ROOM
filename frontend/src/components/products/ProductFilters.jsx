@@ -21,12 +21,12 @@ export default function ProductFilters({
   ];
 
   return (
-    <div className="bg-white rounded-xl p-6 sticky top-24">
-      <h2 className="text-xl font-bold mb-6">الفلاتر</h2>
+    <div className="bg-[#111111] border border-[#C72C15] rounded-xl p-6 sticky top-24">
+      <h2 className="text-xl font-bold mb-6 text-white">الفلاتر</h2>
 
       {/* Categories */}
       <div className="mb-6">
-        <h3 className="font-bold mb-3 text-sm">الفئة</h3>
+        <h3 className="font-bold mb-3 text-sm text-white">الفئة</h3>
         <div className="space-y-2">
           {categories.map((category) => (
             <label key={category.id} className="flex items-center gap-2 cursor-pointer">
@@ -36,9 +36,9 @@ export default function ProductFilters({
                 value={category.id}
                 checked={selectedCategory === category.id}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-4 h-4 text-primary-600 focus:ring-primary-500"
+                className="w-4 h-4 text-[#E08713] focus:ring-[#E08713] bg-gray-700 border-gray-600"
               />
-              <span className="text-sm flex-1">{category.name}</span>
+              <span className="text-sm flex-1 text-white">{category.name}</span>
               <span className="text-xs text-gray-400">({category.count})</span>
             </label>
           ))}
@@ -47,7 +47,7 @@ export default function ProductFilters({
 
       {/* Price Range */}
       <div className="mb-6">
-        <h3 className="font-bold mb-3 text-sm">السعر</h3>
+        <h3 className="font-bold mb-3 text-sm text-white">السعر</h3>
         <div className="space-y-3">
           <input
             type="range"
@@ -56,9 +56,9 @@ export default function ProductFilters({
             step="100"
             value={priceRange[1]}
             onChange={(e) => setPriceRange([0, parseInt(e.target.value)])}
-            className="w-full"
+            className="w-full accent-[#E08713]"
           />
-          <div className="flex justify-between text-sm text-gray-600">
+          <div className="flex justify-between text-sm text-gray-300">
             <span>0 ر.س</span>
             <span>{priceRange[1].toLocaleString()} ر.س</span>
           </div>
@@ -67,7 +67,7 @@ export default function ProductFilters({
 
       {/* Condition */}
       <div className="mb-6">
-        <h3 className="font-bold mb-3 text-sm">الحالة</h3>
+        <h3 className="font-bold mb-3 text-sm text-white">الحالة</h3>
         <div className="space-y-2">
           {conditions.map((condition) => (
             <label key={condition.id} className="flex items-center gap-2 cursor-pointer">
@@ -81,9 +81,9 @@ export default function ProductFilters({
                     setSelectedConditions(selectedConditions.filter(c => c !== condition.id));
                   }
                 }}
-                className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
+                className="w-4 h-4 text-[#E08713] rounded focus:ring-[#E08713] bg-gray-700 border-gray-600"
               />
-              <span className="text-sm">{condition.name}</span>
+              <span className="text-sm text-white">{condition.name}</span>
             </label>
           ))}
         </div>
@@ -96,7 +96,7 @@ export default function ProductFilters({
           setPriceRange([0, 10000]);
           setSelectedConditions([]);
         }}
-        className="w-full py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition"
+        className="w-full py-2 border border-[#C72C15] rounded-lg text-sm font-medium text-white hover:bg-gradient-to-r hover:from-[#E08713] hover:to-[#C72C15] transition"
       >
         إعادة تعيين
       </button>

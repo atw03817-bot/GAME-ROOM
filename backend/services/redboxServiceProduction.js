@@ -103,7 +103,7 @@ class RedBoxServiceProduction {
       const hoursElapsed = (Date.now() - createdTime.getTime()) / (1000 * 60 * 60);
       
       let status = 'created';
-      let location = 'أبعاد التواصل - الرياض';
+      let location = 'جيم روم - الرياض';
       let description = 'تم إنشاء الشحنة';
 
       if (hoursElapsed > 2) {
@@ -245,7 +245,7 @@ class RedBoxServiceProduction {
 
     history.push({
       status: 'created',
-      location: 'أبعاد التواصل - الرياض',
+      location: 'جيم روم - الرياض',
       timestamp: baseTime,
       description: 'تم إنشاء الشحنة وإرسالها لـ RedBox'
     });

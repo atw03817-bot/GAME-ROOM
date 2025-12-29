@@ -151,7 +151,7 @@ function AddressManager({ onSelectAddress, selectedAddressId }) {
   };
 
   if (loading) {
-    return <div className="text-center py-8">جاري التحميل...</div>;
+    return <div className="text-center py-8 text-gray-300">جاري التحميل...</div>;
   }
 
   return (
@@ -160,21 +160,21 @@ function AddressManager({ onSelectAddress, selectedAddressId }) {
       {!showForm && (
         <div>
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold">عناوينك المحفوظة</h3>
+            <h3 className="text-lg font-semibold text-white">عناوينك المحفوظة</h3>
             <button
               onClick={() => setShowForm(true)}
-              className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700"
+              className="flex items-center gap-2 bg-gradient-to-r from-[#E08713] to-[#C72C15] text-white px-4 py-2 rounded-lg hover:from-[#C72C15] hover:to-[#991b1b]"
             >
               <FaPlus /> إضافة عنوان جديد
             </button>
           </div>
 
           {addresses.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-400">
               <p>لا توجد عناوين محفوظة</p>
               <button
                 onClick={() => setShowForm(true)}
-                className="mt-4 text-primary-600 hover:underline"
+                className="mt-4 text-[#E08713] hover:underline"
               >
                 أضف عنوانك الأول
               </button>
@@ -187,25 +187,25 @@ function AddressManager({ onSelectAddress, selectedAddressId }) {
                   onClick={() => onSelectAddress && onSelectAddress(address)}
                   className={`border-2 rounded-lg p-4 cursor-pointer transition ${
                     selectedAddressId === address._id
-                      ? 'border-primary-600 bg-primary-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-[#E08713] bg-[#E08713]/10'
+                      : 'border-[#C72C15]/30 hover:border-[#C72C15]'
                   }`}
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <h4 className="font-semibold">{address.fullName}</h4>
+                        <h4 className="font-semibold text-white">{address.fullName}</h4>
                         {address.isDefault && (
-                          <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded">
+                          <span className="bg-green-900/20 text-green-400 text-xs px-2 py-1 rounded">
                             افتراضي
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-gray-600">{address.phone}</p>
-                      <p className="text-sm text-gray-600 mt-1">
+                      <p className="text-sm text-gray-300">{address.phone}</p>
+                      <p className="text-sm text-gray-300 mt-1">
                         {address.city} - {address.district}
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-gray-300">
                         {address.street} - {address.building}
                       </p>
                     </div>
@@ -217,7 +217,7 @@ function AddressManager({ onSelectAddress, selectedAddressId }) {
                             e.stopPropagation();
                             handleSetDefault(address._id);
                           }}
-                          className="text-green-600 hover:text-green-700 p-2"
+                          className="text-green-400 hover:text-green-300 p-2"
                           title="تعيين كافتراضي"
                         >
                           <FaCheck />
@@ -228,7 +228,7 @@ function AddressManager({ onSelectAddress, selectedAddressId }) {
                           e.stopPropagation();
                           handleEdit(address);
                         }}
-                        className="text-primary-600 hover:text-primary-700 p-2"
+                        className="text-[#E08713] hover:text-[#C72C15] p-2"
                         title="تعديل"
                       >
                         <FaEdit />
@@ -238,7 +238,7 @@ function AddressManager({ onSelectAddress, selectedAddressId }) {
                           e.stopPropagation();
                           handleDelete(address._id);
                         }}
-                        className="text-red-600 hover:text-red-700 p-2"
+                        className="text-red-400 hover:text-red-300 p-2"
                         title="حذف"
                       >
                         <FaTrash />
@@ -255,41 +255,41 @@ function AddressManager({ onSelectAddress, selectedAddressId }) {
       {/* Address Form */}
       {showForm && (
         <div>
-          <h3 className="text-lg font-semibold mb-4">
+          <h3 className="text-lg font-semibold mb-4 text-white">
             {editingAddress ? 'تعديل العنوان' : 'إضافة عنوان جديد'}
           </h3>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">الاسم الكامل *</label>
+                <label className="block text-sm font-medium mb-1 text-white">الاسم الكامل *</label>
                 <input
                   type="text"
                   required
                   value={formData.fullName}
                   onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2"
+                  className="w-full border border-[#C72C15] bg-[#111111] text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#E08713] focus:border-[#E08713]"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">رقم الجوال *</label>
+                <label className="block text-sm font-medium mb-1 text-white">رقم الجوال *</label>
                 <input
                   type="tel"
                   required
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2"
+                  className="w-full border border-[#C72C15] bg-[#111111] text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#E08713] focus:border-[#E08713]"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">المدينة *</label>
+                <label className="block text-sm font-medium mb-1 text-white">المدينة *</label>
                 <select
                   required
                   value={formData.city}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2 bg-white"
+                  className="w-full border border-[#C72C15] bg-[#111111] text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#E08713] focus:border-[#E08713]"
                 >
                   <option value="">اختر المدينة</option>
                   {cities.map((city) => (
@@ -301,45 +301,45 @@ function AddressManager({ onSelectAddress, selectedAddressId }) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">الحي *</label>
+                <label className="block text-sm font-medium mb-1 text-white">الحي *</label>
                 <input
                   type="text"
                   required
                   value={formData.district}
                   onChange={(e) => setFormData({ ...formData, district: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2"
+                  className="w-full border border-[#C72C15] bg-[#111111] text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#E08713] focus:border-[#E08713]"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">الشارع *</label>
+                <label className="block text-sm font-medium mb-1 text-white">الشارع *</label>
                 <input
                   type="text"
                   required
                   value={formData.street}
                   onChange={(e) => setFormData({ ...formData, street: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2"
+                  className="w-full border border-[#C72C15] bg-[#111111] text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#E08713] focus:border-[#E08713]"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">رقم المبنى *</label>
+                <label className="block text-sm font-medium mb-1 text-white">رقم المبنى *</label>
                 <input
                   type="text"
                   required
                   value={formData.building}
                   onChange={(e) => setFormData({ ...formData, building: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2"
+                  className="w-full border border-[#C72C15] bg-[#111111] text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#E08713] focus:border-[#E08713]"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">الرمز البريدي</label>
+                <label className="block text-sm font-medium mb-1 text-white">الرمز البريدي</label>
                 <input
                   type="text"
                   value={formData.postalCode}
                   onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2"
+                  className="w-full border border-[#C72C15] bg-[#111111] text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#E08713] focus:border-[#E08713]"
                 />
               </div>
             </div>
@@ -350,9 +350,9 @@ function AddressManager({ onSelectAddress, selectedAddressId }) {
                 id="isDefault"
                 checked={formData.isDefault}
                 onChange={(e) => setFormData({ ...formData, isDefault: e.target.checked })}
-                className="w-4 h-4"
+                className="w-4 h-4 text-[#E08713] bg-[#111111] border-[#C72C15] rounded focus:ring-[#E08713]"
               />
-              <label htmlFor="isDefault" className="text-sm">
+              <label htmlFor="isDefault" className="text-sm text-white">
                 تعيين كعنوان افتراضي
               </label>
             </div>
@@ -360,14 +360,14 @@ function AddressManager({ onSelectAddress, selectedAddressId }) {
             <div className="flex gap-3">
               <button
                 type="submit"
-                className="flex-1 bg-primary-600 text-white py-2 rounded-lg hover:bg-primary-700"
+                className="flex-1 bg-gradient-to-r from-[#E08713] to-[#C72C15] text-white py-2 rounded-lg hover:from-[#C72C15] hover:to-[#991b1b]"
               >
                 {editingAddress ? 'تحديث' : 'إضافة'}
               </button>
               <button
                 type="button"
                 onClick={handleCancel}
-                className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300"
+                className="flex-1 bg-[#2a2a2a] text-gray-300 py-2 rounded-lg hover:bg-[#3a3a3a]"
               >
                 إلغاء
               </button>

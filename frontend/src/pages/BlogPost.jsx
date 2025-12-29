@@ -144,7 +144,7 @@ const BlogPost = () => {
               <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600 mb-6 pb-6 border-b">
                 <div className="flex items-center gap-2">
                   <User className="w-4 h-4" />
-                  <span>{post.author?.name || 'فريق أبعاد التواصل'}</span>
+                  <span>{post.author?.name || 'فريق جيم روم'}</span>
                 </div>
                 
                 <div className="flex items-center gap-2">

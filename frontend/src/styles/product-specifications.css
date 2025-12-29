@@ -1,4 +1,4 @@
-/* Product Specifications Styles */
+/* Product Specifications Styles - Enhanced Dark Theme */
 .specifications-table {
   font-family: 'Cairo', sans-serif;
   direction: rtl;
@@ -8,7 +8,10 @@
 .specifications-table table {
   border-collapse: collapse;
   width: 100%;
-  background: white;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .specifications-table th,
@@ -17,36 +20,80 @@
   vertical-align: top;
   word-wrap: break-word;
   hyphens: auto;
+  padding: 16px 20px;
 }
 
 /* Table header styling */
 .specifications-table thead th {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border-bottom: 2px solid #e2e8f0;
+  background: linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%);
+  border-bottom: 2px solid #E08713;
   font-weight: 700;
-  color: #1e293b;
+  color: #E08713;
   position: sticky;
   top: 0;
   z-index: 10;
+  font-size: 16px;
 }
 
 /* Table row hover effects */
 .specifications-table tbody tr {
-  transition: all 0.2s ease;
-  border-bottom: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+  border-bottom: 1px solid #333333;
 }
 
 .specifications-table tbody tr:hover {
-  background-color: #eff6ff !important;
-  transform: translateX(-2px);
-  box-shadow: 4px 0 8px rgba(59, 130, 246, 0.1);
+  background: linear-gradient(135deg, #E08713/10 0%, #C72C15/10 100%) !important;
+  transform: translateX(-4px);
+  box-shadow: 8px 0 16px rgba(224, 135, 19, 0.2);
+}
+
+.specifications-table tbody tr:nth-child(even) {
+  background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%);
+}
+
+.specifications-table tbody tr:nth-child(odd) {
+  background: linear-gradient(135deg, #111111 0%, #1a1a1a 100%);
+}
+
+.specifications-table tbody td:first-child {
+  font-weight: 600;
+  color: #E08713;
+  border-left: 3px solid #333333;
+}
+
+.specifications-table tbody td:last-child {
+  color: #e5e5e5;
 }
 
 /* Mobile card styling */
 .specifications-table .space-y-4 > div {
   transition: all 0.3s ease;
-  border: 1px solid #e2e8f0;
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid #333333;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.specifications-table .space-y-4 > div:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(224, 135, 19, 0.15);
+  border-color: #E08713;
+}
+
+.specifications-table .space-y-4 > div .w-3 {
+  background: linear-gradient(135deg, #E08713 0%, #C72C15 100%);
+  box-shadow: 0 2px 8px rgba(224, 135, 19, 0.3);
+}
+
+.specifications-table .space-y-4 > div .font-bold {
+  color: #E08713;
+  font-size: 16px;
+}
+
+.specifications-table .space-y-4 > div .text-gray-700 {
+  color: #e5e5e5 !important;
+  line-height: 1.6;
 }
 
 .specifications-table .space-y-4 > div:hover {
@@ -57,13 +104,13 @@
 
 /* Dot indicators */
 .specifications-table .w-2.h-2 {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+  background: linear-gradient(135deg, #E08713 0%, #C72C15 100%);
+  box-shadow: 0 2px 4px rgba(224, 135, 19, 0.3);
 }
 
 .specifications-table .w-3.h-3 {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.4);
+  background: linear-gradient(135deg, #E08713 0%, #C72C15 100%);
+  box-shadow: 0 2px 6px rgba(224, 135, 19, 0.4);
 }
 
 /* Text styling improvements */

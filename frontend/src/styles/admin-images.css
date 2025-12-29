@@ -84,7 +84,7 @@
 }
 
 .admin-image-overlay .btn-primary:hover {
-  background: #2563eb;
+  background: #C72C15;
 }
 
 .admin-image-overlay .btn-danger {
@@ -110,7 +110,7 @@
   position: absolute;
   top: 8px;
   left: 8px;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #E08713 0%, #C72C15 100%);
   color: white;
   padding: 4px 8px;
   border-radius: 4px;
@@ -249,7 +249,7 @@
   width: 20px;
   height: 20px;
   border: 2px solid #e5e7eb;
-  border-top: 2px solid #3b82f6;
+  border-top: 2px solid #E08713;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }

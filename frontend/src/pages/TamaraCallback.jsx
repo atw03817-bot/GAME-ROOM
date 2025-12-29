@@ -168,7 +168,7 @@ function TamaraCallback() {
       case 'cancelled':
         return <FaExclamationTriangle className="text-6xl text-red-500" />;
       default:
-        return <FaSpinner className="animate-spin text-6xl text-blue-500" />;
+        return <FaSpinner className="animate-spin text-6xl text-[#E08713]" />;
     }
   };
 
@@ -180,7 +180,7 @@ function TamaraCallback() {
       case 'cancelled':
         return 'text-red-600';
       default:
-        return 'text-blue-600';
+        return 'text-[#E08713]';
     }
   };
 

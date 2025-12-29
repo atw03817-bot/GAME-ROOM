@@ -36,6 +36,9 @@ function AddProduct() {
   const [specValue, setSpecValue] = useState('')
   const [specifications, setSpecifications] = useState([])
   const [descriptionImages, setDescriptionImages] = useState([])
+  const [colorPrices, setColorPrices] = useState({}) // إضافات أسعار الألوان
+  const [storagePrices, setStoragePrices] = useState({}) // إضافات أسعار السعات
+  const [customOptions, setCustomOptions] = useState([]) // الخيارات المخصصة
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -124,6 +127,12 @@ function AddProduct() {
       delete newColorImages[colorToRemove]
       return newColorImages
     })
+    // Remove color from colorPrices
+    setColorPrices(prev => {
+      const newColorPrices = { ...prev }
+      delete newColorPrices[colorToRemove]
+      return newColorPrices
+    })
   }
 
   const addStorage = () => {
@@ -137,10 +146,17 @@ function AddProduct() {
   }
 
   const removeStorage = (index) => {
+    const storageToRemove = formData.storage[index]
     setFormData(prev => ({
       ...prev,
       storage: prev.storage.filter((_, i) => i !== index)
     }))
+    // Remove storage from storagePrices
+    setStoragePrices(prev => {
+      const newStoragePrices = { ...prev }
+      delete newStoragePrices[storageToRemove]
+      return newStoragePrices
+    })
   }
 
   const addSpecification = () => {
@@ -196,6 +212,99 @@ function AddProduct() {
     const imgTag = `<img src="${imageUrl}" alt="صورة المنتج" />`
     navigator.clipboard.writeText(imgTag)
     alert('تم نسخ كود الصورة! الصقه في الوصف')
+  }
+
+  // تحديث إضافة سعر اللون
+  const updateColorPrice = (color, additionalPrice) => {
+    setColorPrices(prev => ({
+      ...prev,
+      [color]: parseFloat(additionalPrice) || 0
+    }))
+  }
+
+  // تحديث إضافة سعر السعة
+  const updateStoragePrice = (storage, additionalPrice) => {
+    setStoragePrices(prev => ({
+      ...prev,
+      [storage]: parseFloat(additionalPrice) || 0
+    }))
+  }
+
+  // حساب السعر النهائي لتركيبة معينة
+  const calculateFinalPrice = (color, storage) => {
+    const basePrice = parseFloat(formData.price) || 0
+    const colorAddition = colorPrices[color] || 0
+    const storageAddition = storagePrices[storage] || 0
+    return basePrice + colorAddition + storageAddition
+  }
+
+  // إضافة خيار مخصص جديد
+  const addCustomOption = () => {
+    const newOption = {
+      id: Date.now(),
+      name: '',
+      nameAr: '',
+      type: 'text',
+      options: [],
+      basePrice: 0, // للنص والرقم
+      required: false,
+      placeholder: '',
+      description: ''
+    }
+    setCustomOptions(prev => [...prev, newOption])
+  }
+
+  // تحديث خيار مخصص
+  const updateCustomOption = (id, field, value) => {
+    setCustomOptions(prev => prev.map(option => 
+      option.id === id ? { ...option, [field]: value } : option
+    ))
+  }
+
+  // حذف خيار مخصص
+  const removeCustomOption = (id) => {
+    setCustomOptions(prev => prev.filter(option => option.id !== id))
+  }
+
+  // إضافة خيار للقائمة المنسدلة مع السعر
+  const addSelectOption = (optionId, selectValue, selectPrice = 0) => {
+    if (!selectValue.trim()) return
+    
+    setCustomOptions(prev => prev.map(option => 
+      option.id === optionId 
+        ? { 
+            ...option, 
+            options: [...(option.options || []), {
+              value: selectValue.trim(),
+              label: selectValue.trim(),
+              price: parseFloat(selectPrice) || 0
+            }]
+          }
+        : option
+    ))
+  }
+
+  // تحديث سعر خيار في القائمة
+  const updateSelectOptionPrice = (optionId, optionIndex, newPrice) => {
+    setCustomOptions(prev => prev.map(option => 
+      option.id === optionId 
+        ? { 
+            ...option, 
+            options: option.options.map((opt, i) => 
+              i === optionIndex ? { ...opt, price: parseFloat(newPrice) || 0 } : opt
+            )
+          }
+        : option
+    ))
+  }
+
+  // حذف خيار من القائمة المنسدلة
+  const removeSelectOption = (optionId, optionIndex) => {
+    setCustomOptions(prev => prev.map(option => 
+      option.id === optionId 
+        ? { ...option, options: option.options.filter((_, i) => i !== optionIndex) }
+        : option
+    ))
   }
 
   const assignImageToColor = (imageUrl, color) => {
@@ -254,6 +363,35 @@ function AddProduct() {
       if (Object.keys(colorImages).length > 0) productData.colorImages = colorImages
       if (formData.category) productData.category = formData.category
       if (formData.brandInfo) productData.brandInfo = formData.brandInfo
+      
+      // Add price additions
+      if (Object.keys(colorPrices).length > 0) productData.colorPrices = colorPrices
+      if (Object.keys(storagePrices).length > 0) productData.storagePrices = storagePrices
+      
+      // Add custom options
+      if (customOptions.length > 0) {
+        // فلترة الخيارات المكتملة فقط (التي لها اسم)
+        const validCustomOptions = customOptions.filter(option => 
+          option.name && option.name.trim() !== '' && 
+          option.nameAr && option.nameAr.trim() !== ''
+        );
+        
+        if (validCustomOptions.length > 0) {
+          productData.customOptions = validCustomOptions.map(option => ({
+            name: option.name.trim(),
+            nameAr: option.nameAr.trim(),
+            type: option.type,
+            options: option.options || [],
+            basePrice: parseFloat(option.basePrice) || 0,
+            required: option.required,
+            placeholder: option.placeholder || '',
+            description: option.description || '',
+            maxLength: option.maxLength,
+            minValue: option.minValue,
+            maxValue: option.maxValue
+          }));
+        }
+      }
       
       // Add specifications as object
       if (specifications.length > 0) {
@@ -929,26 +1067,48 @@ Example:
                   إضافة
                 </button>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {formData.colors.map((color, index) => (
-                  <span
-                    key={index}
-                    className="inline-flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-full text-sm"
-                  >
-                    {color}
-                    <span className="text-xs text-gray-500">
-                      ({colorImages[color]?.length || 0} صور)
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => removeColor(index)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <FiX size={14} />
-                    </button>
-                  </span>
-                ))}
-              </div>
+              
+              {/* عرض الألوان مع إضافات الأسعار */}
+              {formData.colors.length > 0 && (
+                <div className="space-y-3">
+                  <p className="text-sm text-gray-600 mb-3">
+                    💡 أضف سعر إضافي للألوان التي تحتاج زيادة في السعر (اتركها فارغة إذا لم تحتج إضافة)
+                  </p>
+                  {formData.colors.map((color, index) => (
+                    <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <div className="flex-1">
+                        <span className="font-medium text-gray-700">{color}</span>
+                        <span className="text-xs text-gray-500 ml-2">
+                          ({colorImages[color]?.length || 0} صور)
+                        </span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <label className="text-sm text-gray-600">سعر إضافي:</label>
+                        <input
+                          type="number"
+                          value={colorPrices[color] || ''}
+                          onChange={(e) => updateColorPrice(color, e.target.value)}
+                          className="w-20 px-2 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
+                          placeholder="0"
+                          min="0"
+                          step="0.01"
+                        />
+                        <span className="text-sm text-gray-500">ر.س</span>
+                      </div>
+                      
+                      <button
+                        type="button"
+                        onClick={() => removeColor(index)}
+                        className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded"
+                        title="حذف اللون"
+                      >
+                        <FiTrash2 size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Storage */}
@@ -973,26 +1133,473 @@ Example:
                   إضافة
                 </button>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {formData.storage.map((size, index) => (
-                  <span
-                    key={index}
-                    className="inline-flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-full text-sm"
-                  >
-                    {size}
-                    <button
-                      type="button"
-                      onClick={() => removeStorage(index)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <FiX size={14} />
-                    </button>
-                  </span>
-                ))}
-              </div>
+              
+              {/* عرض السعات مع إضافات الأسعار */}
+              {formData.storage.length > 0 && (
+                <div className="space-y-3">
+                  <p className="text-sm text-gray-600 mb-3">
+                    💡 أضف سعر إضافي للسعات التي تحتاج زيادة في السعر (اتركها فارغة إذا لم تحتج إضافة)
+                  </p>
+                  {formData.storage.map((storage, index) => (
+                    <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <div className="flex-1">
+                        <span className="font-medium text-gray-700">{storage}</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <label className="text-sm text-gray-600">سعر إضافي:</label>
+                        <input
+                          type="number"
+                          value={storagePrices[storage] || ''}
+                          onChange={(e) => updateStoragePrice(storage, e.target.value)}
+                          className="w-20 px-2 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
+                          placeholder="0"
+                          min="0"
+                          step="0.01"
+                        />
+                        <span className="text-sm text-gray-500">ر.س</span>
+                      </div>
+                      
+                      <button
+                        type="button"
+                        onClick={() => removeStorage(index)}
+                        className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded"
+                        title="حذف السعة"
+                      >
+                        <FiTrash2 size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
+
+        {/* Custom Options */}
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-gray-800">الخيارات المخصصة</h2>
+            <button
+              type="button"
+              onClick={addCustomOption}
+              className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition"
+            >
+              <FiCheck size={16} />
+              إضافة خيار
+            </button>
+          </div>
+          
+          <p className="text-sm text-gray-600 mb-6">
+            💡 أضف خيارات مخصصة للمنتجات حسب الطلب مثل النقش، التخصيص، الملاحظات الخاصة، إلخ
+          </p>
+
+          {customOptions.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <div className="text-4xl mb-4">⚙️</div>
+              <p>لا توجد خيارات مخصصة بعد</p>
+              <p className="text-sm">اضغط "إضافة خيار" لإضافة خيار مخصص</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {customOptions.map((option, index) => (
+                <div key={option.id} className="border border-gray-200 rounded-lg p-6 bg-gray-50">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-800">خيار #{index + 1}</h3>
+                    <button
+                      type="button"
+                      onClick={() => removeCustomOption(option.id)}
+                      className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition"
+                      title="حذف الخيار"
+                    >
+                      <FiTrash2 size={16} />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    {/* اسم الخيار بالإنجليزي */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        اسم الخيار (English) *
+                      </label>
+                      <input
+                        type="text"
+                        value={option.name}
+                        onChange={(e) => updateCustomOption(option.id, 'name', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        placeholder="Custom Engraving"
+                      />
+                    </div>
+
+                    {/* اسم الخيار بالعربي */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        اسم الخيار (عربي) *
+                      </label>
+                      <input
+                        type="text"
+                        value={option.nameAr}
+                        onChange={(e) => updateCustomOption(option.id, 'nameAr', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        placeholder="نقش مخصص"
+                      />
+                    </div>
+
+                    {/* نوع الخيار */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        نوع الخيار *
+                      </label>
+                      <select
+                        value={option.type}
+                        onChange={(e) => updateCustomOption(option.id, 'type', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      >
+                        <option value="text">نص قصير</option>
+                        <option value="textarea">نص طويل</option>
+                        <option value="select">قائمة منسدلة</option>
+                        <option value="radio">اختيار واحد</option>
+                        <option value="checkbox">صح/خطأ</option>
+                        <option value="number">رقم</option>
+                      </select>
+                    </div>
+
+                    {/* السعر الأساسي - للنص والرقم فقط */}
+                    {(option.type === 'text' || option.type === 'textarea' || option.type === 'number' || option.type === 'checkbox') && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          السعر الإضافي (ر.س)
+                        </label>
+                        <input
+                          type="number"
+                          value={option.basePrice || 0}
+                          onChange={(e) => updateCustomOption(option.id, 'basePrice', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          placeholder="0"
+                          min="0"
+                          step="0.01"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* خيارات القائمة المنسدلة */}
+                  {(option.type === 'select' || option.type === 'radio') && (
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        الخيارات المتاحة مع أسعارها
+                      </label>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3">
+                        <input
+                          type="text"
+                          placeholder="اسم الخيار"
+                          className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          id={`option-value-${option.id}`}
+                        />
+                        <input
+                          type="number"
+                          placeholder="السعر الإضافي"
+                          className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          id={`option-price-${option.id}`}
+                          min="0"
+                          step="0.01"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const valueInput = document.getElementById(`option-value-${option.id}`)
+                            const priceInput = document.getElementById(`option-price-${option.id}`)
+                            if (valueInput.value.trim()) {
+                              addSelectOption(option.id, valueInput.value, priceInput.value)
+                              valueInput.value = ''
+                              priceInput.value = ''
+                            }
+                          }}
+                          className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition"
+                        >
+                          إضافة
+                        </button>
+                      </div>
+                      
+                      {/* عرض الخيارات الموجودة */}
+                      <div className="space-y-2">
+                        {(option.options || []).map((opt, optIndex) => (
+                          <div
+                            key={optIndex}
+                            className="flex items-center gap-3 p-3 bg-gray-100 rounded-lg"
+                          >
+                            <div className="flex-1">
+                              <span className="font-medium text-gray-700">
+                                {opt.label || opt.value || opt}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <label className="text-sm text-gray-600">السعر:</label>
+                              <input
+                                type="number"
+                                value={opt.price || 0}
+                                onChange={(e) => updateSelectOptionPrice(option.id, optIndex, e.target.value)}
+                                className="w-20 px-2 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                min="0"
+                                step="0.01"
+                              />
+                              <span className="text-sm text-gray-500">ر.س</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeSelectOption(option.id, optIndex)}
+                              className="text-red-500 hover:text-red-700 p-1 hover:bg-red-50 rounded"
+                            >
+                              <FiTrash2 size={14} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* وصف الخيار */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        وصف الخيار
+                      </label>
+                      <input
+                        type="text"
+                        value={option.description}
+                        onChange={(e) => updateCustomOption(option.id, 'description', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        placeholder="وصف مختصر للخيار"
+                      />
+                    </div>
+
+                    {/* نص المساعدة */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        نص المساعدة
+                      </label>
+                      <input
+                        type="text"
+                        value={option.placeholder}
+                        onChange={(e) => updateCustomOption(option.id, 'placeholder', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        placeholder="أدخل النص المطلوب نقشه..."
+                      />
+                    </div>
+                  </div>
+
+                  {/* إعدادات إضافية */}
+                  <div className="mt-4 flex items-center gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={option.required}
+                        onChange={(e) => updateCustomOption(option.id, 'required', e.target.checked)}
+                        className="text-primary-600"
+                      />
+                      <span className="text-sm text-gray-700">خيار إجباري</span>
+                    </label>
+
+                    {option.type === 'text' && (
+                      <div className="flex items-center gap-2">
+                        <label className="text-sm text-gray-700">الحد الأقصى للأحرف:</label>
+                        <input
+                          type="number"
+                          value={option.maxLength || ''}
+                          onChange={(e) => updateCustomOption(option.id, 'maxLength', e.target.value)}
+                          className="w-20 px-2 py-1 border border-gray-200 rounded text-sm"
+                          placeholder="50"
+                          min="1"
+                        />
+                      </div>
+                    )}
+
+                    {option.type === 'number' && (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <label className="text-sm text-gray-700">الحد الأدنى:</label>
+                          <input
+                            type="number"
+                            value={option.minValue || ''}
+                            onChange={(e) => updateCustomOption(option.id, 'minValue', e.target.value)}
+                            className="w-20 px-2 py-1 border border-gray-200 rounded text-sm"
+                            placeholder="1"
+                          />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <label className="text-sm text-gray-700">الحد الأقصى:</label>
+                          <input
+                            type="number"
+                            value={option.maxValue || ''}
+                            onChange={(e) => updateCustomOption(option.id, 'maxValue', e.target.value)}
+                            className="w-20 px-2 py-1 border border-gray-200 rounded text-sm"
+                            placeholder="100"
+                          />
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Price Preview */}
+        {(formData.colors.length > 0 || formData.storage.length > 0 || customOptions.length > 0) && formData.price && (
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <h2 className="text-xl font-bold text-gray-800 mb-6">معاينة الأسعار النهائية</h2>
+            
+            <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-800 mb-2">
+                <strong>السعر الأساسي:</strong> {parseFloat(formData.price || 0).toFixed(2)} ر.س
+              </p>
+              <p className="text-xs text-blue-600">
+                💡 الأسعار أدناه تشمل السعر الأساسي + الإضافات المحددة لكل لون وسعة والخيارات المخصصة
+              </p>
+            </div>
+
+            {/* عرض الخيارات المخصصة */}
+            {customOptions.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">الخيارات المخصصة:</h3>
+                <div className="space-y-4">
+                  {customOptions.map((option, index) => (
+                    <div key={option.id} className="p-4 bg-green-50 rounded-lg border border-green-200">
+                      <div className="font-medium text-gray-700 mb-2">
+                        {option.nameAr || option.name || `خيار ${index + 1}`}
+                      </div>
+                      <div className="text-sm text-gray-600 mb-2">
+                        النوع: {
+                          option.type === 'text' ? 'نص قصير' :
+                          option.type === 'textarea' ? 'نص طويل' :
+                          option.type === 'select' ? 'قائمة منسدلة' :
+                          option.type === 'radio' ? 'اختيار واحد' :
+                          option.type === 'checkbox' ? 'صح/خطأ' :
+                          option.type === 'number' ? 'رقم' : option.type
+                        }
+                      </div>
+                      
+                      {/* عرض السعر الأساسي للخيارات البسيطة */}
+                      {(option.type === 'text' || option.type === 'textarea' || option.type === 'number' || option.type === 'checkbox') && (
+                        <div className="text-lg font-bold text-green-600">
+                          +{parseFloat(option.basePrice || 0).toFixed(2)} ر.س
+                        </div>
+                      )}
+                      
+                      {/* عرض خيارات القائمة مع أسعارها */}
+                      {(option.type === 'select' || option.type === 'radio') && option.options && option.options.length > 0 && (
+                        <div className="mt-2">
+                          <div className="text-sm font-medium text-gray-700 mb-2">الخيارات المتاحة:</div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            {option.options.map((opt, optIndex) => (
+                              <div key={optIndex} className="flex justify-between items-center p-2 bg-white rounded border">
+                                <span className="text-sm text-gray-700">
+                                  {opt.label || opt.value || opt}
+                                </span>
+                                <span className="text-sm font-bold text-green-600">
+                                  +{parseFloat(opt.price || 0).toFixed(2)} ر.س
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {option.required && (
+                        <div className="text-xs text-red-600 mt-2">إجباري</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {formData.colors.length > 0 && formData.storage.length > 0 ? (
+              // عرض جدول التركيبات
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-50">
+                      <th className="text-right p-3 font-medium text-gray-700">اللون</th>
+                      <th className="text-right p-3 font-medium text-gray-700">السعة</th>
+                      <th className="text-right p-3 font-medium text-gray-700">السعر النهائي</th>
+                      <th className="text-right p-3 font-medium text-gray-700">التفاصيل</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {formData.colors.map(color => 
+                      formData.storage.map(storage => {
+                        const finalPrice = calculateFinalPrice(color, storage)
+                        const colorAddition = colorPrices[color] || 0
+                        const storageAddition = storagePrices[storage] || 0
+                        
+                        return (
+                          <tr key={`${color}-${storage}`} className="border-t">
+                            <td className="p-3">{color}</td>
+                            <td className="p-3">{storage}</td>
+                            <td className="p-3 font-bold text-primary-600">
+                              {finalPrice.toFixed(2)} ر.س
+                            </td>
+                            <td className="p-3 text-xs text-gray-500">
+                              {formData.price} 
+                              {colorAddition > 0 && ` + ${colorAddition}`}
+                              {storageAddition > 0 && ` + ${storageAddition}`}
+                            </td>
+                          </tr>
+                        )
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            ) : formData.colors.length > 0 ? (
+              // عرض الألوان فقط
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {formData.colors.map(color => {
+                  const finalPrice = calculateFinalPrice(color, '')
+                  const colorAddition = colorPrices[color] || 0
+                  
+                  return (
+                    <div key={color} className="p-3 bg-gray-50 rounded-lg">
+                      <div className="font-medium text-gray-700">{color}</div>
+                      <div className="text-lg font-bold text-primary-600">
+                        {finalPrice.toFixed(2)} ر.س
+                      </div>
+                      {colorAddition > 0 && (
+                        <div className="text-xs text-gray-500">
+                          {formData.price} + {colorAddition}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              // عرض السعات فقط
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {formData.storage.map(storage => {
+                  const finalPrice = calculateFinalPrice('', storage)
+                  const storageAddition = storagePrices[storage] || 0
+                  
+                  return (
+                    <div key={storage} className="p-3 bg-gray-50 rounded-lg">
+                      <div className="font-medium text-gray-700">{storage}</div>
+                      <div className="text-lg font-bold text-primary-600">
+                        {finalPrice.toFixed(2)} ر.س
+                      </div>
+                      {storageAddition > 0 && (
+                        <div className="text-xs text-gray-500">
+                          {formData.price} + {storageAddition}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Specifications */}
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">

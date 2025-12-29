@@ -42,13 +42,13 @@ const testAutoGenerate = async () => {
       const seoData = {
         pageId: product._id.toString(),
         pageType: 'product',
-        title: `${productName} - أبعاد التواصل`,
+        title: `${productName} - جيم روم`,
         description: productDesc ? 
           productDesc.substring(0, 160) : 
-          `اشتري ${productName} بأفضل سعر في السعودية من أبعاد التواصل`,
+          `اشتري ${productName} بأفضل سعر في السعودية من جيم روم`,
         keywords: [
           productName,
-          product.brand || 'أبعاد التواصل',
+          product.brand || 'جيم روم',
           product.categoryName || 'إلكترونيات',
           'السعودية',
           'متجر إلكتروني',
@@ -64,7 +64,7 @@ const testAutoGenerate = async () => {
           height: 600
         } : null,
         openGraph: {
-          title: `${productName} - أبعاد التواصل`,
+          title: `${productName} - جيم روم`,
           description: productDesc ? 
             productDesc.substring(0, 160) : 
             `اشتري ${productName} بأفضل سعر في السعودية`,
@@ -84,7 +84,7 @@ const testAutoGenerate = async () => {
             image: product.images,
             brand: {
               "@type": "Brand",
-              name: product.brand || 'أبعاد التواصل'
+              name: product.brand || 'جيم روم'
             },
             offers: {
               "@type": "Offer",
@@ -93,7 +93,7 @@ const testAutoGenerate = async () => {
               availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
               seller: {
                 "@type": "Organization",
-                name: "أبعاد التواصل"
+                name: "جيم روم"
               }
             }
           }

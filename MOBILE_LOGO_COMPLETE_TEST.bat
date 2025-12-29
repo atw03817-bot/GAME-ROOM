@@ -37,13 +37,13 @@ timeout /t 3 /nobreak > nul
 start http://localhost:5173
 echo.
 echo 4. تأكد من ظهور:
-echo    - اسم المتجر: "أبعاد التواصل"
-echo    - النص التحتي: "أبعاد جديدة للتواصل التقني"
+echo    - اسم المتجر: "جيم روم"
+echo    - النص التحتي: "عالم الألعاب والتقنية"
 echo.
 echo 5. ارجع للإعدادات وجرب إلغاء الخيارات
 echo.
 echo بيانات تسجيل الدخول:
-echo البريد: admin@ab-tw.com
+echo البريد: admin@gameroom-store.com
 echo كلمة المرور: 123456
 echo.
 echo ========================================

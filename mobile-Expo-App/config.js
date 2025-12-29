@@ -1,10 +1,10 @@
 // Configuration file for the app
 export const APP_CONFIG = {
   // Website URL - change this to your domain
-  WEBSITE_URL: 'https://www.ab-tw.com',
+  WEBSITE_URL: 'https://www.gameroom-store.com',
   
   // App Info
-  APP_NAME: 'أبعاد التواصل',
+  APP_NAME: 'جيم روم',
   
   // Theme Colors (matching website)
   COLORS: {

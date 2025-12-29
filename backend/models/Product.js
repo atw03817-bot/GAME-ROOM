@@ -63,6 +63,37 @@ const productSchema = new mongoose.Schema({
     of: [String], // كل لون يحتوي على مصفوفة من الصور
     default: {}
   },
+  colorPrices: {
+    type: Map,
+    of: Number, // إضافات أسعار الألوان
+    default: {}
+  },
+  storagePrices: {
+    type: Map,
+    of: Number, // إضافات أسعار السعات
+    default: {}
+  },
+  customOptions: [{
+    name: { type: String, required: true }, // اسم الخيار
+    nameAr: { type: String, required: true }, // الاسم بالعربي
+    type: { 
+      type: String, 
+      enum: ['text', 'textarea', 'select', 'checkbox', 'radio', 'number'], 
+      required: true 
+    }, // نوع الخيار
+    options: [{
+      value: String, // قيمة الخيار
+      label: String, // تسمية الخيار
+      price: { type: Number, default: 0 } // سعر هذا الخيار تحديداً
+    }], // الخيارات المتاحة مع أسعارها
+    basePrice: { type: Number, default: 0 }, // السعر الأساسي للخيار (للنص والرقم)
+    required: { type: Boolean, default: false }, // إجباري أم لا
+    placeholder: String, // نص المساعدة
+    description: String, // وصف الخيار
+    maxLength: Number, // الحد الأقصى للنص
+    minValue: Number, // الحد الأدنى للرقم
+    maxValue: Number // الحد الأقصى للرقم
+  }],
   specifications: {
     type: Map,
     of: String

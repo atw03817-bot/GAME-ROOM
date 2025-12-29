@@ -81,16 +81,16 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
+    <div className="min-h-screen flex items-center justify-center bg-[#111111] py-12 px-4">
+      <div className="max-w-md w-full bg-[#1a1a1a] border border-[#C72C15] rounded-lg shadow-md p-8">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900">تسجيل الدخول</h2>
-          <p className="text-gray-600 mt-2">ادخل رقم جوالك وكلمة المرور</p>
+          <h2 className="text-3xl font-bold text-white">تسجيل الدخول</h2>
+          <p className="text-gray-300 mt-2">ادخل رقم جوالك وكلمة المرور</p>
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               رقم الجوال
             </label>
             <input
@@ -99,16 +99,16 @@ function Login() {
               value={formData.phone}
               onChange={handlePhoneChange}
               placeholder="0501234567"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+              className="w-full px-4 py-3 bg-[#111111] border border-[#333] text-white rounded-lg focus:ring-2 focus:ring-[#C72C15] focus:border-[#C72C15] transition-colors"
               dir="ltr"
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-400 mt-1">
               مثال: 0501234567 أو 966501234567
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               كلمة المرور
             </label>
             <input
@@ -118,30 +118,30 @@ function Login() {
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               placeholder="ادخل كلمة المرور"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+              className="w-full px-4 py-3 bg-[#111111] border border-[#333] text-white rounded-lg focus:ring-2 focus:ring-[#C72C15] focus:border-[#C72C15] transition-colors"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary-600 text-white py-3 rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+            className="w-full bg-gradient-to-r from-[#E08713] to-[#C72C15] text-white py-3 rounded-lg hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
           >
             {loading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}
           </button>
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-gray-600">
+          <p className="text-gray-300">
             ليس لديك حساب؟{' '}
-            <Link to="/register" className="text-primary-600 hover:text-primary-700 font-medium">
+            <Link to="/register" className="text-[#C72C15] hover:text-[#E08713] font-medium">
               إنشاء حساب جديد
             </Link>
           </p>
         </div>
 
         <div className="mt-4 text-center">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-400">
             بتسجيل الدخول، أنت توافق على شروط الاستخدام وسياسة الخصوصية
           </p>
         </div>

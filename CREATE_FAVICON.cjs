@@ -28,7 +28,7 @@ const createFavicon = () => {
 </head>
 <body>
     <div class="container">
-        <h2>Favicon Generator - أبعاد التواصل</h2>
+        <h2>Favicon Generator - جيم روم</h2>
         <canvas id="canvas16" width="16" height="16"></canvas>
         <canvas id="canvas32" width="32" height="32"></canvas>
         <canvas id="canvas180" width="180" height="180"></canvas>
@@ -94,9 +94,9 @@ const createFavicon = () => {
 
   // إنشاء manifest.json للـ PWA
   const manifest = {
-    "name": "متجر أبعاد التواصل",
-    "short_name": "أبعاد التواصل",
-    "description": "أفضل متجر هواتف ذكية في السعودية",
+    "name": "متجر جيم روم",
+    "short_name": "جيم روم",
+    "description": "أفضل متجر ألعاب وتقنية في السعودية",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#ffffff",

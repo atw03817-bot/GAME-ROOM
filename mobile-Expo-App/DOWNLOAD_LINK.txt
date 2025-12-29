@@ -1,11 +1,11 @@
-🚀 تطبيق أبعاد التواصل - رابط التحميل المباشر
+🚀 تطبيق جيم روم - رابط التحميل المباشر
 
 📱 APK Download Link:
 https://expo.dev/artifacts/eas/5Ns36Ko8genjatmbNNFDgM.apk
 
 📋 App Info:
-- Name: أبعاد التواصل
-- Website: https://www.ab-tw.com
+- Name: جيم روم
+- Website: https://www.gameroom-store.com
 - Type: WebView App
 - Platform: Android
 - Build Date: December 24, 2024

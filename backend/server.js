@@ -43,9 +43,9 @@ app.use(cors({
     const allowedOrigins = [
       'http://localhost:3000',
       'http://localhost:5173',
-      'https://www.ab-tw.com',
-      'https://ab-tw.com',
-      'https://api.ab-tw.com'
+      'https://www.gameroom-store.com',
+      'https://gameroom-store.com',
+      'https://api.gameroom-store.com'
     ];
     
     // السماح للـ origins المسموحة أو أي origin محلي
@@ -205,7 +205,7 @@ app.use('*', (req, res) => {
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📡 CORS enabled for: www.ab-tw.com, ab-tw.com, api.ab-tw.com`);
+  console.log(`📡 CORS enabled for: www.gameroom-store.com, gameroom-store.com, api.gameroom-store.com`);
   console.log(`📦 Max request size: 100MB`);
   console.log(`⏱️  Request timeout: 5 minutes`);
 });

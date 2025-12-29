@@ -1,14 +1,23 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import api from '../utils/api';
 
 const useCartStore = create(
   persist(
     (set, get) => ({
       items: [],
 
-      addItem: (product, quantity = 1) => {
+      addItem: async (product, quantity = 1) => {
         const items = get().items;
         const existingItem = items.find(item => item._id === product._id);
+
+        // تحديث عداد المبيعات في الخادم في كل مرة
+        try {
+          await api.post(`/products/${product._id}/add-to-cart`);
+        } catch (error) {
+          console.error('Error updating sales counter:', error);
+          // لا نوقف العملية إذا فشل تحديث العداد
+        }
 
         if (existingItem) {
           set({

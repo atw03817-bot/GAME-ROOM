@@ -61,7 +61,7 @@ class RedBoxService {
       const shipmentData = {
         // بيانات المرسل (المتجر)
         sender: {
-          name: 'أبعاد التواصل',
+          name: 'جيم روم',
           phone: '+966920000000',
           city: 'الرياض',
           address: 'الرياض، المملكة العربية السعودية'
@@ -78,7 +78,7 @@ class RedBoxService {
         // بيانات الشحنة
         shipment: {
           reference: orderData.orderNumber,
-          description: `طلب من أبعاد التواصل - ${orderData.items.length} منتج`,
+          description: `طلب من جيم روم - ${orderData.items.length} منتج`,
           weight: this.calculateWeight(orderData.items),
           value: orderData.subtotal,
           cod_amount: orderData.paymentMethod === 'cod' ? orderData.total : 0,
@@ -152,7 +152,7 @@ class RedBoxService {
           history: [
             {
               status: 'picked_up',
-              location: 'أبعاد التواصل - الرياض',
+              location: 'جيم روم - الرياض',
               date: new Date(Date.now() - 24 * 60 * 60 * 1000)
             },
             {

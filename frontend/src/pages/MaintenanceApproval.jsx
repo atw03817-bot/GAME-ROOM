@@ -436,7 +436,7 @@ function MaintenanceApproval() {
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <FiMail className="w-4 h-4 text-gray-500" />
-                  <span>abadaltwasl390@gmail.com</span>
+                  <span>info@gameroom-store.com</span>
                 </div>
               </div>
               <p className="text-xs text-gray-500 mt-3">

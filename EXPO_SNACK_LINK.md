@@ -1,4 +1,4 @@
-# تطبيق أبعاد التواصل - Expo Snack
+# تطبيق جيم روم - Expo Snack
 
 ## الرابط المباشر للتجربة:
 https://snack.expo.dev/@anonymous/ab-tw-store
@@ -27,8 +27,8 @@ import { WebView } from 'react-native-webview';
 import { StatusBar } from 'expo-status-bar';
 
 const APP_CONFIG = {
-  WEBSITE_URL: 'https://www.ab-tw.com',
-  APP_NAME: 'أبعاد التواصل',
+  WEBSITE_URL: 'https://www.gameroom-store.com',
+  APP_NAME: 'جيم روم',
   COLORS: {
     primary: '#7c3aed',
     primaryDark: '#6d28d9',

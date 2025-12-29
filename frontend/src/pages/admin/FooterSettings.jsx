@@ -84,7 +84,7 @@ function FooterSettings() {
       ]
     },
     copyright: {
-      text: 'أبعاد التواصل. جميع الحقوق محفوظة.',
+      text: 'جيم روم. جميع الحقوق محفوظة.',
       showYear: true
     },
     quickLinks: {
