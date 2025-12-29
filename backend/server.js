@@ -43,6 +43,7 @@ app.use(cors({
     const allowedOrigins = [
       'http://localhost:3000',
       'http://localhost:5173',
+      'https://game-room-4bn162ih7-ab-twcoms-projects.vercel.app',  // رابط Vercel الحقيقي
       'https://www.gameroom-store.com',
       'https://gameroom-store.com',
       'https://api.gameroom-store.com'
@@ -60,6 +61,20 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
   optionsSuccessStatus: 200 // للمتصفحات القديمة
 }));
+
+// إضافة headers إضافية للـ CORS
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
 
 // Body parser with increased limits
 app.use(express.json({ 
