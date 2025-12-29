@@ -199,7 +199,11 @@ function Cart() {
             
             <div className="flex justify-between items-center">
               <span className="text-gray-300">الشحن</span>
-              <span className="text-sm text-green-400 font-semibold">مجاني</span>
+              {isFreeShippingEligible ? (
+                <span className="text-sm text-green-400 font-semibold">مجاني</span>
+              ) : (
+                <span className="text-sm text-gray-400">حسب المدينة</span>
+              )}
             </div>
             
             <div className="border-t border-[#C72C15]/30 pt-3 flex justify-between items-center">
