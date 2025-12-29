@@ -207,8 +207,9 @@ export const createOrder = async (req, res) => {
       }
     }
     
-    const tax = (subtotal + tamaraCommission.amount + tabbyCommission.amount) * 0.15; // ضريبة القيمة المضافة 15%
-    const total = subtotal + tamaraCommission.amount + tabbyCommission.amount + finalShippingCost + tax;
+    // الآن الأسعار شاملة الضريبة، لا نحتاج لحساب ضريبة إضافية
+    const tax = 0; // الضريبة مدمجة في أسعار المنتجات
+    const total = subtotal + tamaraCommission.amount + tabbyCommission.amount + finalShippingCost;
 
     // إنشاء رقم الطلب
     const orderCount = await Order.countDocuments();

@@ -712,7 +712,7 @@ function ProductDetail() {
                   </>
                 )}
               </div>
-              <p className="text-xs text-gray-400 mt-1">غير شامل ضريبة القيمة المضافة (15%)</p>
+              <p className="text-xs text-gray-400 mt-1">شامل ضريبة القيمة المضافة (15%)</p>
             </div>
 
             {/* Colors */}

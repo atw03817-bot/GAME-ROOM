@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import useCartStore from '../../store/useCartStore';
 import api from '../../utils/api';
 
-function OrderSummary({ shippingCost = 0, taxRate = 0.15, selectedPayment = 'cod' }) {
+function OrderSummary({ shippingCost = 0, selectedPayment = 'cod' }) {
   const { items, getTotal } = useCartStore();
   const [settings, setSettings] = useState({
     freeShippingEnabled: false,
@@ -150,9 +150,9 @@ function OrderSummary({ shippingCost = 0, taxRate = 0.15, selectedPayment = 'cod
     selectedPayment
   });
   
-  // Calculate tax on subtotal + commission + shipping
-  const tax = (subtotalWithCommission + actualShipping) * taxRate;
-  const finalTotal = subtotalWithCommission + actualShipping + tax;
+  // الأسعار الآن شاملة الضريبة، لا نحتاج لحساب ضريبة إضافية
+  const tax = 0; // الضريبة مدمجة في أسعار المنتجات
+  const finalTotal = subtotalWithCommission + actualShipping;
 
   return (
     <div className="bg-[#1a1a1a] border border-[#C72C15] rounded-lg p-6">
@@ -238,11 +238,8 @@ function OrderSummary({ shippingCost = 0, taxRate = 0.15, selectedPayment = 'cod
           </div>
         )}
 
-        {/* Tax */}
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-300">الضريبة ({(taxRate * 100).toFixed(0)}%)</span>
-          <span className="font-semibold text-white">{tax.toFixed(2)} ر.س</span>
-        </div>
+        {/* Tax - Hidden since prices are tax-inclusive */}
+        {/* الضريبة مدمجة في أسعار المنتجات */}
 
         {/* Total */}
         <div className="border-t border-[#C72C15]/30 pt-2 mt-2">
@@ -255,7 +252,7 @@ function OrderSummary({ shippingCost = 0, taxRate = 0.15, selectedPayment = 'cod
 
       {/* Additional Info */}
       <div className="mt-4 pt-4 border-t border-[#C72C15]/30 text-xs text-gray-300 space-y-1">
-        <p>✓ الضريبة تُضاف عند الدفع (15%)</p>
+        <p>✓ الأسعار شاملة ضريبة القيمة المضافة (15%)</p>
         <p>✓ إمكانية الإرجاع خلال 14 يوم</p>
         <p>✓ ضمان على جميع المنتجات</p>
       </div>

@@ -133,7 +133,23 @@ router.post('/', auth, adminAuth, async (req, res) => {
     
     console.log('Create product data size:', `${(dataSize / 1024).toFixed(2)}KB`);
     
-    const product = new Product(req.body);
+    // حساب الضريبة تلقائياً
+    const productData = { ...req.body };
+    
+    if (productData.price && !productData.priceBeforeTax) {
+      // إذا تم إدخال السعر بدون ضريبة، احسب السعر شامل الضريبة
+      const taxRate = productData.taxRate || 0.15; // 15% افتراضي
+      productData.priceBeforeTax = productData.price;
+      productData.price = Math.round(productData.price * (1 + taxRate) * 100) / 100; // شامل الضريبة
+    }
+    
+    // نفس الشيء للسعر الأصلي
+    if (productData.originalPrice && !productData.priceBeforeTax) {
+      const taxRate = productData.taxRate || 0.15;
+      productData.originalPrice = Math.round(productData.originalPrice * (1 + taxRate) * 100) / 100;
+    }
+    
+    const product = new Product(productData);
     await product.save();
     res.status(201).json({ success: true, product });
   } catch (error) {
@@ -169,9 +185,25 @@ router.put('/:id', auth, adminAuth, async (req, res) => {
     
     console.log('Update data size:', `${(dataSize / 1024).toFixed(2)}KB`);
     
+    // حساب الضريبة تلقائياً عند التحديث
+    const updateData = { ...req.body };
+    
+    if (updateData.price && !updateData.priceBeforeTax) {
+      // إذا تم تحديث السعر بدون ضريبة، احسب السعر شامل الضريبة
+      const taxRate = updateData.taxRate || 0.15; // 15% افتراضي
+      updateData.priceBeforeTax = updateData.price;
+      updateData.price = Math.round(updateData.price * (1 + taxRate) * 100) / 100; // شامل الضريبة
+    }
+    
+    // نفس الشيء للسعر الأصلي
+    if (updateData.originalPrice && !updateData.priceBeforeTax) {
+      const taxRate = updateData.taxRate || 0.15;
+      updateData.originalPrice = Math.round(updateData.originalPrice * (1 + taxRate) * 100) / 100;
+    }
+    
     const product = await Product.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true, runValidators: true }
     );
     if (!product) {

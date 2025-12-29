@@ -18,6 +18,16 @@ const productSchema = new mongoose.Schema({
     required: true,
     min: 0
   },
+  priceBeforeTax: { // السعر قبل الضريبة (للمرجع فقط)
+    type: Number,
+    min: 0
+  },
+  taxRate: { // معدل الضريبة (افتراضي 15%)
+    type: Number,
+    default: 0.15,
+    min: 0,
+    max: 1
+  },
   originalPrice: { // السعر الأصلي قبل الخصم
     type: Number,
     min: 0
