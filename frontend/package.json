@@ -1,6 +1,6 @@
 {
-  "name": "gameroom-store-frontend",
-  "version": "1.0.3",
+  "name": "gameroom-store-frontend-20260103231917",
+  "version": "1.0.20260103231917",
   "type": "module",
   "scripts": {
     "dev": "vite",

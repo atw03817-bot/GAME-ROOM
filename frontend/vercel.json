@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "gameroom-store-frontend",
+  "name": "gameroom-store-frontend-20260103231917",
   "builds": [
     {
       "src": "package.json",
