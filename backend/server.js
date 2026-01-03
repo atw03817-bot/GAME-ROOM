@@ -43,7 +43,8 @@ app.use(cors({
     const allowedOrigins = [
       'http://localhost:3000',
       'http://localhost:5173',
-      'https://game-room-4bn162ih7-ab-twcoms-projects.vercel.app',  // رابط Vercel الحقيقي
+      'https://game-room-tau.vercel.app',  // رابط Vercel الحالي
+      'https://game-room-4bn162ih7-ab-twcoms-projects.vercel.app',  // رابط Vercel القديم
       'https://www.gameroom-store.com',
       'https://gameroom-store.com',
       'https://api.gameroom-store.com'
