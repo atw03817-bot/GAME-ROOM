@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "gameroom-store-frontend-20260103231917",
+  "name": "gameroom-store-frontend-20260103232137",
   "builds": [
     {
       "src": "package.json",
@@ -48,10 +48,5 @@
   ],
   "env": {
     "VITE_API_URL": "https://fifty-groups-sneeze.loca.lt/api"
-  },
-  "functions": {
-    "app/api/**/*.js": {
-      "runtime": "nodejs18.x"
-    }
   }
 }
