@@ -47,6 +47,6 @@
     }
   ],
   "env": {
-    "VITE_API_URL": "https://fifty-groups-sneeze.loca.lt/api"
+    "VITE_API_URL": "http://63.181.37.121/api"
   }
 }
