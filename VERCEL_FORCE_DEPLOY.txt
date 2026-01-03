@@ -1,0 +1,13 @@
+FORCE VERCEL DEPLOYMENT - $(Get-Date)
+
+This is a critical update to fix CORS and MIME type issues.
+
+Changes:
+1. Fixed CORS for game-room-tau.vercel.app
+2. Added proper MIME type headers
+3. Updated Vercel configuration
+4. Added _headers file for proper content types
+
+DEPLOY THIS IMMEDIATELY!
+
+Build: $(Get-Date -Format "yyyyMMdd-HHmmss")
